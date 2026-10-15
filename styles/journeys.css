@@ -1,0 +1,78 @@
+  /* ═══ CARD JOURNEYS — a review page opened from the prototype bar; not a product screen ═══ */
+  #journeys-layer{position:fixed;inset:0;z-index:156;background:#f0f1f2;display:none;flex-direction:column;font-family:Inter,system-ui,sans-serif;color:#1f2329}
+  #journeys-layer.show{display:flex}
+  .jr-wrap{max-width:1260px;margin:0 auto;padding:26px 28px 70px}
+  .jr-wrap h1{font-family:var(--font-d);font-size:22px;font-weight:800;letter-spacing:-.02em;color:#111318;margin:0 0 6px}
+  .jr-legend{display:flex;align-items:center;gap:8px 18px;flex-wrap:wrap;font-size:12.5px;color:#5f6672;margin:0 0 6px}
+  .jr-step{display:grid;grid-template-columns:310px minmax(0,1fr);gap:30px;padding:24px 0;border-top:1px solid #dfe2e8}
+  .jr-num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#111318;color:#fff;font-family:var(--font-d);font-weight:800;font-size:14px;margin-right:8px}
+  .jr-when{font-size:12.5px;font-weight:600;color:#5f6672}
+  .jr-side h3{font-family:var(--font-d);font-size:17px;font-weight:800;letter-spacing:-.015em;line-height:1.3;color:#111318;margin:10px 0 5px}
+  .jr-side p{font-size:13.5px;line-height:1.55;color:#42474f;margin:0}
+  .jr-side h4{font-size:12px;font-weight:600;color:#5f6672;margin:12px 0 4px}
+  .jr-side ul{margin:0;padding-left:18px;list-style:disc;font-size:13.5px;line-height:1.55;color:#1f2329}
+  .jr-side li{margin-bottom:2px}
+  .jr-right{display:flex;flex-direction:column;gap:10px;max-width:880px}
+  .jr-where{align-self:flex-start;font-size:12px;font-weight:600;color:#42474f;background:#e4e7ee;border-radius:999px;padding:2px 11px}
+  .jr-chg{background:#fff1b8;box-shadow:0 0 0 3px #fff1b8;border-radius:3px}
+  .jr-chg-b{background:#fffae6!important;box-shadow:inset 0 0 0 2px #f2c94c;border-radius:8px}
+  .lay-a .ic-stat.jr-chg-b{padding:6px 8px;margin:-6px -8px}
+  .jr-key{display:inline-block;width:34px;height:14px;border-radius:3px;background:#fff1b8;box-shadow:inset 0 0 0 1px #f2c94c;vertical-align:-2px;margin-right:6px}
+  .jr-panel{background:#fff;border:1px solid #e4e7ee;border-radius:14px;padding:16px 18px;font-size:13.5px;line-height:1.55;color:#42474f}
+  .jr-panel h5{font-size:12px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:#5f6672;margin:0 0 8px}
+  .jr-panel .ev{margin:8px 0 0}
+  .jr-panel .ev-tile .k{font-size:12px}
+  .jr-panel .id-lede{font-size:13.5px}
+  .jr-panel + .jr-panel{margin-top:0}
+  .jr-panel .acc-note{font-size:13px;line-height:1.5}
+  .jr-panel .locked{font-size:13px}
+  .jr-row{display:grid;grid-template-columns:120px 1fr;gap:6px 14px;font-size:13.5px}
+  .jr-row .k{color:#5f6672}
+  .jr-row .v{color:#111318}
+  .jr-gone{border:1px dashed #b8bec8;border-radius:14px;padding:14px 18px;font-size:13.5px;line-height:1.55;color:#5f6672;background:#fafbfc}
+  .jr-table{width:100%;border-collapse:collapse;font-size:13.5px;line-height:1.5}
+  .jr-table th{text-align:left;font-size:12px;font-weight:600;color:#5f6672;padding:6px 10px;border-bottom:1px solid #e4e7ee}
+  .jr-table td{padding:9px 10px;border-bottom:1px solid #edeff4;vertical-align:top;color:#42474f}
+  .jr-table tr:last-child td{border-bottom:0}
+  .jr-card .tag.st-btn{cursor:default}
+
+  /* change in the key figure since the user followed the insight */
+  .ic-since{font-size:12.5px;font-weight:650;line-height:1.35;margin:7px 0 0;color:#1f2329;font-variant-numeric:tabular-nums}
+  .ic-since small{display:block;font-size:12px;font-weight:400;color:#5f6672}
+  .lay-c .ic-since{margin:0} .lay-c .ic-since small{display:inline;margin-left:4px}
+  /* side-by-side drill-down comparison on the journeys page */
+  .jr-cmp{display:grid;grid-template-columns:118px minmax(0,1fr) minmax(0,1fr);background:#fff;border:1px solid #e4e7ee;border-radius:14px;overflow:hidden;font-size:13.5px;line-height:1.5;color:#42474f}
+  .jr-cmp > div{padding:11px 14px;border-top:1px solid #edeff4;min-width:0}
+  .jr-cmp > .hd{border-top:0;background:#fafbfc;font-size:12.5px;color:#5f6672}
+  .jr-cmp > .hd b{display:block;font-size:13.5px;color:#111318}
+  .jr-cmp > .lb{font-size:12px;font-weight:600;color:#5f6672;background:#fafbfc}
+  .jr-cmp > .me{border-left:1px solid #edeff4}
+  .jr-cmp > .snd{border-left:1px solid #edeff4}
+  .jr-cmp .ev{margin:0}
+  .jr-cmp .ev-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .jr-cmp .ev-tile{padding:8px 9px}
+  .jr-cmp .ev-tile .k{font-size:12px}
+  .jr-cmp .ev-tile .v{font-size:17px}
+  .jr-cmp p{margin:0}
+  .jr-cmp p + p,.jr-cmp .ev + p,.jr-cmp p + .ev{margin-top:8px}
+  .jr-cmp * + .jr-how{margin-top:10px}
+  .jr-how{display:table;font-size:12px;font-weight:600;border-radius:999px;padding:1px 9px;margin-bottom:6px}
+  .jr-how.same{background:#e9ecf1;color:#42474f} .jr-how.adapt{background:#fff1b8;color:#6b4e00} .jr-how.hide{background:#f1f3f7;color:#5f6672;border:1px dashed #b8bec8}
+  .jr-quote{background:#fafbfd;border:1px solid #edeff4;border-radius:8px;padding:8px 10px;color:#111318}
+  .jr-muted{color:#5f6672}
+  .jr-list{margin:0;padding:0;list-style:none}
+  .jr-list li{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px solid #f1f3f7}
+  .jr-list li:last-child{border-bottom:0}
+  .jr-list b{color:#111318;font-variant-numeric:tabular-nums}
+
+  /* Action plans: created from an insight, owned and tracked in the Action Plans capability; shown here read-only */
+  .plan-ico{width:17px;height:17px}
+  .plan-chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;line-height:16px;padding:3px 10px 3px 8px;border-radius:999px;background:#f1f3f7;color:#1f2329;white-space:nowrap}
+  .plan-chip .plan-ico{width:13px;height:13px;flex:none;color:#5f6672}
+  .plan-chip .st{font-weight:500;color:#5f6672}
+  .plan-chip.done{background:#e4f4ec;color:#0b7a53} .plan-chip.done .st,.plan-chip.done .plan-ico{color:#0b7a53}
+  .iconbtn.has-plan{color:#1a73e8;background:#eef4ff}
+  #plan-modal label{display:block;font-size:12px;font-weight:600;color:#42474f;margin:12px 0 5px}
+  #plan-modal input,#plan-modal textarea,#plan-modal select{width:100%;font-size:13.5px;border:1px solid #d7dae0;border-radius:7px;padding:7px 10px;color:#1f2329;background:#fff;font-family:inherit}
+  #plan-modal .from-ins{background:#f7f8fa;border-radius:8px;padding:9px 11px;font-size:13px;line-height:1.5;color:#42474f}
+  #plan-modal .from-ins b{color:#111318}

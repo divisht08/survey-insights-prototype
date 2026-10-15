@@ -1,0 +1,7 @@
+# Replace the placeholders with your GitHub usernames.
+# Shared files need a review from both of you; flow files are reviewed by the other person.
+/index.html            @divisht-username @teammate-username
+/styles/base.css       @divisht-username @teammate-username
+/js/followed.js        @divisht-username @teammate-username
+/js/editions.js        @divisht-username @teammate-username
+/js/main.js            @divisht-username @teammate-username

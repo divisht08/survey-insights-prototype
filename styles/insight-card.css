@@ -1,0 +1,44 @@
+  /* ═══ INSIGHT CARD — one anatomy for Feed, Followed and past editions ═══
+     Reading order: priority · type and topic → headline → supporting sentence → next step | key figure → basis · actions.
+     Readability: no text under 12px, text contrast ≥ 4.5:1, lines ≤ ~75 characters, one primary button. */
+  .ic{cursor:pointer}
+  .ic-body{padding:12px 18px 13px 22px}
+  .ic-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-height:28px;margin-bottom:6px}
+  .ic-kind{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;min-width:0;min-height:28px}
+  .ic-type{display:inline-flex;align-items:center;gap:5px;font-size:12px;line-height:16px;font-weight:500;color:#5f6672;white-space:nowrap}
+  .ic-type svg{flex:none;color:#7a8394}
+  .ic-tags{display:flex;align-items:center;gap:6px;flex:none}
+  .ic-main{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}
+  .ic-text{flex:1;min-width:0;max-width:640px}
+  .ic-title{font-family:var(--font-d);font-size:16px;font-weight:700;line-height:1.35;letter-spacing:-.012em;color:#111318;margin:0 0 4px}
+  .ic-sum{font-size:13.5px;line-height:1.5;color:#42474f;margin:0;max-width:500px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .ic-next{display:flex;align-items:flex-start;gap:8px;max-width:500px;margin:8px 0 0;font-size:13.5px;line-height:1.5;color:#1f2329}
+  .ic-next svg{flex:none;width:14px;height:14px;margin-top:3px;color:#5f6672}
+  .ic-next b,.ic-next .font-600{font-weight:600}
+  .ic-meta{font-size:12px;line-height:1.45;color:#5f6672;margin:8px 0 0;max-width:500px}
+  .ic-stat{flex:none;width:140px;text-align:right}
+  .ic-num{font-family:var(--font-d);font-size:28px;font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:#111318;margin:0}
+  .ic-num.word{font-size:16px;font-weight:700;line-height:1.3;letter-spacing:-.012em}
+  .ic-unit{font-size:12px;line-height:1.4;color:#5f6672;margin:3px 0 0}
+  .ic-unit + .ic-unit{margin-top:0}
+  .ic-delta{font-size:13.5px;font-weight:650;line-height:1.4;margin:6px 0 0;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ic-delta.up{color:#0b7a53} .ic-delta.down{color:#b3261e} .ic-delta.flat{color:#5f6672}
+  .ic-delta small{font-size:12px;font-weight:400;color:#5f6672;margin-left:4px}
+  .ic-chart{margin-top:8px}
+  .ic-bars{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+  .ic-bars div{display:flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12px;line-height:16px;color:#5f6672}
+  .ic-bars i{display:inline-block;flex:none;height:6px;border-radius:3px;background:#c7cbd1}
+  .ic-bars span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ic-bars .top{color:#1f2329;font-weight:500} .ic-bars .top i{background:#42474f}
+  .ic-foot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;padding:8px 14px 8px 22px;border-top:1px solid #eceef1;background:#fafbfc}
+  .ic-basis{flex:1 1 260px;font-size:12px;line-height:1.45;color:#5f6672;margin:0;min-width:0}
+  .ic-acts{display:flex;align-items:center;gap:8px;margin-left:auto;flex:none}
+  .ic .dismiss-x{width:28px;height:28px}
+  .ic .btn-pri,.ic .btn-sec{min-height:32px;padding-top:0;padding-bottom:0}
+  /* legibility floor for the small labels used on cards */
+  .prio{font-size:12px}
+  .prio.med{color:#8f5d00} .prio.pos{color:#0b7a53} .prio.low{color:#5f6672}
+  .tag{font-size:12px}
+  .illus{font-size:12px;color:#5f6672}
+  .fresh-tag{font-size:12px;font-weight:600;padding:1px 9px}
+  .fb-btn{width:28px;height:28px;color:#6b7280}
