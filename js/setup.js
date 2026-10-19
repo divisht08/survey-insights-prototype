@@ -50,6 +50,9 @@ var REDTAG={
   volume:{title:'Responses fell from about 37 to 16 a week',body:'568 responses in 14 Feb – 31 May, 261 in 01 Jun – 23 Sep. Small groups may be too thin to compare.',act:'Watch the weekly count. A few quiet weeks can hide real changes.',esc:{to:'raise',text:'Ask whether the survey invitation changed in June.'}}
  },
  explor:[['Comments that mention both fitting rooms and tills score lower','Not on your list. Based on 23 responses, so I will confirm when more arrive.'],['Weekend shoppers mention queues more than weekday shoppers','Not on your list. Not enough responses yet to call it a pattern.']],
+ prefill:{decisions:['raise','fix','recognise'],pins:['overall','service','topissue','volume'],targets:{overall:'9.5',service:'9.5'},ans:'mine',flags:['anomaly','recurring','bright'],context:'We changed the fitting-room rota in September. Card terminals were reported down on 14\u201315 Sep.',allow:'balanced',freq:'weekly',watch:true},
+ prefillNote:'I have filled in each answer to match what this store\u2019s feed shows. Change anything you like.',
+ finish:{title:'Store Manager',obj:{recognise:'satisfaction & service quality',raise:'promotions & pricing clarity',fix:'store operations & consistency'},order:['recognise','raise','fix']},
  escLabel:'To raise beyond the store',
  volume:{level:'low',rec:'weekly',note:'About 16 responses a week',why:{daily:'At about 16 responses a week, most days would have nothing new, and one answer could swing a daily average.',weekly:'About 16 responses a week gives each weekly edition enough to say something. I recommend this.',monthly:'Monthly gives the most responses per edition, but a fast problem could wait up to four weeks.'}},
  guard:'With about 16 responses a week I do not compare groups of fewer than 10 responses, and I say so when a group is too small.',
@@ -187,7 +190,7 @@ function parseContext(text){
  return n;
 }
 function persona(){
- var l=S.decisions.map(function(id){return byId(P.decisions,id).persona;});
+ var l=S.max<1?[]:S.decisions.map(function(id){return byId(P.decisions,id).persona;});
  if(S.max>=2&&S.pins.length)l.push('You read '+byId(P.pins,S.pins[0]).name+' first.');
  if(S.max>=4&&scopeOk())l.push('You own: '+scopeText()+'.');
  if(S.max>=5&&S.flags.length)l.push('You want to hear first about '+byId(P.flags,S.flags[0]).short.toLowerCase()+'.');
@@ -234,6 +237,7 @@ function stepBody(){
  var i=S.i,h='';
  if(i===0){
   h+='<dl class="dj-known">'+P.known.map(function(r){return '<dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd>';}).join('')+'</dl>';
+  if(P.prefillNote)h+=aiBox('<p>'+esc(P.prefillNote)+'</p>');
   h+=aiBox('<p><b>What I noticed in your latest responses.</b> '+esc(P.obs.text)+'</p>','<div class="dj-ai-actions"><button type="button" class="btn-sec'+(S.watch?' on':'')+'" data-dj="watch" aria-pressed="'+(S.watch?'true':'false')+'">'+(S.watch?'I will watch it':esc(P.obs.watch))+'</button></div>');
   return h;
  }
@@ -289,9 +293,9 @@ function findings(){
   h+='<div class="dj-tile"><div class="k">'+esc(p.name)+'</div><div class="big v'+(p.small?' sm':'')+'">'+esc(p.disp)+(p.per?'<small>'+esc(p.per)+'</small>':'')+'</div><div class="d">'+esc(p.delta)+'</div>'+tt+'</div>';
  });
  h+='</div><p class="dj-hint" style="margin:-4px 0 12px">Showing '+esc(scopeText())+'. '+esc(P.guard)+'</p>';
- var seen={},k0=byId(P.decisions,S.decisions[0]).find;seen[k0]=1;
- h+=findHtml(P.find[k0],'From your decisions','acc');
- var n=0;S.flags.forEach(function(id){var k=byId(P.flags,id).key;if(seen[k]||n>=2)return;seen[k]=1;n++;h+=findHtml(P.find[k],'From your list','acc');});
+ var seen={},n=0;
+ S.decisions.forEach(function(id){var k=byId(P.decisions,id).find;if(seen[k])return;seen[k]=1;n++;h+=findHtml(P.find[k],'From your decisions','acc');});
+ S.flags.forEach(function(id){var k=byId(P.flags,id).key;if(seen[k]||n>=4)return;seen[k]=1;n++;h+=findHtml(P.find[k],'From your list','acc');});
  if(S.context.trim())h+='<div class="dj-find wrn"><span class="tag wrn">Noted</span><h4 class="h4">I will keep this in mind: “'+esc(S.context.trim())+'”</h4><p>I will use it to explain changes and to be careful with the days it affects.</p></div>';
  if(S.allow==='focused')h+='<div class="dj-find dash"><span class="tag wrn">Exploratory</span><h4 class="h4">Switched off</h4><p>You chose Only my list, so I am not looking beyond it. You can change this in your plan.</p></div>';
  else{
@@ -349,8 +353,8 @@ function paintRail(){
  h+='<div class="dj-box"><span class="eyebrow">Working in the background</span>';
  h+=tasks.length?tasks.map(function(t){return '<div class="dj-task'+(t.done?' done':'')+'"><span class="dj-dot'+(t.done?'':' dj-run')+'"></span><span>'+esc(t.t)+(t.done?'. Done':'…')+'</span></div>';}).join(''):'<p class="dj-hint" style="margin:0">I start as soon as you answer.</p>';
  h+='</div>';
- var pins=S.pins.map(function(id,n){var p=byId(P.pins,id),t=(S.targets[id]||'').trim();return '<div><span class="dj-mut">'+(n+1)+'</span> '+esc(p.name)+(p.unit&&tState(p)==='ok'?'<span class="tag acc">Target '+esc(t)+'</span>':'')+'</div>';}).join('');
- h+='<div class="dj-box"><span class="eyebrow">Your feed plan</span>'+brow('Decisions',ls(S.decisions.map(function(id){return esc(byId(P.decisions,id).short);})),1)+brow('Top numbers',pins,2)+brow('Looks at',S.max>=4&&scopeOk()?esc(scopeText()):'',4)+brow('Tells you first',ls(S.flags.map(function(id){return esc(byId(P.flags,id).short);})),5)+brow('Context',S.max>=6?(S.context.trim()?esc(S.context.trim()):'<span class="dj-mut">Nothing added</span>'):'',6)+brow('Delivery',S.max>=REVIEW&&S.freq?esc(pair(FREQ,S.freq)[1])+', '+esc(pair(ALLOW,S.allow)[1].toLowerCase()):'',REVIEW)+'</div>';
+ var pins=S.max<2?'':S.pins.map(function(id,n){var p=byId(P.pins,id),t=(S.targets[id]||'').trim();return '<div><span class="dj-mut">'+(n+1)+'</span> '+esc(p.name)+(p.unit&&tState(p)==='ok'?'<span class="tag acc">Target '+esc(t)+'</span>':'')+'</div>';}).join('');
+ h+='<div class="dj-box"><span class="eyebrow">Your feed plan</span>'+brow('Decisions',S.max<1?'':ls(S.decisions.map(function(id){return esc(byId(P.decisions,id).short);})),1)+brow('Top numbers',pins,2)+brow('Looks at',S.max>=4&&scopeOk()?esc(scopeText()):'',4)+brow('Tells you first',S.max<5?'':ls(S.flags.map(function(id){return esc(byId(P.flags,id).short);})),5)+brow('Context',S.max>=6?(S.context.trim()?esc(S.context.trim()):'<span class="dj-mut">Nothing added</span>'):'',6)+brow('Delivery',S.max>=REVIEW&&S.freq?esc(pair(FREQ,S.freq)[1])+', '+esc(pair(ALLOW,S.allow)[1].toLowerCase()):'',REVIEW)+'</div>';
  el.innerHTML=h;
 }
 function fidOf(el){return ['data-dj','data-k','data-v'].map(function(n){return el.getAttribute(n)||'';}).join(':');}
@@ -386,6 +390,12 @@ function advance(d){
  var n=from+d;if(n===3&&!numPins().length)n+=d;
  go(Math.max(0,Math.min(LAST,n)));
 }
+function applyPrefill(){
+ var f=P.prefill;if(!f)return;
+ S.decisions=f.decisions.slice();S.pins=f.pins.slice();S.targets=JSON.parse(JSON.stringify(f.targets||{}));
+ S.sc.ans=f.ans;S.flags=f.flags.slice();S.context=f.context||'';S.allow=f.allow;S.freq=f.freq;S.watch=!!f.watch;
+ S.notes=S.context?parseContext(S.context):[];
+}
 function toggle(a,v,max){var at=a.indexOf(v);if(at>-1)a.splice(at,1);else if(!max||a.length<max)a.push(v);}
 function send(){
  var el=document.getElementById('dj-say');if(!el)return;
@@ -396,6 +406,7 @@ function send(){
 function finish(){
  var d0=byId(P.decisions,S.decisions[0]),title=d0?d0.title:'My insights';
  var desc='Insights on '+scopeText()+' — '+S.decisions.map(function(id){return byId(P.decisions,id).short.toLowerCase();}).join(', ');
+ if(P.finish){title=P.finish.title;var ob=P.finish.order.filter(function(id){return S.decisions.indexOf(id)>-1;}).map(function(id){return P.finish.obj[id];});desc='Insights on '+scopeText()+(ob.length?' — '+ob.join(', '):'');}
  ['obj-title','drawer-obj-title','w-obj-title'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=title;});
  ['obj-desc','drawer-obj-desc','w-obj-desc'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=desc;});
  S=fresh();
@@ -420,9 +431,11 @@ function onClick(e){
  else if(a==='watch'){S.watch=!S.watch;var fl=P.obs.flag;if(S.watch&&S.flags.indexOf(fl)<0&&S.flags.length<3)S.flags.push(fl);if(!S.watch)S.flags=S.flags.filter(function(x){return x!==fl;});paint(false);}
  else if(a==='ask'){var q=parseInt(v,10);if(S.asked.indexOf(q)<0)S.asked.push(q);paint(false);}
  else if(a==='defaults'){
-  S.decisions=[P.decisions[0].id,P.decisions[2].id];S.pins=suggest(2).length?suggest(2):[P.pins[0].id];S.pins=S.pins.slice(0,3);
-  S.sc.ans=P.scope.type==='confirm'?'mine':'all';S.flags=suggest(5);S.freq=P.volume.rec;S.max=REVIEW;
-  S.react='I chose a recommended setup from what I can see in your survey. Check it, change anything, then build.';
+  if(P.prefill)applyPrefill();
+  else{S.decisions=[P.decisions[0].id,P.decisions[2].id];S.pins=suggest(2).length?suggest(2):[P.pins[0].id];S.pins=S.pins.slice(0,3);
+  S.sc.ans=P.scope.type==='confirm'?'mine':'all';S.flags=suggest(5);S.freq=P.volume.rec;}
+  S.max=REVIEW;
+  S.react=P.prefill?'I used the answers that match this store\u2019s feed. Check them, change anything, then build.':'I chose a recommended setup from what I can see in your survey. Check it, change anything, then build.';
   addTask(TASKS[1]);addTask(TASKS[5]);go(REVIEW);
  }
  else if(a==='finish'){finish();}
@@ -437,7 +450,7 @@ function setView(v){
  if(root)root.hidden=cur;
  var bs=host?host.querySelectorAll('[data-djv]'):[];
  for(var k=0;k<bs.length;k++)bs[k].setAttribute('aria-pressed',bs[k].getAttribute('data-djv')===v?'true':'false');
- if(!cur){P=PACKS[v];S=fresh();tmr.forEach(clearTimeout);tmr=[];paint(false);}
+ if(!cur){P=PACKS[v];S=fresh();applyPrefill();tmr.forEach(clearTimeout);tmr=[];paint(false);}
 }
 window.djSetupView=setView;
 window.djSetupInit=function(){
