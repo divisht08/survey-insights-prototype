@@ -30,7 +30,7 @@ var REDTAG={
   {id:'topissue',name:'Most-mentioned complaint',sub:'The theme customers raise most',disp:'Offer clarity',small:true,delta:'In both periods',kw:['complaint','issue','theme']},
   {id:'volume',name:'Responses per week',sub:'How many customers answered',disp:'16',per:' a week',delta:'Down from about 37 a week',kw:['response','volume','how many']}
  ],
- access:'RT ATYAF MALL',depth:'simple',depthBasis:'Your login covers one store.',depthWhy:{simple:'I ask two questions and make the other choices for you. You can review them at the end.',detailed:'I also ask which numbers should lead, whether you have targets, and which changes to flag.'},
+ access:'RT ATYAF MALL',depth:'detailed',depthBasis:'You can switch to the short one at any time.',depthWhy:{simple:'I ask two questions and make the other choices for you. You can review them at the end.',detailed:'I also ask which numbers should lead, whether you have targets, and which changes to flag.'},
  flags:[
   {id:'volume',name:'Fewer survey responses than usual',short:'Low response volume',key:'volume',kw:['fewer','response','volume','low sample']},
   {id:'comparison',name:'A score rising or falling against the previous period',short:'Score changes',key:'ins01',kw:['score','rise','fall','improve','drop','change']},
