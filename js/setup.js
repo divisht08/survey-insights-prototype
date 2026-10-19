@@ -427,7 +427,7 @@ function paint(focus){
  if(!root)return;
  if(S.i===0){micAbort();root.innerHTML=emptyCard();return;}
  var ae=document.activeElement,fid=(ae&&ae.getAttribute&&ae.getAttribute('data-dj')&&root.contains(ae))?fidOf(ae):null;
- root.innerHTML='<div class="dj-wrap'+(S.i===REVIEW?' dj-wide':'')+'"><section class="dj-main" id="dj-main">'+stage()+'</section><aside class="dj-rail" id="dj-rail" aria-label="What the AI has learned"></aside></div>';
+ root.innerHTML='<div class="dj-wrap '+(S.i===REVIEW?'dj-wide':'dj-narrow')+'"><section class="dj-main" id="dj-main">'+stage()+'</section></div>';
  paintRail();
  var tg=root.querySelectorAll('[data-t]');
  for(var k=0;k<tg.length;k++)(function(el){el.addEventListener('input',function(){S.targets[el.getAttribute('data-t')]=el.value;navUI();paintRail();});})(tg[k]);
