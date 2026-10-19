@@ -188,3 +188,12 @@
 .dj-pop b{display:block;font:600 11px Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#cfd6e4;margin:8px 0 2px}
 .dj-pop b:first-child{margin-top:0}
 .dj-info:hover .dj-pop,.dj-info:focus .dj-pop{display:block}
+
+/* Day 0 start: an empty-state card in the feed, then the first question */
+.dj-empty{display:flex;align-items:center;justify-content:center;padding:56px 16px 64px}
+.dj-empty-card{width:100%;max-width:520px;box-sizing:border-box;background:var(--surface,#fff);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-2);padding:32px;text-align:center}
+.dj-empty-ico{display:inline-flex;width:48px;height:48px;border-radius:14px;background:var(--accent-wash);color:var(--accent-deep);align-items:center;justify-content:center}
+.dj-empty-ico svg{width:22px;height:22px}
+.dj-empty-card h2{margin:18px 0 8px;font-size:20px}
+.dj-empty-card p{margin:0 auto;max-width:380px;font-size:14px;line-height:1.55;color:var(--ink-3)}
+.dj-empty-act{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:24px}

@@ -268,8 +268,6 @@ function talkBox(i,compact){
 function stepBody(){
  var i=S.i,h='',sim=S.depth==='simple';
  if(i===0){
-  h+='<dl class="dj-known">'+P.known.map(function(r){return '<dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd>';}).join('')+'</dl>';
-  if(P.prefillNote)h+=aiBox('<p>'+esc(P.prefillNote)+'</p>');
   h+=aiBox('<p><b>What I noticed in your latest responses.</b> '+esc(P.obs.text)+'</p>','<div class="dj-ai-actions"><button type="button" class="btn-sec'+(S.watch?' on':'')+'" data-dj="watch" aria-pressed="'+(S.watch?'true':'false')+'">'+(S.watch?'I will watch it':esc(P.obs.watch))+'</button></div>');
   return h;
  }
@@ -421,8 +419,13 @@ function paintRail(){
  el.innerHTML=h;
 }
 function fidOf(el){return ['data-dj','data-k','data-v'].map(function(n){return el.getAttribute(n)||'';}).join(':');}
+function emptyCard(){
+ var sv=P===GENERIC?'post-contact survey':'store visit survey';
+ return '<div class="dj-empty"><div class="dj-empty-card"><span class="dj-empty-ico">'+SPARK+'</span><h2 class="d3" id="dj-q" tabindex="-1">Your feed is not set up yet</h2><p>Tell me what you want from your '+sv+' and I will build the feed around it. It takes about two minutes.</p><div class="dj-empty-act"><button type="button" class="btn-pri" data-dj="begin">Set up my feed</button><button type="button" class="btn-sec" data-dj="defaults">Use a recommended setup</button></div></div></div>';
+}
 function paint(focus){
  if(!root)return;
+ if(S.i===0){micAbort();root.innerHTML=emptyCard();return;}
  var ae=document.activeElement,fid=(ae&&ae.getAttribute&&ae.getAttribute('data-dj')&&root.contains(ae))?fidOf(ae):null;
  root.innerHTML='<div class="dj-wrap'+(S.i===REVIEW?' dj-wide':'')+'"><section class="dj-main" id="dj-main">'+stage()+'</section><aside class="dj-rail" id="dj-rail" aria-label="What the AI has learned"></aside></div>';
  paintRail();
@@ -518,6 +521,7 @@ function onClick(e){
  var el=e.target.closest('[data-dj]');if(!el||!root.contains(el))return;
  var a=el.getAttribute('data-dj'),v=el.getAttribute('data-v'),k=el.getAttribute('data-k');
  if(a==='next'){flush();if(canNext())advance(1);}
+ else if(a==='begin'){advance(1);}
  else if(a==='back'){advance(-1);}
  else if(a==='go'){go(parseInt(v,10));}
  else if(a==='pick'){S[k]=v;paint(false);}
