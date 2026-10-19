@@ -268,7 +268,7 @@ function stepBody(){
   if(P.prefillNote)h+=aiBox('<p>'+esc(P.prefillNote)+'</p>');
   h+=aiBox('<p><b>What I noticed in your latest responses.</b> '+esc(P.obs.text)+'</p>','<div class="dj-ai-actions"><button type="button" class="btn-sec'+(S.watch?' on':'')+'" data-dj="watch" aria-pressed="'+(S.watch?'true':'false')+'">'+(S.watch?'I will watch it':esc(P.obs.watch))+'</button></div>');
   h+=aiBox('<p>'+depthLine()+'</p>','<div class="dj-ai-actions"><button type="button" class="btn-sec" data-dj="depth">'+(sim?'Show me more options':'Keep it short')+'</button></div>');
-  return h+talkBox(0);
+  return h;
  }
  if(i===1)return talkBox(1)+'<span class="eyebrow dj-lbl2">Or pick from the list</span>'+multi('Decisions','decisions',P.decisions,3,false);
  if(i===2)return aiBox('<p><b>Nothing is left out.</b> I track every number in your survey. This only decides what comes first.</p>')+sugBlock(2)+multi('Numbers that lead','pins',P.pins,4,true,suggest(2))+talkBox(2);
