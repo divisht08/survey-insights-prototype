@@ -276,7 +276,7 @@ function stepBody(){
  if(i===6)return '<label class="eyebrow dj-lbl2" style="margin-top:0" for="dj-ctx">What should I know? (optional)</label><textarea class="dj-ta" id="dj-ctx" placeholder="'+esc(P.ctxPh)+'">'+esc(S.context)+'</textarea><div class="dj-tbar">'+micRow('dj-ctx')+'</div>';
  if(i===REVIEW){
   var rec=P.volume.rec;
-  h+=talkBox(7,true);
+  h+=talkBox(7,true)+uTable();
   h+='<span class="eyebrow dj-lbl2">How often should a new edition arrive?</span><div class="dj-cad" role="group" aria-label="Frequency">';
   FREQ.forEach(function(f){h+=opt({act:'pick',k:'freq',v:f[0],label:f[1],sub:f[2],on:S.freq===f[0],mk:'radio',tag:f[0]===rec?'Recommended':'',star:f[0]===rec});});
   h+='</div><p class="dj-hint">'+esc(P.volume.why[S.freq])+'</p>';
@@ -284,7 +284,6 @@ function stepBody(){
   else{h+='<span class="eyebrow dj-lbl2">How many extras should I look for beyond your list?</span><div class="dj-cad" role="group" aria-label="Extras">';
   ALLOW.forEach(function(a){h+=opt({act:'pick',k:'allow',v:a[0],label:a[1],sub:a[2],on:S.allow===a[0],mk:'radio'});});
   h+='</div>';}
-  h+='<div class="dj-sum"><span class="eyebrow">What your feed will include</span>'+planRows(true)+'</div>';
   return h+'<p class="dj-hint">I keep learning from what you follow, dismiss or rate, and I will check in again after 30 days.</p>';
  }
  return findings();
@@ -327,7 +326,7 @@ var COPY=function(i){
   3:{q:'Do you have a target for any of these?',why:'Optional. With a target I can say how far above or below you are. You can skip this.'},
   5:{q:'Which changes do you want to hear about first?',why:'I check for all of these. Your picks go to the top of the feed. Optional.',seen:'You have two periods to compare: '+(gen?'the last four weeks and the four weeks before.':'01 Jun – 23 Sep and 14 Feb – 31 May.')},
   6:{q:'Is there anything recent or unusual about your business that the numbers will not show?',why:'For example a launch, a policy change, a supplier switch or an outage. I use it to explain changes and to be careful with distorted days. Optional. You can type or speak.'},
-  7:{q:'Check your feed, then build it.',why:'This is what you will get. Change anything with Edit, or tell me in your own words.'},
+  7:{q:'Check what I understood, then build your feed.',why:'Each row shows what you told me and how I understood it. Change anything with Edit, or tell me in your own words.'},
   8:{q:'Your feed is live. Here is what the last edition looks like.',why:'Built on sample figures. All numbers are illustrative.'}
  }[i];
 };
@@ -358,6 +357,29 @@ function stage(){
 function brow(l,html,step){return '<div class="dj-brow"><div class="dj-bl">'+l+'</div><div class="dj-bv">'+(html||'<span class="dj-mut">Not yet</span>')+'</div>'+(html&&step!==null&&step!==S.i&&S.i>0&&S.i<LAST?'<button type="button" class="dj-edit" data-dj="go" data-v="'+step+'" aria-label="Edit '+esc(l.toLowerCase())+'">Edit</button>':'<span></span>')+'</div>';}
 function ls(a){return a.map(function(t){return '<div>'+t+'</div>';}).join('');}
 function trunc(t){return t.length>70?t.slice(0,67)+'…':t;}
+function qt(t){t=String(t);return '<div class="dj-say-q">“'+esc(t.length>150?t.slice(0,147)+'…':t)+'”</div>';}
+function mut(t){return '<div class="dj-mut">'+esc(t)+'</div>';}
+function chip(){return '<span class="tag acc">'+SPARK+'I chose this for you</span>';}
+function uRows(){
+ var R=[],sim=S.depth==='simple',fq=pair(FREQ,S.freq||P.volume.rec),al=pair(ALLOW,S.allow);
+ var dq=[S.free[0],S.free[1]].filter(Boolean).map(function(f){return qt(f.you);}).join('');
+ R.push({l:'What you want to do',s:1,y:dq+(S.guessed?chip():'')+ls(S.decisions.map(function(id){return esc(byId(P.decisions,id).short);})),a:ls(S.decisions.map(function(id){return esc(byId(P.decisions,id).persona);}))});
+ var lp=leadPins().map(function(id){return byId(P.pins,id).name;});
+ R.push({l:'Numbers that lead',s:2,y:(S.free[2]?qt(S.free[2].you):'')+(S.pins.length?ls(S.pins.map(function(id,n){return (n+1)+' '+esc(byId(P.pins,id).name);})):chip()),a:esc('I will lead with '+lp[0]+(lp.length>1?', then '+lp.slice(1).join(', '):'')+'. Every other number in your survey stays in your feed.')});
+ var ok=numPins().filter(function(p){return tState(p)==='ok';});
+ R.push({l:'Targets',s:3,y:(S.free[3]?qt(S.free[3].you):'')+(ok.length?ls(ok.map(function(p){return esc(p.name+': '+S.targets[p.id].trim());})):mut('None set')),a:esc(ok.length?'I will say how far above or below each target you are.':'I will show change against the previous period instead.')});
+ var fl=flagList().map(function(id){return byId(P.flags,id).short;});
+ R.push({l:'Changes to tell you first',s:5,y:(S.free[5]?qt(S.free[5].you):'')+(S.flags.length?ls(S.flags.map(function(id){return esc(byId(P.flags,id).short);})):chip()),a:esc('I will check '+fl.join(', ').toLowerCase()+' first. I check everything else quietly and tell you only when something is clearly unusual.')});
+ R.push({l:'Context you gave',s:6,y:S.context.trim()?qt(S.context.trim()):mut('Nothing added'),a:esc(S.notes.length?S.notes.join(' '):S.context.trim()?'I will keep this in mind when I explain changes.':'Nothing to adjust. I will watch for unusual days myself and tell you.')});
+ R.push({l:'Delivery',s:null,y:(S.free[7]?qt(S.free[7].you):'')+esc(fq[1]+' · '+al[1]),a:esc('A new edition arrives '+fq[2].toLowerCase().replace(/^start/,'at the start')+'. '+(S.allow==='focused'?'I will report only what is on your list.':S.allow==='curious'?'I will also tell you anything that stands out, marked Exploratory.':'I will add a few extras beyond your list, marked Exploratory.'))});
+ R.push({l:'Who can see it',s:null,y:mut('Set by your administrator'),a:esc('I will only show '+P.access+'.')});
+ return R;
+}
+function uTable(){
+ var h='<div class="dj-und" role="table" aria-label="What you told me and what I understood"><div class="dj-und-h" aria-hidden="true"><span></span><span class="eyebrow">You told me</span><span class="eyebrow dj-und-ai">'+SPARK+'What I understood</span><span></span></div>';
+ uRows().forEach(function(r){h+='<div class="dj-und-r" role="row"><div class="dj-und-l eyebrow" role="rowheader">'+esc(r.l)+'</div><div class="dj-und-y" role="cell" data-h="You told me">'+r.y+'</div><div class="dj-und-a" role="cell" data-h="What I understood">'+r.a+'</div><div class="dj-und-e">'+(r.s?'<button type="button" class="dj-edit" data-dj="go" data-v="'+r.s+'" aria-label="Edit '+esc(r.l.toLowerCase())+'">Edit</button>':'')+'</div></div>';});
+ return h+'</div>';
+}
 function planRows(lean){
  var pins=S.max<1?'':leadPins().map(function(id,n){var p=byId(P.pins,id),t=(S.targets[id]||'').trim();return '<div><span class="dj-mut">'+(n+1)+'</span> '+esc(p.name)+(p.unit&&tState(p)==='ok'?'<span class="tag acc">Target '+esc(t)+'</span>':'')+'</div>';}).join('');
  return brow('Decisions',S.max<1?'':ls(S.decisions.map(function(id){return esc(byId(P.decisions,id).short);})),1)+brow(S.depth==='simple'?'I will lead with':'Numbers that lead',pins,2)+brow('Your access',S.max>=1?esc(scopeText()):'',null)+brow('Tells you first',S.max<1?'':ls(flagList().map(function(id){return esc(byId(P.flags,id).short);})),5)+brow('Context',S.max>=6?(S.context.trim()?esc(S.context.trim()):'<span class="dj-mut">Nothing added</span>'):'',6)+(lean?'':brow('In your own words',S.said.length?ls(S.said.slice(-2).map(function(t){return esc(trunc(t));})):'',null)+brow('Delivery',S.max>=REVIEW&&S.freq?esc(pair(FREQ,S.freq)[1])+', '+esc(pair(ALLOW,S.allow)[1].toLowerCase()):'',REVIEW));
@@ -379,7 +401,7 @@ function fidOf(el){return ['data-dj','data-k','data-v'].map(function(n){return e
 function paint(focus){
  if(!root)return;
  var ae=document.activeElement,fid=(ae&&ae.getAttribute&&ae.getAttribute('data-dj')&&root.contains(ae))?fidOf(ae):null;
- root.innerHTML='<div class="dj-wrap"><section class="dj-main" id="dj-main">'+stage()+'</section><aside class="dj-rail" id="dj-rail" aria-label="What the AI has learned"></aside></div>';
+ root.innerHTML='<div class="dj-wrap'+(S.i===REVIEW?' dj-wide':'')+'"><section class="dj-main" id="dj-main">'+stage()+'</section><aside class="dj-rail" id="dj-rail" aria-label="What the AI has learned"></aside></div>';
  paintRail();
  var tg=root.querySelectorAll('[data-t]');
  for(var k=0;k<tg.length;k++)(function(el){el.addEventListener('input',function(){S.targets[el.getAttribute('data-t')]=el.value;navUI();paintRail();});})(tg[k]);
@@ -435,7 +457,7 @@ function advance(d){
  if(d>0){
   if(from===6)S.notes=S.context.trim()?parseContext(S.context):[];
   var guess=false;
-  if(from===1&&!S.decisions.length){S.decisions=[P.decisions[0].id,P.decisions[2].id];guess=true;}
+  if(from===1&&!S.decisions.length){S.decisions=[P.decisions[0].id,P.decisions[2].id];guess=true;S.guessed=true;}
   S.react=(guess?'I was not sure which option fits what you wrote, so I started with “'+byId(P.decisions,S.decisions[0]).short+'” and “'+byId(P.decisions,S.decisions[1]).short+'”. You can change them from the plan on the right. ':'')+reactAfter(from);if(TASKS[from])addTask(TASKS[from]);
  }
  go(stepFrom(from,d));
