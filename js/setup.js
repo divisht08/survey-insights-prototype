@@ -18,10 +18,10 @@ var REDTAG={
  known:[['Brand','Redtag, fashion retail'],['Survey','Store visit survey: two satisfaction ratings, service factors, one comment'],['Your access','RT ATYAF MALL. Set by your administrator, so I only show what you can see'],['Responses','261 from 01 Jun to 23 Sep, and 568 from 14 Feb to 31 May'],['Themes','Cleanliness, staff, checkout, fitting rooms, promotions, pricing']],
  obs:{text:'Responses fell from about 37 a week to about 16 since June, so I will be careful with small groups. Separately, complaints about offer clarity show up in both periods.',watch:'Keep an eye on offer clarity',flag:'recurring'},
  decisions:[
-  {id:'fix',name:'What to fix in my store this week',sub:'Cleanliness, fitting rooms, tills',short:'What to fix in store',title:'Store operations',pins:['overall','topissue','service'],find:'ins04',kw:['fix','clean','fitting','till','queue','repair','problem','issue','floor'],persona:'You act on what you can change yourself in the store.'},
-  {id:'recognise',name:'Which team members or habits to recognise',sub:'Staff helpfulness and bright spots',short:'Who to recognise',title:'Team and service',pins:['staff','service'],find:'ins06',kw:['recogni','praise','reward','staff','team','thank','morale'],persona:'You care about recognising good service on your team.'},
-  {id:'raise',name:'What to raise beyond the store',sub:'Offers, pricing, payments, staffing',short:'What to raise beyond the store',title:'Escalations',pins:['topissue','volume'],find:'ins05',kw:['raise','escalat','head office','area','central','payment','price','pricing','offer','staffing','report to'],persona:'You pass on what is not yours to fix, so I will prepare the evidence.'},
-  {id:'change',name:'Whether a change I made worked',sub:'A new routine, layout or rota',short:'Whether changes worked',title:'Change tracking',pins:['overall','service'],find:'ins01',kw:['change','worked','trial','rota','layout','before','after','new routine'],persona:'You test changes and want a clear before and after.'}
+  {id:'fix',name:'What to fix in my store this week',sub:'Cleanliness, fitting rooms, tills',short:'What to fix in store',title:'Store operations',pins:['overall','topissue','service'],find:'ins04',kw:['fix','clean','fitting','till','queue','repair','problem','issue','floor','unhappy','complain','wait','dirty','broken','wrong','improve'],persona:'You act on what you can change yourself in the store.'},
+  {id:'recognise',name:'Which team members or habits to recognise',sub:'Staff helpfulness and bright spots',short:'Who to recognise',title:'Team and service',pins:['staff','service'],find:'ins06',kw:['recogni','praise','reward','staff','team','thank','morale','good','best','proud','happy'],persona:'You care about recognising good service on your team.'},
+  {id:'raise',name:'What to raise beyond the store',sub:'Offers, pricing, payments, staffing',short:'What to raise beyond the store',title:'Escalations',pins:['topissue','volume'],find:'ins05',kw:['raise','escalat','head office','area','central','payment','price','pricing','offer','staffing','report to','manager','boss','senior','pass on','others','supplier'],persona:'You pass on what is not yours to fix, so I will prepare the evidence.'},
+  {id:'change',name:'Whether a change I made worked',sub:'A new routine, layout or rota',short:'Whether changes worked',title:'Change tracking',pins:['overall','service'],find:'ins01',kw:['change','worked','trial','rota','layout','before','after','new routine','tried','started','since'],persona:'You test changes and want a clear before and after.'}
  ],
  pins:[
   {id:'overall',name:'Overall satisfaction',sub:'Average out of 10',unit:'out of 10',min:0,max:10,ph:'9.5',val:9.63,disp:'9.63',per:'/10',delta:'+0.40 vs 9.23',kw:['overall','satisfaction']},
@@ -68,11 +68,11 @@ var GENERIC={
  known:[['Survey','Sent after a contact with the contact center (voice, chat, email or messaging)'],['Questions','CSAT, NPS, effort, first-contact resolution and one comment'],['Your access','All brands and regions. Set by your administrator, so I only show what you can see'],['Responses','1,240 in the last four weeks, 1,180 in the four weeks before'],['Themes','Delivery, returns and refunds, order status, sizing, payments, product quality, agent behaviour']],
  obs:{text:'Refund-delay mentions have tripled in the last two weeks and are now the top reason for low scores. Separately, voice customers score lower than chat customers.',watch:'Keep an eye on refund delays',flag:'recurring'},
  decisions:[
-  {id:'coach',name:'Which agents or teams to coach',sub:'Behaviours customers praise or criticise',short:'Who to coach',title:'Team coaching',pins:['csat','ces','fcr'],find:'agent',kw:['coach','agent','team','train','behaviour','behavior'],persona:'You work on how your people handle contacts.'},
-  {id:'process',name:'Which contact-center processes to change',sub:'Scripts, routing, wait times, authority to resolve',short:'Processes to change',title:'Contact-center processes',pins:['fcr','ces','reason'],find:'driver',kw:['process','script','routing','wait','queue','resolve','workflow'],persona:'You change how the contact center works.'},
-  {id:'upstream',name:'Which problems to fix outside the contact center',sub:'Delivery, returns, product, payments, policy',short:'Problems to fix upstream',title:'Cross-functional issues',pins:['reason','nps','volume'],find:'spike',kw:['upstream','outside','delivery','return','refund','product','payment','policy','logistics'],persona:'You take customer problems to the teams that cause them.'},
-  {id:'attention',name:'Which brands, regions or channels need attention',sub:'Places that fall behind the rest',short:'Where to focus',title:'Brand and channel focus',pins:['csat','nps'],find:'channel',kw:['brand','region','channel','compare','portfolio','market','behind'],persona:'You look across brands, regions or channels to decide where to focus.'},
-  {id:'change',name:'Whether a recent change worked',sub:'A new script, policy, carrier or campaign',short:'Whether changes worked',title:'Change tracking',pins:['csat','fcr'],find:'score',kw:['change','worked','launch','campaign','trial','before','after'],persona:'You test changes and want a clear before and after.'}
+  {id:'coach',name:'Which agents or teams to coach',sub:'Behaviours customers praise or criticise',short:'Who to coach',title:'Team coaching',pins:['csat','ces','fcr'],find:'agent',kw:['coach','agent','team','train','behaviour','behavior','people','staff'],persona:'You work on how your people handle contacts.'},
+  {id:'process',name:'Which contact-center processes to change',sub:'Scripts, routing, wait times, authority to resolve',short:'Processes to change',title:'Contact-center processes',pins:['fcr','ces','reason'],find:'driver',kw:['process','script','routing','wait','queue','resolve','workflow','slow','long'],persona:'You change how the contact center works.'},
+  {id:'upstream',name:'Which problems to fix outside the contact center',sub:'Delivery, returns, product, payments, policy',short:'Problems to fix upstream',title:'Cross-functional issues',pins:['reason','nps','volume'],find:'spike',kw:['upstream','outside','delivery','return','refund','product','payment','policy','logistics','complain','unhappy'],persona:'You take customer problems to the teams that cause them.'},
+  {id:'attention',name:'Which brands, regions or channels need attention',sub:'Places that fall behind the rest',short:'Where to focus',title:'Brand and channel focus',pins:['csat','nps'],find:'channel',kw:['brand','region','channel','compare','portfolio','market','behind','where','worst'],persona:'You look across brands, regions or channels to decide where to focus.'},
+  {id:'change',name:'Whether a recent change worked',sub:'A new script, policy, carrier or campaign',short:'Whether changes worked',title:'Change tracking',pins:['csat','fcr'],find:'score',kw:['change','worked','launch','campaign','trial','before','after','tried','started'],persona:'You test changes and want a clear before and after.'}
  ],
  pins:[
   {id:'csat',name:'Customer satisfaction (CSAT)',sub:'Share of customers who were satisfied',unit:'percent',min:0,max:100,ph:'85',val:82,disp:'82%',delta:'+3 points vs previous period',kw:['csat','satisfaction']},
@@ -132,13 +132,13 @@ function scopeText(){return P.access;}
 function stepFrom(from,d){var at=ORDER.indexOf(from),q=seq();for(var k=at+d;k>=0&&k<ORDER.length;k+=d){var id=ORDER[k];if(q.indexOf(id)>-1&&!(id===3&&!numPins().length))return id;}return from;}
 function canNext(){
  var i=S.i;
- if(i===1)return S.decisions.length>0;
+ if(i===1)return S.decisions.length>0||S.said.length>0||!!(S.draft[1]||'').trim();
  if(i===3)return numPins().every(function(p){return tState(p)!=='bad';});
  return true;
 }
 function needText(){
  if(canNext())return '';
- return S.i===3?'Fix the targets to continue':'Pick at least one to continue';
+ return S.i===3?'Fix the targets to continue':'Say it in your own words or pick one to continue';
 }
 
 /* ── the active AI: suggestions, reactions, free-text parsing, background work, what it has learned ── */
@@ -248,7 +248,7 @@ function micRow(t){
 function talkBox(i){
  var f=S.free[i],h='';
  if(f)h+='<div class="dj-you">'+esc(f.you)+'</div>'+aiBox('<p>'+esc(f.reply)+'</p>');
- var lab=i===0?'Prefer to talk it through?':i===1?'In your own words':i===LAST?'Ask in your own words':'Or tell me in your own words';
+ var lab=i===LAST?'Ask in your own words':'In your own words';
  return h+'<div class="dj-talk"><label class="eyebrow" for="dj-say">'+lab+'</label><textarea class="dj-ta dj-say-ta" id="dj-say" rows="2" placeholder="'+esc(P.sayPh[i]||'')+'">'+esc(S.draft[i]||'')+'</textarea><div class="dj-tbar">'+micRow('dj-say')+'<button type="button" class="btn-sec" data-dj="send">Send</button></div></div>';
 }
 function sugBlock(i){
@@ -265,15 +265,16 @@ function stepBody(){
   return h;
  }
  if(i===1)return talkBox(1)+'<span class="eyebrow dj-lbl2">Or pick from the list</span>'+multi('Decisions','decisions',P.decisions,3,false);
- if(i===2)return aiBox('<p><b>Nothing is left out.</b> I track every number in your survey. This only decides what comes first.</p>')+sugBlock(2)+multi('Numbers that lead','pins',P.pins,4,true,suggest(2))+talkBox(2);
+ if(i===2)return talkBox(2)+aiBox('<p><b>Nothing is left out.</b> I track every number in your survey. This only decides what comes first.</p>')+sugBlock(2)+'<span class="eyebrow dj-lbl2">Or pick from the list</span>'+multi('Numbers that lead','pins',P.pins,4,true,suggest(2));
  if(i===3){
   numPins().forEach(function(p){var st=tState(p);h+='<div class="dj-field"><label class="eyebrow dj-lbl2" style="margin-top:0" for="dj-t-'+p.id+'">'+esc(p.name)+'</label><div class="dj-frow"><input type="text" class="dj-inp" id="dj-t-'+p.id+'" data-t="'+p.id+'" inputmode="decimal" autocomplete="off" placeholder="e.g. '+esc(p.ph)+'" value="'+esc(S.targets[p.id]||'')+'" aria-invalid="'+(st==='bad'?'true':'false')+'"><span class="dj-unit">'+esc(p.unit)+'</span></div><p class="dj-err" id="dj-e-'+p.id+'"'+(st==='bad'?'':' hidden')+'>Enter a number from '+p.min+' to '+p.max+'.</p></div>';});
-  return h+'<p class="dj-hint">Leave any empty if you have no target for it.</p>'+talkBox(3);
+  return talkBox(3)+'<span class="eyebrow dj-lbl2">Or type them here</span>'+h+'<p class="dj-hint">Leave any empty if you have no target for it.</p>';
  }
- if(i===5)return sugBlock(5)+multi('Changes to flag','flags',P.flags,3,false,suggest(5))+talkBox(5);
+ if(i===5)return talkBox(5)+sugBlock(5)+'<span class="eyebrow dj-lbl2">Or pick from the list</span>'+multi('Changes to flag','flags',P.flags,3,false,suggest(5));
  if(i===6)return '<label class="eyebrow dj-lbl2" style="margin-top:0" for="dj-ctx">What should I know? (optional)</label><textarea class="dj-ta" id="dj-ctx" placeholder="'+esc(P.ctxPh)+'">'+esc(S.context)+'</textarea><div class="dj-tbar">'+micRow('dj-ctx')+'</div>';
  if(i===REVIEW){
   var rec=P.volume.rec;
+  h+=talkBox(7)+'<span class="eyebrow dj-lbl2">Or choose here</span>';
   h+=aiBox('<p><b>My recommendation: '+esc(pair(FREQ,rec)[1])+'.</b> '+esc(P.volume.why[rec])+'</p>');
   h+='<span class="eyebrow dj-lbl2" style="margin-top:0">How often should a new edition arrive?</span><div class="dj-cad" role="group" aria-label="Frequency">';
   FREQ.forEach(function(f){h+=opt({act:'pick',k:'freq',v:f[0],label:f[1],sub:f[2],on:S.freq===f[0],mk:'radio',tag:f[0]===rec?'Recommended':''});});
@@ -283,7 +284,7 @@ function stepBody(){
   else{h+='<span class="eyebrow dj-lbl2">How many extras should I look for beyond your list?</span><div class="dj-opts" role="group" aria-label="Extras">';
   ALLOW.forEach(function(a){h+=opt({act:'pick',k:'allow',v:a[0],label:a[1],sub:a[2],on:S.allow===a[0],mk:'radio'});});
   h+='</div>';}
-  return h+aiBox('<p><b>I keep learning.</b> In your first edition I will ask one question about what was useful, and I will adjust from what you follow, dismiss or rate. I will check in again after 30 days.</p>')+talkBox(7);
+  return h+aiBox('<p><b>I keep learning.</b> In your first edition I will ask one question about what was useful, and I will adjust from what you follow, dismiss or rate. I will check in again after 30 days.</p>');
  }
  return findings();
 }
@@ -331,7 +332,7 @@ var COPY=function(i){
 };
 function stage(){
  var i=S.i,c=COPY(i),h='',k,qs=seq().filter(function(x){return x>=1&&x<=6;}),at=qs.indexOf(i);
- h+='<div class="dj-head"><div class="dj-head-l"><span class="dj-ava">'+SPARK+'</span><div><div class="eyebrow">Survey Insights setup</div></div></div>';
+ h+='<div class="dj-body"><div class="dj-head"><div class="dj-head-l"><span class="dj-ava">'+SPARK+'</span><div><div class="eyebrow">Survey Insights setup</div></div></div>';
  if(i>=1&&i<=REVIEW)h+='<button type="button" class="dj-link" data-dj="depth">'+(S.depth==='simple'?'Want more control? Use detailed setup':'Prefer fewer questions? Use short setup')+'</button>';
  h+='</div>';
  if(at>-1){var b='';for(k=0;k<qs.length;k++)b+='<i class="'+(k<=at?'on':'')+'"></i>';h+='<div class="dj-prog" aria-hidden="true">'+b+'</div><p class="dj-step">Question '+(at+1)+' of '+qs.length+((i===3||i===5||i===6)?' · optional':'')+'</p>';}
@@ -340,7 +341,7 @@ function stage(){
  h+='<h2 class="d3 dj-q" id="dj-q" tabindex="-1">'+esc(c.q)+'</h2>';
  if(c.why)h+='<p class="dj-why">'+esc(c.why)+'</p>';
  if(c.seen)h+='<p class="dj-seen"><b>What I can see</b><span>'+esc(c.seen)+'</span></p>';
- h+=stepBody()+'<div class="dj-nav">';
+ h+=stepBody()+'</div><div class="dj-foot"><p class="dj-hint dj-needs" id="dj-navhint" role="status">'+(i>0&&i<LAST?needText():'')+'</p><div class="dj-nav">';
  if(i===LAST){h+='<button type="button" class="btn-sec" data-dj="restart">Start over</button><button type="button" class="btn-pri" data-dj="finish">Open my feed</button>';}
  else{
   h+=i>0?'<button type="button" class="btn-sec" data-dj="back">Back</button>':'<button type="button" class="dj-link" data-dj="defaults">Skip and use a recommended setup</button>';
@@ -349,9 +350,9 @@ function stage(){
   if(i===2&&!S.pins.length)lab='Skip';
   if(i===5&&!S.flags.length)lab='Skip';
   if(i===6&&!S.context.trim())lab='Skip';
-  h+='<span class="dj-navr"><span class="dj-hint" style="margin:0" id="dj-navhint">'+needText()+'</span><button type="button" class="btn-pri" id="dj-next" data-dj="next"'+(canNext()?'':' disabled')+'>'+lab+'</button></span>';
+  h+='<span class="dj-navr"><button type="button" class="btn-pri" id="dj-next" data-dj="next"'+(canNext()?'':' disabled')+'>'+lab+'</button></span>';
  }
- return h+'</div>';
+ return h+'</div></div>';
 }
 function brow(l,html,step){return '<div class="dj-brow"><div class="dj-bl">'+l+'</div><div class="dj-bv">'+(html||'<span class="dj-mut">Not yet</span>')+'</div>'+(html&&step!==null&&S.i>0&&S.i<LAST?'<button type="button" class="dj-edit" data-dj="go" data-v="'+step+'" aria-label="Edit '+esc(l.toLowerCase())+'">Edit</button>':'<span></span>')+'</div>';}
 function ls(a){return a.map(function(t){return '<div>'+t+'</div>';}).join('');}
@@ -381,9 +382,17 @@ function paint(focus){
  var cx=document.getElementById('dj-ctx');
  if(cx)cx.addEventListener('input',function(){S.context=cx.value;var nb=document.getElementById('dj-next');if(nb)nb.textContent=S.context.trim()?'Next':'Skip';paintRail();});
  var sy=document.getElementById('dj-say');
- if(sy){sy.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});sy.addEventListener('input',function(){S.draft[S.i]=sy.value;});}
- if(focus){var q=document.getElementById('dj-q');if(q)q.focus({preventScroll:true});var m=document.getElementById('dj-main');if(m&&m.scrollIntoView)m.scrollIntoView({block:'nearest'});}
+ if(sy){sy.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});sy.addEventListener('input',function(){S.draft[S.i]=sy.value;navUI();});}
+ if(focus){var q=document.getElementById('dj-q');if(q)q.focus({preventScroll:true});var mm=document.getElementById('dj-main');if(mm){var rt=mm.getBoundingClientRect();if(rt.top<0||rt.top>innerHeight*0.6)window.scrollTo({top:Math.max(0,rt.top+window.scrollY-12)});}}
  else if(fid){var els=root.querySelectorAll('[data-dj]');for(var j=0;j<els.length;j++){if(fidOf(els[j])===fid){els[j].focus({preventScroll:true});break;}}}
+ placeFoot();
+}
+function placeFoot(){
+ var m=document.getElementById('dj-main'),f=m&&m.querySelector('.dj-foot');if(!f)return;
+ var r=m.getBoundingClientRect();if(!r.width)return;
+ f.style.left=Math.round(r.left)+'px';f.style.width=Math.round(r.width)+'px';
+ m.style.minHeight=Math.max(480,Math.round(window.innerHeight-(r.top+window.scrollY)-8))+'px';
+ f.style.display=(r.bottom<0||r.top>window.innerHeight-60)?'none':'';
 }
 function navUI(){
  var nb=document.getElementById('dj-next'),nh=document.getElementById('dj-navhint');
@@ -421,7 +430,9 @@ function advance(d){
  var from=S.i;
  if(d>0){
   if(from===6)S.notes=S.context.trim()?parseContext(S.context):[];
-  S.react=reactAfter(from);if(TASKS[from])addTask(TASKS[from]);
+  var guess=false;
+  if(from===1&&!S.decisions.length){S.decisions=[P.decisions[0].id,P.decisions[2].id];guess=true;}
+  S.react=(guess?'I was not sure which option fits what you wrote, so I started with “'+byId(P.decisions,S.decisions[0]).short+'” and “'+byId(P.decisions,S.decisions[1]).short+'”. You can change them from the plan on the right. ':'')+reactAfter(from);if(TASKS[from])addTask(TASKS[from]);
  }
  go(stepFrom(from,d));
 }
@@ -432,11 +443,14 @@ function applyPrefill(){
  S.notes=S.context?parseContext(S.context):[];
 }
 function toggle(a,v,max){var at=a.indexOf(v);if(at>-1)a.splice(at,1);else if(!max||a.length<max)a.push(v);}
-function send(){
- var el=document.getElementById('dj-say');if(!el)return;
- var t=el.value.trim();if(!t)return;
+function flush(){
+ var el=document.getElementById('dj-say');if(!el)return false;
+ var t=el.value.trim();if(!t)return false;
  micAbort();
- var i=S.i;S.free[i]={you:t,reply:respond(i,t)};S.draft[i]='';
+ var i=S.i;S.free[i]={you:t,reply:respond(i,t)};S.draft[i]='';return true;
+}
+function send(){
+ if(!flush())return;
  paint(false);
  var again=document.getElementById('dj-say');if(again)again.focus({preventScroll:true});
 }
@@ -454,7 +468,7 @@ function finish(){
 function onClick(e){
  var el=e.target.closest('[data-dj]');if(!el||!root.contains(el))return;
  var a=el.getAttribute('data-dj'),v=el.getAttribute('data-v'),k=el.getAttribute('data-k');
- if(a==='next'){if(canNext())advance(1);}
+ if(a==='next'){flush();if(canNext())advance(1);}
  else if(a==='back'){advance(-1);}
  else if(a==='go'){go(parseInt(v,10));}
  else if(a==='pick'){S[k]=v;paint(false);}
@@ -497,6 +511,8 @@ window.djSetupInit=function(){
  root=document.getElementById('dj-root');
  wrap.querySelector('.dj-switch').addEventListener('click',function(e){var b=e.target.closest('[data-djv]');if(b)setView(b.getAttribute('data-djv'));});
  root.addEventListener('click',onClick);
+ window.addEventListener('resize',placeFoot);window.addEventListener('scroll',placeFoot,{passive:true});
+ if(window.ResizeObserver)new ResizeObserver(placeFoot).observe(root);
  setView('redtag');
 };
 })();
