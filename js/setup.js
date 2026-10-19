@@ -268,8 +268,6 @@ function talkBox(i,compact){
 function stepBody(){
  var i=S.i,h='',sim=S.depth==='simple';
  if(i===0){
-  h+='<dl class="dj-known">'+P.known.map(function(r){return '<dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd>';}).join('')+'</dl>';
-  if(P.prefillNote)h+=aiBox('<p>'+esc(P.prefillNote)+'</p>');
   h+=aiBox('<p><b>What I noticed in your latest responses.</b> '+esc(P.obs.text)+'</p>','<div class="dj-ai-actions"><button type="button" class="btn-sec'+(S.watch?' on':'')+'" data-dj="watch" aria-pressed="'+(S.watch?'true':'false')+'">'+(S.watch?'I will watch it':esc(P.obs.watch))+'</button></div>');
   return h;
  }
