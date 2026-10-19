@@ -375,7 +375,6 @@ function fidOf(el){return ['data-dj','data-k','data-v'].map(function(n){return e
 function paint(focus){
  if(!root)return;
  var ae=document.activeElement,fid=(ae&&ae.getAttribute&&ae.getAttribute('data-dj')&&root.contains(ae))?fidOf(ae):null;
- var bd0=root.querySelector('#dj-main .dj-body'),keep=bd0?bd0.scrollTop:0;
  root.innerHTML='<div class="dj-wrap"><section class="dj-main" id="dj-main">'+stage()+'</section><aside class="dj-rail" id="dj-rail" aria-label="What the AI has learned"></aside></div>';
  paintRail();
  var tg=root.querySelectorAll('[data-t]');
@@ -384,9 +383,16 @@ function paint(focus){
  if(cx)cx.addEventListener('input',function(){S.context=cx.value;var nb=document.getElementById('dj-next');if(nb)nb.textContent=S.context.trim()?'Next':'Skip';paintRail();});
  var sy=document.getElementById('dj-say');
  if(sy){sy.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});sy.addEventListener('input',function(){S.draft[S.i]=sy.value;navUI();});}
- if(focus){var q=document.getElementById('dj-q');if(q)q.focus({preventScroll:true});var bd=root.querySelector('#dj-main .dj-body');if(bd)bd.scrollTop=0;}
+ if(focus){var q=document.getElementById('dj-q');if(q)q.focus({preventScroll:true});var mm=document.getElementById('dj-main');if(mm){var rt=mm.getBoundingClientRect();if(rt.top<0||rt.top>innerHeight*0.6)window.scrollTo({top:Math.max(0,rt.top+window.scrollY-12)});}}
  else if(fid){var els=root.querySelectorAll('[data-dj]');for(var j=0;j<els.length;j++){if(fidOf(els[j])===fid){els[j].focus({preventScroll:true});break;}}}
- if(!focus){var bd2=root.querySelector('#dj-main .dj-body');if(bd2)bd2.scrollTop=keep;}
+ placeFoot();
+}
+function placeFoot(){
+ var m=document.getElementById('dj-main'),f=m&&m.querySelector('.dj-foot');if(!f)return;
+ var r=m.getBoundingClientRect();if(!r.width)return;
+ f.style.left=Math.round(r.left)+'px';f.style.width=Math.round(r.width)+'px';
+ m.style.minHeight=Math.max(480,Math.round(window.innerHeight-(r.top+window.scrollY)-8))+'px';
+ f.style.display=(r.bottom<0||r.top>window.innerHeight-60)?'none':'';
 }
 function navUI(){
  var nb=document.getElementById('dj-next'),nh=document.getElementById('dj-navhint');
@@ -505,6 +511,8 @@ window.djSetupInit=function(){
  root=document.getElementById('dj-root');
  wrap.querySelector('.dj-switch').addEventListener('click',function(e){var b=e.target.closest('[data-djv]');if(b)setView(b.getAttribute('data-djv'));});
  root.addEventListener('click',onClick);
+ window.addEventListener('resize',placeFoot);window.addEventListener('scroll',placeFoot,{passive:true});
+ if(window.ResizeObserver)new ResizeObserver(placeFoot).observe(root);
  setView('redtag');
 };
 })();
