@@ -58,7 +58,7 @@ var REDTAG={
  volume:{level:'low',rec:'weekly',note:'About 16 responses a week',why:{daily:'At about 16 responses a week, most days would have nothing new, and one answer could swing a daily average.',weekly:'About 16 responses a week gives each weekly edition enough to say something. I recommend this.',monthly:'Monthly gives the most responses per edition, but a fast problem could wait up to four weeks.'}},
  guard:'With about 16 responses a week I do not compare groups of fewer than 10 responses, and I say so when a group is too small.',
  asks:[['Why did overall satisfaction go up?','It rose 0.40 to 9.63. The strongest link is service: service satisfaction rose 0.37, and staff helpfulness rose 0.3. With 261 responses I can say the two moved together, not that one caused the other.'],['Can I trust the payment spike?','The 11 mentions in two days are well above the usual one a week, so it is unlikely to be chance. 11 is still a small number, so I would confirm with IT before acting.']],
- ctxPh:'For example: we changed the fitting-room rota in September, and the mall had a power cut on 20 Sep',
+ ctxPh:'For example: keep an eye on fitting-room waits, we changed the rota in September, and the mall had a power cut on 20 Sep',
  sayPh:{0:'For example: “I manage the store and want to know what to fix each week and who to thank”',1:'For example: “I want to know what to fix this week and what to pass to head office”',2:'For example: “mostly satisfaction and what customers complain about”',3:'For example: “aim for 9.5 on overall satisfaction and 9.5 on service”',5:'For example: “tell me about sudden problems first”',7:'For example: “send it every Monday and keep to my list”',8:'Ask anything about this edition, for example: “why did satisfaction go up?”'}
 };
 
@@ -108,7 +108,7 @@ var GENERIC={
  volume:{level:'ok',rec:'weekly',note:'About 310 responses a week',why:{daily:'At about 310 responses a week, a daily edition would split findings into groups too small to trust.',weekly:'About 310 responses a week is plenty for a weekly edition. I recommend this.',monthly:'Monthly is the most stable, but a spike like delivery delays could wait weeks to reach you.'}},
  guard:'I do not compare groups of fewer than 30 responses, and I say so when a group is too small.',
  asks:[['Why did CSAT go up?','It rose 3 points to 82%. The biggest movement is in chat, where size exchanges improved by 4 points. With 1,240 responses I can say they moved together, not that one caused the other.'],['Is the delivery-delay spike real?','41 mentions in 5 days is far above the normal rate, so it is unlikely to be chance. I would confirm with logistics whether a carrier change started that week.']],
- ctxPh:'For example: we switched delivery carrier in September, and 20–22 Oct had a system outage',
+ ctxPh:'For example: watch refund delays, we switched delivery carrier in September, and 20–22 Oct had a system outage',
  sayPh:{0:'For example: “I lead returns and want to know what to change and what to pass to other teams”',1:'For example: “I need to know which teams to coach and which problems to take to logistics”',2:'For example: “mostly CSAT and why people are unhappy”',3:'For example: “aim for 85 on CSAT and 40 on NPS”',5:'For example: “tell me about sudden problems first”',7:'For example: “send it every Monday and keep to my list”',8:'Ask anything about this edition, for example: “why did CSAT go up?”'}
 };
 
@@ -280,7 +280,7 @@ function stepBody(){
   return talkBox(3)+'<span class="eyebrow dj-lbl2">Or type them here</span>'+h+'<p class="dj-hint">Leave any empty if you have no target for it.</p>';
  }
  if(i===5)return talkBox(5)+'<span class="eyebrow dj-lbl2">Or pick from the list</span>'+multi('Changes to flag','flags',P.flags,3,false,suggest(5));
- if(i===6)return '<label class="eyebrow dj-lbl2" style="margin-top:0" for="dj-ctx">What should I know? (optional)</label><textarea class="dj-ta" id="dj-ctx" placeholder="'+esc(P.ctxPh)+'">'+esc(S.context)+'</textarea><div class="dj-tbar">'+micRow('dj-ctx')+'</div>';
+ if(i===6)return '<label class="eyebrow dj-lbl2" style="margin-top:0" for="dj-ctx">What else should I track or focus on? (optional)</label><textarea class="dj-ta" id="dj-ctx" placeholder="'+esc(P.ctxPh)+'">'+esc(S.context)+'</textarea><div class="dj-tbar">'+micRow('dj-ctx')+'</div>';
  if(i===REVIEW){
   var rec=P.volume.rec;
   h+=talkBox(7,true)+uTable();
@@ -332,11 +332,26 @@ var COPY=function(i){
   2:{q:'Which numbers should lead your feed?',why:'I track every number in your survey. This only decides what comes first. Skip it and I will choose from what you want to do.',seen:'Your survey has '+(gen?'CSAT, NPS, effort and first-contact resolution, plus an open comment.':'two satisfaction ratings out of 10, five service factors and an open comment.')},
   3:{q:'Do you have a target for any of these?',why:'Optional. With a target I can say how far above or below you are. You can skip this.'},
   5:{q:'Which changes do you want to hear about first?',why:'I check for all of these. Your picks go to the top of the feed. Optional.',seen:'You have two periods to compare: '+(gen?'the last four weeks and the four weeks before.':'01 Jun – 23 Sep and 14 Feb – 31 May.')},
-  6:{q:'Is there anything recent or unusual about your business that the numbers will not show?',why:'For example a launch, a policy change, a supplier switch or an outage. I use it to explain changes and to be careful with distorted days. Optional. You can type or speak.'},
+  6:{q:'Tell me anything else you want to track, or anything I should focus on.',why:'For example something you want watched, a launch, a policy change, a supplier switch or an outage. I use it to keep an eye on what matters to you and to explain changes. Optional. You can type or speak.'},
   7:{q:'Check what I understood, then build your feed.',why:'Each row shows what you told me and how I understood it. Change anything with Edit, or tell me in your own words.'},
   8:{q:'Your feed is live. Here is what the last edition looks like.',why:'Built on sample figures. All numbers are illustrative.'}
  }[i];
 };
+function srcNote(i){
+ var g=P===GENERIC,sv=g?'post-contact survey':'store-visit survey';
+ return {
+  1:['Everything else hangs off the job this feed does. It decides which numbers lead and which changes are flagged.','AI builds the list of jobs from your survey context: its questions, your industry and brand, and the responses so far. Your own words are matched against that list. In this mock-up the list is hand-written for the '+sv+'.'],
+  2:['This decides what sits at the top of every edition. All numbers are still tracked.','The choices come from the rating, score and response-count questions that actually exist in your survey. Suggestions come from linking the jobs you picked to those numbers. In this mock-up the numbers are sample figures.'],
+  3:['A target lets the feed say how far above or below you are, instead of only showing a number.','Targets are typed in by you and saved with your feed. The platform has no goals setting today, so nothing is filled in for you. The current value comes from your responses. In this mock-up it is sample data.'],
+  5:['This decides which changes reach the top of the feed. I still check for all of them.','These are fixed checks that run on every survey: change against the last period, sudden spikes, repeating complaints, new topics, group gaps and low volume. A check only appears if your survey has the data for it, such as comments or two periods to compare.'],
+  6:['Numbers cannot know about a launch, an outage or something you care about. This lets me watch it and explain changes.','What you write is saved with your feed. I turn it into topics to watch and notes on the dates it affects, and you can edit them later. In this mock-up I match a few keywords to show the idea.'],
+  7:['So you can check I understood you before anything is built.','This is the saved setup for your feed. It is the same list of choices I use to build every edition, and you can reopen it any time.']
+ }[i]||null;
+}
+function srcBlock(i){
+ var n=srcNote(i);if(!n)return '';
+ return '<div class="dj-src"><span class="dj-info" tabindex="0" role="note" aria-label="Mock-up note. Why this question: '+esc(n[0])+' Where it comes from in the live product: '+esc(n[1])+'"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 7.2v4M8 4.8v.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Mock-up note<span class="dj-pop" aria-hidden="true"><b>Why this question</b>'+esc(n[0])+'<b>Where it comes from in the live product</b>'+esc(n[1])+'</span></span></div>';
+}
 function stage(){
  var i=S.i,c=COPY(i),h='',k,qs=seq().filter(function(x){return x>=1&&x<=6;}),at=qs.indexOf(i);
  h+='<div class="dj-body"><div class="dj-head"><div class="dj-head-l"><span class="dj-ava">'+SPARK+'</span><div><div class="eyebrow">Survey Insights setup</div></div></div>';
@@ -347,6 +362,7 @@ function stage(){
  if(S.react&&i>=2&&i<REVIEW)h+=aiBox('<p>'+esc(S.react)+'</p>');
  h+='<h2 class="d3 dj-q" id="dj-q" tabindex="-1">'+esc(c.q)+'</h2>';
  if(c.why)h+='<p class="dj-why">'+esc(c.why)+'</p>';
+ h+=srcBlock(i);
  if(c.seen)h+='<p class="dj-seen"><b>What I can see</b><span>'+esc(c.seen)+'</span></p>';
  h+=stepBody()+'</div><div class="dj-foot"><p class="dj-hint dj-needs" id="dj-navhint" role="status">'+(i>0&&i<LAST?needText():'')+'</p><div class="dj-nav">';
  if(i===LAST){h+='<button type="button" class="btn-sec" data-dj="restart">Start over</button><button type="button" class="btn-pri" data-dj="finish">Open my feed</button>';}
@@ -377,7 +393,7 @@ function uRows(){
  R.push({l:'Targets',s:3,y:(S.free[3]?qt(S.free[3].you):'')+(ok.length?ls(ok.map(function(p){return esc(p.name+': '+S.targets[p.id].trim());})):mut('None set')),a:esc(ok.length?'I will say how far above or below each target you are.':'I will show change against the previous period instead.')});
  var fl=flagList().map(function(id){return byId(P.flags,id).short;});
  R.push({l:'Changes to tell you first',s:5,y:(S.free[5]?qt(S.free[5].you):'')+(S.flags.length?ls(S.flags.map(function(id){return esc(byId(P.flags,id).short);})):chip()),a:esc('I will check '+fl.join(', ').toLowerCase()+' first. I check everything else quietly and tell you only when something is clearly unusual.')});
- R.push({l:'Context you gave',s:6,y:S.context.trim()?qt(S.context.trim()):mut('Nothing added'),a:esc(S.notes.length?S.notes.join(' '):S.context.trim()?'I will keep this in mind when I explain changes.':'Nothing to adjust. I will watch for unusual days myself and tell you.')});
+ R.push({l:'Anything else to track',s:6,y:S.context.trim()?qt(S.context.trim()):mut('Nothing added'),a:esc(S.notes.length?S.notes.join(' '):S.context.trim()?'I will keep this in mind when I explain changes.':'Nothing to adjust. I will watch for unusual days myself and tell you.')});
  R.push({l:'Delivery',s:null,y:(S.free[7]?qt(S.free[7].you):'')+esc(fq[1]+' · '+al[1]),a:esc('A new edition arrives '+fq[2].toLowerCase().replace(/^start/,'at the start')+'. '+(S.allow==='focused'?'I will report only what is on your list.':S.allow==='curious'?'I will also tell you anything that stands out, marked Exploratory.':'I will add a few extras beyond your list, marked Exploratory.'))});
  R.push({l:'Who can see it',s:null,y:mut('Set by your administrator'),a:esc('I will only show '+P.access+'.')});
  return R;
