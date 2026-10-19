@@ -229,11 +229,11 @@ var TASKS={1:'Reading comments linked to what you want to do',2:'Calculating all
 /* ── rendering ── */
 function opt(o){
  var mk=o.mk==='radio'?'<span class="radio'+(o.on?' sel':'')+'"></span>':o.mk==='ord'?'<span class="dj-ord">'+(o.on?o.n:'')+'</span>':'<span class="chk'+(o.on?' sel':'')+'">'+(o.on?CHECK:'')+'</span>';
- return '<button type="button" class="dj-opt" data-dj="'+o.act+'"'+(o.k?' data-k="'+esc(o.k)+'"':'')+' data-v="'+esc(o.v)+'"'+(o.max?' data-max="'+o.max+'"':'')+' aria-pressed="'+(o.on?'true':'false')+'"'+(o.dis?' disabled':'')+'>'+mk+'<span>'+esc(o.label)+(o.tag?'<span class="tag acc">'+esc(o.tag)+'</span>':'')+(o.sub?'<small>'+esc(o.sub)+'</small>':'')+'</span></button>';
+ return '<button type="button" class="dj-opt" data-dj="'+o.act+'"'+(o.k?' data-k="'+esc(o.k)+'"':'')+' data-v="'+esc(o.v)+'"'+(o.max?' data-max="'+o.max+'"':'')+' aria-pressed="'+(o.on?'true':'false')+'"'+(o.dis?' disabled':'')+'>'+mk+'<span>'+esc(o.label)+(o.tag?'<span class="tag acc">'+(o.star?SPARK:'')+esc(o.tag)+'</span>':'')+(o.sub?'<small>'+esc(o.sub)+'</small>':'')+'</span></button>';
 }
 function multi(label,key,defs,max,ordered,sug){
  var arr=S[key],h='<div class="dj-opts'+(defs.length>4&&key==='pins'?' two':'')+'" role="group" aria-label="'+esc(label)+'">';
- defs.forEach(function(d){var at=arr.indexOf(d.id),on=at>-1;h+=opt({act:'multi',k:key,v:d.id,label:d.name,sub:d.sub,on:on,dis:!on&&arr.length>=max,mk:ordered?'ord':'chk',n:on?at+1:0,max:max,tag:(sug&&sug.indexOf(d.id)>-1&&!on)?'Suggested':''});});
+ defs.forEach(function(d){var at=arr.indexOf(d.id),on=at>-1;h+=opt({act:'multi',k:key,v:d.id,label:d.name,sub:d.sub,on:on,dis:!on&&arr.length>=max,mk:ordered?'ord':'chk',n:on?at+1:0,max:max,tag:(sug&&sug.indexOf(d.id)>-1)?'Suggested':'',star:true});});
  return h+'</div><p class="dj-hint">'+arr.length+' of '+max+' chosen'+(ordered?'. The number shows reading order.':'')+'</p>';
 }
 function aiBox(html,actions){return '<div class="dj-ai"><span class="dj-g">'+SPARK+'</span><div>'+html+(actions||'')+'</div></div>';}
