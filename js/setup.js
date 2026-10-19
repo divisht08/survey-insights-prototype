@@ -159,6 +159,17 @@ function suggestWhy(i){
  if(i===5)return (P.volume.level==='low'?'Low response volume comes first because it changes how much I can trust everything else. ':'')+'The rest connect to your decisions.';
  return '';
 }
+function whyOne(i,id){
+ if(i===2){var ds=S.decisions.filter(function(d){return byId(P.decisions,d).pins.indexOf(id)>-1;}).map(function(d){return '“'+byId(P.decisions,d).short+'”';});return ds.length?'Fits what you want to do: '+ds.join(', ')+'.':'Fits what you want to do.';}
+ if(i===5){
+  if(id===P.obs.flag&&S.watch)return 'You asked me to keep an eye on this.';
+  if(id==='volume'&&P.volume.level==='low')return 'With few responses, every other result is less certain, so I check this first.';
+  var ds2=S.decisions.filter(function(d){return byId(P.flags,id)&&byId(P.decisions,d).find===byId(P.flags,id).key;}).map(function(d){return '“'+byId(P.decisions,d).short+'”';});
+  if(ds2.length)return 'Connects to '+ds2.join(', ')+'.';
+  if(id==='anomaly')return 'A sudden spike is worth knowing about quickly.';
+ }
+ return suggestWhy(i);
+}
 function parse(i,text){
  var t=text.toLowerCase(),defs=i===1?P.decisions:i===2?P.pins:P.flags,max=i===1?3:i===2?4:3,key=i===1?'decisions':i===2?'pins':'flags',hit=[];
  defs.forEach(function(d){if(d.kw.some(function(w){return t.indexOf(w)>-1;}))hit.push(d.id);});
@@ -229,12 +240,13 @@ var TASKS={1:'Reading comments linked to what you want to do',2:'Calculating all
 /* ── rendering ── */
 function opt(o){
  var mk=o.mk==='radio'?'<span class="radio'+(o.on?' sel':'')+'"></span>':o.mk==='ord'?'<span class="dj-ord">'+(o.on?o.n:'')+'</span>':'<span class="chk'+(o.on?' sel':'')+'">'+(o.on?CHECK:'')+'</span>';
- return '<button type="button" class="dj-opt" data-dj="'+o.act+'"'+(o.k?' data-k="'+esc(o.k)+'"':'')+' data-v="'+esc(o.v)+'"'+(o.max?' data-max="'+o.max+'"':'')+' aria-pressed="'+(o.on?'true':'false')+'"'+(o.dis?' disabled':'')+'>'+mk+'<span>'+esc(o.label)+(o.tag?'<span class="tag acc">'+(o.star?SPARK:'')+esc(o.tag)+'</span>':'')+(o.sub?'<small>'+esc(o.sub)+'</small>':'')+'</span></button>';
+ return '<button type="button" class="dj-opt" data-dj="'+o.act+'"'+(o.k?' data-k="'+esc(o.k)+'"':'')+' data-v="'+esc(o.v)+'"'+(o.max?' data-max="'+o.max+'"':'')+' aria-pressed="'+(o.on?'true':'false')+'"'+(o.dis?' disabled':'')+'>'+mk+'<span>'+esc(o.label)+(o.tag?'<span class="tag acc"'+(o.tip?' data-tip="'+esc(o.tip)+'"':'')+'>'+(o.star?SPARK:'')+esc(o.tag)+(o.tip?'<span class="dj-sr">. '+esc(o.tip)+'</span>':'')+'</span>':'')+(o.sub?'<small>'+esc(o.sub)+'</small>':'')+'</span></button>';
 }
 function multi(label,key,defs,max,ordered,sug){
  var arr=S[key],h='<div class="dj-opts'+(defs.length>4&&key==='pins'?' two':'')+'" role="group" aria-label="'+esc(label)+'">';
- defs.forEach(function(d){var at=arr.indexOf(d.id),on=at>-1;h+=opt({act:'multi',k:key,v:d.id,label:d.name,sub:d.sub,on:on,dis:!on&&arr.length>=max,mk:ordered?'ord':'chk',n:on?at+1:0,max:max,tag:(sug&&sug.indexOf(d.id)>-1)?'Suggested':'',star:true});});
- return h+'</div><p class="dj-hint">'+arr.length+' of '+max+' chosen'+(ordered?'. The number shows reading order.':'')+'</p>';
+ defs.forEach(function(d){var at=arr.indexOf(d.id),on=at>-1;h+=opt({act:'multi',k:key,v:d.id,label:d.name,sub:d.sub,on:on,dis:!on&&arr.length>=max,mk:ordered?'ord':'chk',n:on?at+1:0,max:max,tag:(sug&&sug.indexOf(d.id)>-1)?'Suggested':'',star:true,tip:(sug&&sug.indexOf(d.id)>-1)?whyOne(S.i,d.id):''});});
+ var miss=sug?sug.filter(function(id){return arr.indexOf(id)<0;}):[];
+ return h+'</div><p class="dj-hint">'+arr.length+' of '+max+' chosen'+(ordered?'. The number shows reading order.':'')+(miss.length&&arr.length<max?' <button type="button" class="dj-link" data-dj="sugg">Select the suggested ones</button>':'')+'</p>';
 }
 function aiBox(html,actions){return '<div class="dj-ai"><span class="dj-g">'+SPARK+'</span><div>'+html+(actions||'')+'</div></div>';}
 function micRow(t,compact){
@@ -253,11 +265,6 @@ function talkBox(i,compact){
  if(compact)return h+'<div class="dj-talk dj-talk-c"><label class="eyebrow" for="dj-say">'+lab+'</label><div class="dj-crow">'+ta+micRow('dj-say',true)+'<button type="button" class="btn-sec" data-dj="send">Send</button></div></div>';
  return h+'<div class="dj-talk"><label class="eyebrow" for="dj-say">'+lab+'</label>'+ta+'<div class="dj-tbar">'+micRow('dj-say')+'<button type="button" class="btn-sec" data-dj="send">Send</button></div></div>';
 }
-function sugBlock(i){
- var ids=suggest(i);if(!ids.length)return '';
- var cur=i===2?S.pins:S.flags,missing=ids.filter(function(id){return cur.indexOf(id)<0;});
- return aiBox('<p><b>My suggestion.</b> '+esc(suggestWhy(i))+'</p>',missing.length?'<div class="dj-ai-actions"><button type="button" class="btn-sec suggest" data-dj="sugg">Use my suggestion</button></div>':'');
-}
 function stepBody(){
  var i=S.i,h='',sim=S.depth==='simple';
  if(i===0){
@@ -267,12 +274,12 @@ function stepBody(){
   return h;
  }
  if(i===1)return talkBox(1)+'<span class="eyebrow dj-lbl2">Or pick from the list</span>'+multi('Decisions','decisions',P.decisions,3,false);
- if(i===2)return talkBox(2)+aiBox('<p><b>Nothing is left out.</b> I track every number in your survey. This only decides what comes first.</p>')+sugBlock(2)+'<span class="eyebrow dj-lbl2">Or pick from the list</span>'+multi('Numbers that lead','pins',P.pins,4,true,suggest(2));
+ if(i===2)return talkBox(2)+aiBox('<p><b>Nothing is left out.</b> I track every number in your survey. This only decides what comes first.</p>')+'<span class="eyebrow dj-lbl2">Or pick from the list</span>'+multi('Numbers that lead','pins',P.pins,4,true,suggest(2));
  if(i===3){
   numPins().forEach(function(p){var st=tState(p);h+='<div class="dj-field"><label class="eyebrow dj-lbl2" style="margin-top:0" for="dj-t-'+p.id+'">'+esc(p.name)+'</label><div class="dj-frow"><input type="text" class="dj-inp" id="dj-t-'+p.id+'" data-t="'+p.id+'" inputmode="decimal" autocomplete="off" placeholder="e.g. '+esc(p.ph)+'" value="'+esc(S.targets[p.id]||'')+'" aria-invalid="'+(st==='bad'?'true':'false')+'"><span class="dj-unit">'+esc(p.unit)+'</span></div><p class="dj-err" id="dj-e-'+p.id+'"'+(st==='bad'?'':' hidden')+'>Enter a number from '+p.min+' to '+p.max+'.</p></div>';});
   return talkBox(3)+'<span class="eyebrow dj-lbl2">Or type them here</span>'+h+'<p class="dj-hint">Leave any empty if you have no target for it.</p>';
  }
- if(i===5)return talkBox(5)+sugBlock(5)+'<span class="eyebrow dj-lbl2">Or pick from the list</span>'+multi('Changes to flag','flags',P.flags,3,false,suggest(5));
+ if(i===5)return talkBox(5)+'<span class="eyebrow dj-lbl2">Or pick from the list</span>'+multi('Changes to flag','flags',P.flags,3,false,suggest(5));
  if(i===6)return '<label class="eyebrow dj-lbl2" style="margin-top:0" for="dj-ctx">What should I know? (optional)</label><textarea class="dj-ta" id="dj-ctx" placeholder="'+esc(P.ctxPh)+'">'+esc(S.context)+'</textarea><div class="dj-tbar">'+micRow('dj-ctx')+'</div>';
  if(i===REVIEW){
   var rec=P.volume.rec;
