@@ -172,3 +172,10 @@
 }
 .dj-wrap.dj-wide{grid-template-columns:minmax(0,1fr)}
 .dj-wide .dj-rail{display:none}
+/* suggested tag: the reason appears on hover or keyboard focus, not as a fixed box */
+.tag[data-tip]{position:relative;cursor:help}
+.tag[data-tip]::after{content:attr(data-tip);position:absolute;left:0;bottom:calc(100% + 7px);width:max-content;max-width:240px;padding:7px 10px;border-radius:8px;background:var(--ink);color:#fff;font:400 12px/1.45 Inter,system-ui,sans-serif;letter-spacing:0;text-transform:none;white-space:normal;text-align:left;display:none;pointer-events:none;z-index:40;box-shadow:var(--sh-2,0 4px 14px rgba(17,19,24,.2))}
+.tag[data-tip]:hover::after,.dj-opt:focus-visible .tag[data-tip]::after{display:block}
+@media(max-width:600px){.tag[data-tip]::after{left:auto;right:0;max-width:200px}}
+.dj-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.dj-hint .dj-link{margin-left:6px;text-decoration:underline}
