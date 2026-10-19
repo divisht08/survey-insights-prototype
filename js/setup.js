@@ -119,7 +119,7 @@ var P=REDTAG,S=null,view='redtag',host=null,legacy=null,root=null,tmr=[];
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function byId(a,id){for(var k=0;k<a.length;k++){if(a[k].id===id)return a[k];}return null;}
 function pair(a,id){for(var k=0;k<a.length;k++){if(a[k][0]===id)return a[k];}return a[0];}
-function fresh(){return {i:0,max:0,mode:'chat',decisions:[],pins:[],targets:{},sc:{ans:null,stores:[],dims:[],vals:{}},flags:[],context:'',notes:[],allow:'balanced',freq:null,react:'',free:{},tasks:[],watch:false,asked:[]};}
+function fresh(){return {i:0,max:0,decisions:[],pins:[],targets:{},sc:{ans:null,stores:[],dims:[],vals:{}},flags:[],context:'',notes:[],allow:'balanced',freq:null,react:'',free:{},tasks:[],watch:false,asked:[]};}
 
 /* ── derived state ── */
 function numPins(){return S.pins.map(function(id){return byId(P.pins,id);}).filter(function(p){return p&&p.unit;});}
@@ -319,14 +319,13 @@ var COPY=function(i){
 };
 function stage(){
  var i=S.i,c=COPY(i),h='',k;
- h+='<div class="dj-head"><div class="dj-head-l"><span class="dj-ava">'+SPARK+'</span><div><div class="eyebrow">Survey Insights setup</div></div></div><div class="dj-mode" role="group" aria-label="Conversation mode"><button type="button" data-dj="mode" data-v="chat" aria-pressed="'+(S.mode==='chat')+'">Chat</button><button type="button" data-dj="mode" data-v="voice" aria-pressed="'+(S.mode==='voice')+'">Voice preview</button></div></div>';
+ h+='<div class="dj-head"><div class="dj-head-l"><span class="dj-ava">'+SPARK+'</span><div><div class="eyebrow">Survey Insights setup</div></div></div></div>';
  if(i>=1&&i<=6){var b='';for(k=1;k<=6;k++)b+='<i class="'+(k<=i?'on':'')+'"></i>';h+='<div class="dj-prog" aria-hidden="true">'+b+'</div><p class="dj-step">Question '+i+' of 6'+((i===3||i===6)?' · optional':'')+'</p>';}
  else h+='<p class="dj-step">'+(i===0?'Welcome':i===REVIEW?'Review':'First edition')+'</p>';
  if(S.react&&i>=2&&i<=REVIEW)h+=aiBox('<p>'+esc(S.react)+'</p>');
  h+='<h2 class="d3 dj-q" id="dj-q" tabindex="-1">'+esc(c.q)+'</h2>';
  if(c.why)h+='<p class="dj-why">'+esc(c.why)+'</p>';
  if(c.seen)h+='<p class="dj-seen"><b>What I can see</b><span>'+esc(c.seen)+'</span></p>';
- if(S.mode==='voice')h+='<div class="dj-voice"><span class="dj-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Voice preview. Tap the answer you would say out loud.</span></div>';
  h+=stepBody()+'<div class="dj-nav">';
  if(i===LAST){h+='<button type="button" class="btn-sec" data-dj="restart">Start over</button><button type="button" class="btn-pri" data-dj="finish">Open my feed</button>';}
  else{
@@ -399,7 +398,7 @@ function finish(){
  var desc='Insights on '+scopeText()+' — '+S.decisions.map(function(id){return byId(P.decisions,id).short.toLowerCase();}).join(', ');
  ['obj-title','drawer-obj-title','w-obj-title'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=title;});
  ['obj-desc','drawer-obj-desc','w-obj-desc'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=desc;});
- var m=S.mode;S=fresh();S.mode=m;
+ S=fresh();
  if(typeof setJourney==='function'){setJourney('waiting');if(typeof toast==='function')toast('Setup saved — monitoring started');}
  else{root.innerHTML='<div class="dj-end">Setup saved. Monitoring has started: <b>'+esc(title)+'</b>. '+esc(desc)+'</div><p style="margin-top:12px"><button type="button" class="btn-sec" data-dj="restart">Start over</button></p>';}
  if(root&&typeof setJourney==='function')paint(false);
@@ -407,8 +406,7 @@ function finish(){
 function onClick(e){
  var el=e.target.closest('[data-dj]');if(!el||!root.contains(el))return;
  var a=el.getAttribute('data-dj'),v=el.getAttribute('data-v'),k=el.getAttribute('data-k');
- if(a==='mode'){S.mode=v;paint(false);}
- else if(a==='next'){if(canNext())advance(1);}
+ if(a==='next'){if(canNext())advance(1);}
  else if(a==='back'){advance(-1);}
  else if(a==='go'){go(parseInt(v,10));}
  else if(a==='pick'){S[k]=v;paint(false);}
@@ -428,7 +426,7 @@ function onClick(e){
   addTask(TASKS[1]);addTask(TASKS[5]);go(REVIEW);
  }
  else if(a==='finish'){finish();}
- else if(a==='restart'){var m=S.mode;S=fresh();S.mode=m;tmr.forEach(clearTimeout);tmr=[];paint(true);}
+ else if(a==='restart'){S=fresh();tmr.forEach(clearTimeout);tmr=[];paint(true);}
 }
 
 /* ── the switcher on the Day 0 screen: current wizard, Redtag AI setup, Generic AI setup ── */
