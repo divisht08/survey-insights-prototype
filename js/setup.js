@@ -201,7 +201,7 @@ function askAnswer(text){
 function respond(i,text){
  S.said.push(text);
  var r=(i===0||i===1)?parse(1,text):i===2?parse(2,text):i===3?parseTargets(text):i===5?parse(5,text):i===REVIEW?parseDelivery(text):askAnswer(text);
- if(i<LAST&&S.depth==='simple'&&JARGON.test(text)){S.depth='detailed';S.depthBy='text';r+=' You used analyst terms, so I switched to the detailed setup. Use the link at the top to go back to the short one.';}
+ if(i<LAST&&S.depth==='simple'&&JARGON.test(text)){S.depth='detailed';S.depthBy='text';r+=' I switched to the detailed setup so you can set more yourself. Use the link at the top to go back to the short one.';}
  return r;
 }
 function persona(){
@@ -256,18 +256,12 @@ function sugBlock(i){
  var cur=i===2?S.pins:S.flags,missing=ids.filter(function(id){return cur.indexOf(id)<0;});
  return aiBox('<p><b>My suggestion.</b> '+esc(suggestWhy(i))+'</p>',missing.length?'<div class="dj-ai-actions"><button type="button" class="btn-sec suggest" data-dj="sugg">Use my suggestion</button></div>':'');
 }
-function depthLine(){
- var nm=S.depth==='simple'?'short':'detailed';
- var lead=S.depthBy==='user'?'You chose the '+nm+' setup.':S.depthBy==='text'?'You used analyst terms, so I switched to the detailed setup.':'I chose the '+nm+' setup. '+P.depthBasis;
- return '<b>'+esc(lead)+'</b> '+esc(P.depthWhy[S.depth]);
-}
 function stepBody(){
  var i=S.i,h='',sim=S.depth==='simple';
  if(i===0){
   h+='<dl class="dj-known">'+P.known.map(function(r){return '<dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd>';}).join('')+'</dl>';
   if(P.prefillNote)h+=aiBox('<p>'+esc(P.prefillNote)+'</p>');
   h+=aiBox('<p><b>What I noticed in your latest responses.</b> '+esc(P.obs.text)+'</p>','<div class="dj-ai-actions"><button type="button" class="btn-sec'+(S.watch?' on':'')+'" data-dj="watch" aria-pressed="'+(S.watch?'true':'false')+'">'+(S.watch?'I will watch it':esc(P.obs.watch))+'</button></div>');
-  h+=aiBox('<p>'+depthLine()+'</p>','<div class="dj-ai-actions"><button type="button" class="btn-sec" data-dj="depth">'+(sim?'Show me more options':'Keep it short')+'</button></div>');
   return h;
  }
  if(i===1)return talkBox(1)+'<span class="eyebrow dj-lbl2">Or pick from the list</span>'+multi('Decisions','decisions',P.decisions,3,false);
