@@ -367,16 +367,18 @@ investigateHTML = function(srcBtn){
 
 /* ── 6. Scope: one store, an area of stores, or all my surveys. Insights differ by level, not just by filter ── */
 var v3Scope = 'store';
+// The switcher picks the survey. Each survey has its own feed; Followed and Shared work across all of them.
 const V3_SCOPES = {
-  store:{label:'RT ATYAF MALL', sub:'Store Manager · 1 store'},
-  area:{label:'CRN area · 30 stores', sub:'Area Manager · rolled up across stores'},
-  all:{label:'All my surveys · 4', sub:'CX Manager · grouped by survey'}
+  store:{label:'Store experience survey', sub:'RT ATYAF MALL · in-store visits'},
+  online:{label:'Online experience survey', sub:'Website and app orders'},
+  returns:{label:'Returns & exchanges survey', sub:'After a return or exchange'},
+  care:{label:'Customer care survey', sub:'After a contact-centre call'}
 };
 function v3OpenScope(ev){
   ev.stopPropagation();
   let m = document.getElementById('v3-scope-menu');
   if(!m){ m = document.createElement('div'); m.id = 'v3-scope-menu'; document.body.appendChild(m); }
-  m.innerHTML = `<p class="eyebrow" style="padding:6px 10px 4px">Show insights for</p>` + Object.entries(V3_SCOPES).map(([k,s])=>`<button class="${v3Scope===k?'on':''}" data-v3-scope="${k}" onclick="v3SetScope('${k}')"><span>${s.label}</span><small>${s.sub}</small></button>`).join('');
+  m.innerHTML = `<p class="eyebrow" style="padding:6px 10px 4px">Survey</p>` + Object.entries(V3_SCOPES).map(([k,s])=>`<button class="${v3Scope===k?'on':''}" data-v3-scope="${k}" onclick="v3SetScope('${k}')"><span>${s.label}</span><small>${s.sub}</small></button>`).join('');
   const r = ev.currentTarget.getBoundingClientRect();
   m.style.display = 'block'; m.style.top = (r.bottom + 6) + 'px'; m.style.left = r.left + 'px';
 }
@@ -403,11 +405,11 @@ const V3_ALL = [
   {proj:'Store experience survey', n:6, open:'store', items:[
     {id:'AL-01', prio:'high', type:'Anomaly · Checkout & payments', title:'Payment-failure complaints spiked on 14–15 Sep', sum:'11 respondents over 2 days, against about 1 a week normally.', num:'11', unit:'mentions', basis:'RT ATYAF MALL · 14–15 Sep 2026', table:[['Mentions, 14–15 Sep','11'],['Typical week','~1']], tableHead:['',''], steps:[['For the Central team.','check for a payment outage on those days.','central']]},
     {id:'AL-02', prio:'pos', type:'Period comparison · Overall', title:'Overall satisfaction rose to 9.63', sum:'Up from 9.23 in the previous period, on 261 vs 568 responses.', num:'9.63', unit:'out of 10', basis:'RT ATYAF MALL · 01 Jun – 23 Sep vs 14 Feb – 31 May 2026', table:[['Current','9.63'],['Previous','9.23']], tableHead:['Period','Score'], steps:[['Recommended action.','name the service behaviours customers praise in the next team briefing.','plan']]}]},
-  {proj:'Online experience survey', n:2, items:[
+  {key:'online', proj:'Online experience survey', n:2, items:[
     {id:'AL-03', prio:'high', type:'Recurring theme · Delivery', title:'Late-delivery complaints are the top detractor theme', sum:'Late or missed delivery windows appear in detractor comments in every week of the period.', num:'Recurring', unit:'every week', basis:'Online survey · 01 Jul – 23 Sep 2026', table:[['Weeks with the theme','12 of 12']], tableHead:['',''], steps:[['For the e-commerce team.','share the delivery comments with the delivery partner owner.','share']]}]},
-  {proj:'Returns & exchanges survey', n:1, items:[
+  {key:'returns', proj:'Returns & exchanges survey', n:1, items:[
     {id:'AL-04', prio:'med', type:'Emerging theme · Refunds', title:'Refund-delay comments appeared in the last 3 weeks', sum:'Not seen in the 6 months before.', num:'New', unit:'theme', basis:'Returns survey · last 3 weeks vs 6 months before', table:[['Last 3 weeks','new'],['6 months before','none']], tableHead:['',''], steps:[['Recommended action.','check refund processing times with finance.','plan']]}]},
-  {proj:'Customer care survey', n:0, items:[]}
+  {key:'care', proj:'Customer care survey', n:0, items:[]}
 ];
 function v3ScopeCardHTML(c){
   return `<div class="v3-card ic spr-card" data-v3-card="${c.id}" data-priority="${c.prio}" onclick="v3OpenScopeCard('${c.id}')">
@@ -422,15 +424,13 @@ function v3RenderScope(){
   if(!host){ host = document.createElement('div'); host.id = 'v3-scope-view'; host.className = 'hidden'; jr.parentNode.insertBefore(host, jr.nextSibling); }
   if(v3Scope==='store'){ host.classList.add('hidden'); host.innerHTML = ''; jr.classList.remove('hidden'); return; }
   jr.classList.add('hidden'); host.classList.remove('hidden');
-  let list;
-  if(v3Scope==='area'){
-    list = V3_SECS.map(([lvl,label,col])=>{ const cs = V3_AREA.filter(c=>c.prio===lvl); return cs.length ? `<div class="v3-sec"><i style="background:${col}"></i>${label}<span class="n">${cs.length}</span></div>${cs.map(v3ScopeCardHTML).join('')}` : ''; }).join('');
-    list = `<p class="text-[13.5px] font-600 text-txt-1" style="margin-bottom:4px">Across your 30 stores · findings repeated in several stores are shown once</p>` + list;
-  } else {
-    list = `<p class="text-[13.5px] font-600 text-txt-1" style="margin-bottom:4px">Across your 4 surveys</p>` + V3_ALL.map(p=>`<div class="v3-proj" data-v3-proj><span>${p.proj}</span><span class="n">${p.items.length ? p.items.length + (p.items.length===1?' insight':' insights') : 'No new insights this update'}</span><button class="r" onclick="${p.open==='store' ? "v3SetScope('store')" : "toast('Opens that survey\\'s insights')"}">Open survey →</button></div>${p.items.map(v3ScopeCardHTML).join('')}`).join('');
-  }
+  const sv = V3_ALL.find(p=>p.key===v3Scope) || {items:[]};
+  let list = V3_SECS.map(([lvl,label,col])=>{ const cs = sv.items.filter(c=>c.prio===lvl); return cs.length ? `<div class="v3-sec"><i style="background:${col}"></i>${label}<span class="n">${cs.length}</span></div>${cs.map(v3ScopeCardHTML).join('')}` : ''; }).join('');
+  list = `<div class="v3-upd" style="display:flex;gap:10px;font-size:12.5px;color:#5f6672;margin:0 0 10px"><span>Updated <b style="color:#1f2329">${EDITIONS[0].short}</b> · next update ${nextEditionShort()}</span></div>
+    <div class="feed-head"><p class="text-[13.5px] font-600 text-txt-1">${sv.items.length} ${sv.items.length===1?'insight':'insights'}</p></div>`
+    + (sv.items.length ? list : `<div class="spr-card p-8 text-center" data-v3-survey-empty><p class="text-[13.5px] font-600 text-txt-1">No insights for this survey yet</p><p class="text-[12.5px] text-txt-3 mt-1">Nothing met the evidence rules in the latest update. New insights appear here when they do.</p></div>`);
   host.innerHTML = `<div class="flex gap-5 items-start" id="v3-scope-split"><div class="flex-1 min-w-0 space-y-3" id="v3-scope-list" style="max-width:960px;margin:0 auto">${list}</div>
-    <div id="v3-scope-panel" class="hidden flex-shrink-0 spr-card" style="flex:1 1 auto;position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto"></div></div>`;
+    <div id="v3-scope-panel" class="hidden flex-shrink-0 spr-card" style="flex:1 1 auto;position:sticky;top:16px;overflow-y:auto"></div></div>`;
 }
 function v3FindScopeCard(cid){ return V3_AREA.find(c=>c.id===cid) || V3_ALL.flatMap(p=>p.items).find(c=>c.id===cid); }
 function v3OpenScopeCard(cid){
@@ -444,11 +444,11 @@ function v3OpenScopeCard(cid){
       <button class="iconbtn" onclick="v3CloseScopeCard()">${V3_SVG.x}</button></div>
     <div class="px-5 pt-3.5 v3-acts"><button class="btn-sec" onclick="this.classList.toggle('on');this.innerHTML=this.classList.contains('on')?FOLLOW_ON_HTML:FOLLOW_OFF_HTML">${FOLLOW_OFF_HTML}</button><button class="btn-sec" onclick="toast('Shared')">Share</button><span class="sp"></span><button class="btn-sec" onclick="v3CloseScopeCard();toast('Dismissed')">${V3_SVG.x}Dismiss</button></div>
     <div class="px-5 py-4 v3d" data-v3-id="${c.id}">
-      <div class="illus-banner"><span><b style="color:#42474f">Illustrative example.</b> Store names and figures show how a roll-up across stores would read. They are placeholders.</span></div>
+      <div class="illus-banner"><span><b style="color:#42474f">Illustrative example.</b> This survey's figures are placeholders that show how its insights would read.</span></div>
       <div class="v3-sum"><p class="eyebrow" style="margin-bottom:4px">Summary</p><p class="id-lede">${c.sum}</p></div>
       <div class="id-sect"><p class="eyebrow">The evidence</p><table class="v3-tbl"><thead><tr>${c.tableHead.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${c.table.map(r=>`<tr>${r.map((x,i)=>`<td class="${i && /^−/.test(x)?'bad':''}">${x}</td>`).join('')}</tr>`).join('')}</tbody></table><p class="v3-note" style="margin-top:6px">${c.basis}</p></div>
       <div class="id-sect"><p class="eyebrow">Next steps</p>${c.steps.map(s=>`<div class="id-means" style="margin-top:9px"><div><b>${s[0]}</b> ${s[1]}<div class="v3-cta">${stepBtn(s)}</div></div></div>`).join('')}
-        <div class="v3-agent"><span class="ai">${V3_SVG.agent}</span><div class="at"><b>Review pack agent</b> · drafts the slide for your monthly area review.</div><button class="btn-sec" style="padding:5px 11px;font-size:12px" onclick="v3Agent('review','${c.id}')">Draft it</button></div></div>
+        <div class="v3-agent"><span class="ai">${V3_SVG.agent}</span><div class="at"><b>Review pack agent</b> · drafts a one-page summary of this insight for your next review.</div><button class="btn-sec" style="padding:5px 11px;font-size:12px" onclick="v3Agent('review','${c.id}')">Draft it</button></div></div>
       <details class="id-sect v3-col"><summary>Evidence limitations</summary><ul class="id-why"><li>Stores with fewer than 100 responses this period are left out of the comparison.</li></ul></details>
     </div>`;
   panel.classList.remove('hidden');
@@ -493,6 +493,7 @@ function v3PageSummary(ctx){
   if(ctx==='followed'){ const ids = Object.keys(followed); const up = ids.filter(i=>followed[i].updated); return `You follow <b>${ids.length} insights</b>; <b>${up.length}</b> changed since you last opened them.`; }
   if(ctx==='shared'){ const n = sharedWithMe.filter(s=>!s.dismissed).length, u = sharedWithMe.filter(s=>s.unread).length; return `<b>${n} insights</b> shared with you, <b>${u}</b> not opened yet.`; }
   if(ctx==='plans'){ const ps = Object.entries(actionPlans); return `<b>${ps.length} action plans</b> linked to insights; ${ps.filter(p=>p[1].status==='In progress').length} in progress.`; }
+  if(V3_SCOPES[ctx] && ctx!=='store'){ const sv = V3_ALL.find(p=>p.key===ctx)||{items:[]}; const hi = sv.items.filter(c=>c.prio==='high'); return `<b>${sv.items.length} ${sv.items.length===1?'insight':'insights'}</b> in the ${V3_SCOPES[ctx].label}${hi.length?`; <b>${hi.length} need${hi.length===1?'s':''} attention</b>:<ul>${hi.map(c=>`<li>${c.title}</li>`).join('')}</ul>`:'.'}`; }
   if(ctx==='area') return `<b>4 roll-up insights</b> across your 30 stores. <b>2 need attention:</b> checkout trails in 4 stores, and a payment-failure spike hit 6 stores on the same 2 days.`;
   if(ctx==='all') return `<b>4 insights</b> across 4 surveys. The store survey has 2, online 1, returns 1, and customer care has nothing new.`;
   return `Insights you dismissed, or marked done after following.`;
@@ -504,6 +505,7 @@ const V3_STARTERS = {
   plans:['Which plans are overdue?','Summarise progress for my review'],
   area:['Which stores need my attention?','What is happening in several stores at once?','Prepare my monthly area review'],
   all:['Which survey needs my attention?','Summarise this week across surveys'],
+  online:['What needs my action today?','What changed since last week?'], returns:['What needs my action today?','What changed since last week?'], care:['What changed since last week?'],
   bin:['Why did I dismiss these?']
 };
 function v3PageAnswer(q){
@@ -599,6 +601,8 @@ renderSharedTab = function(){
 renderSharedTab();
 /* ── Drill-down height: from where it starts to the bottom of the window, so Copilot is always at the foot of the page ── */
 function v3SizePanes(){
+  const sp = document.getElementById('v3-scope-panel');
+  if(sp && !sp.classList.contains('hidden') && sp.offsetParent!==null) document.body.classList.remove('no-pane');
   ['investigate-panel','followed-panel','shared-panel','v3-scope-panel'].forEach(id=>{
     const p = document.getElementById(id);
     if(!p || p.classList.contains('hidden') || p.offsetParent===null) return;
@@ -615,9 +619,9 @@ const UC_ROWS = [
   // [bucket, use case, status y|n|m|h, who, note, where in the prototype]
   ['Workflow','Turn survey data into findings, then act or escalate (find → investigate → act)','y','Bosch, Redtag, ID.me','Bosch routes technician issues to training and systemic ones to central teams; ID.me routes to owners every morning.','Drill-down next steps, each with a button'],
   ['Workflow','The bottleneck is putting metrics, comments and charts together into a prioritised finding','y','Bosch, Redtag, ID.me','Customers do it by hand or with external AI today.','The feed itself'],
-  ['Personas','Different users need different insights, not just a filtered copy','y','Bosch, Redtag, ID.me','Redtag: store manager, area manager, country head. ID.me: ops vs product owners.','Scope selector: store, area, all surveys'],
+  ['Personas','Different users need different insights, not just a filtered copy','y','Bosch, Redtag, ID.me','Redtag: store manager, area manager, country head. ID.me: ops vs product owners.','Not yet: the prototype switches surveys only'],
   ['Personas','Store Manager: the week\'s main KPIs, main detractor issue, alerts closed on time, which detractors to follow up','y','Redtag','Karim described this for store managers.','KPI row on the store feed; detractor follow-up agent'],
-  ['Personas','Area Manager: the same, added up across stores, with best and worst stores','y','Redtag','"Who is performing well from the 10 stores, who is low."','Area view with roll-up cards'],
+  ['Personas','Area Manager: the same, added up across stores, with best and worst stores','y','Redtag','"Who is performing well from the 10 stores, who is low."','Not in the prototype (parked)'],
   ['Content','State scope and comparison: which survey, period, stores, compared with what','y','Redtag; Bosch, ID.me','Karim could not read a number without it.','Scope line on every card'],
   ['Content','Say what changed and name the specific driver, not a broad theme','y','ID.me, Redtag, Bosch','"People can\'t get verified" is not enough without why or how.','Headline + key figure'],
   ['Content','Short and prioritised first, depth behind it','y','Redtag, ID.me','Redtag rejected paragraphs; ID.me wants a TLDR for executives.','Light cards; drill-down'],
@@ -631,17 +635,17 @@ const UC_ROWS = [
   ['Copilot','Prompt-first is enough to discover what matters','n','Bosch; ID.me','Proactive insights for discovery; Copilot for digging in. ID.me asked for starter questions.','Copilot pinned in drill-down + on every page'],
   ['Trust','Survey data alone is enough for prescriptive recommendations','m','ID.me','Plausible but wrong without business context (failed attempts are intended).','"Expected by design" dismiss reason'],
   ['Granularity','One insight per survey question','n','Redtag, ID.me','Both want a prioritised set instead.','Not done'],
-  ['Granularity','Survey level is the right long-term boundary','n','ID.me','Product owners own a journey step across surveys.','"All my surveys" view'],
+  ['Granularity','Survey level is the right long-term boundary','n','ID.me','Product owners own a journey step across surveys.','Survey switcher (one survey at a time)'],
   ['Destination','A feed is the place users want to go','n','None','The job and content are validated; the destination is not.','Open question: feed vs email vs dashboard'],
   ['Leadership','A leadership-specific narrative and cadence','n','None directly','Only a proxy from ID.me.','Not in the prototype'],
-  ['Advanced','Insights across surveys / journeys','m','ID.me; Human Company (older call)','Human Company asked for a quick view across about 20 surveys.','"All my surveys" view'],
+  ['Advanced','Insights across surveys / journeys','m','ID.me; Human Company (older call)','Human Company asked for a quick view across about 20 surveys.','Survey switcher (one survey at a time)'],
   ['Advanced','Benchmarking','m','Bosch; Redtag (older call)','Bosch country benchmarks; Redtag asked for competitor and global benchmarks.','Not in the prototype'],
   ['Hypothesis','Follow an insight and see how it moves after acting','h','Partly Sézane','Sézane: "measure the NPS after the action taken".','Follow · Followed'],
   ['Hypothesis','Share an insight with a note; comments on the insight','h','—','','Share · Activity and comments'],
   ['Hypothesis','Action plans attached to insights','h','—','','Action plans page'],
   ['Hypothesis','Dismiss reasons improve future insights','h','—','','Dismiss with a reason'],
   ['Hypothesis','Agents: review pack, detractor follow-up','h','Redtag needs, not the agent','Karim builds the review deck by hand; store managers want detractors to follow up.','Next steps → agents'],
-  ['Hypothesis','Past versions of insights','h','—','','Past updates link'],
+  ['Hypothesis','One card per topic with its history (no editions)','h','—','Pradeep: drop editions, keep soft links between versions of the same topic.','History in each drill-down; New / Updated / Missed labels'],
   ['Hypothesis','Agent-level comments for staff training','m','ID.me','Ops want repeated comments about one agent. Conflicts with "never rank or name staff". Open decision.','Not in the prototype']
 ];
 const UC_ST = {y:['y','Validated'], n:['n','Not validated'], m:['m','Mixed or one customer'], h:['h','Hypothesis']};

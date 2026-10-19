@@ -25,8 +25,9 @@ function handleDeepLink(q){
   if(q.get('fwd')) msg += ' This link was forwarded to you — access is checked for <b>you</b>, the person opening it, not the original recipient.';
   if(q.get('sso')) msg += ' You signed in first, and were brought straight back to the insight from the email.';
   const gone = id && oldEd && !inCurrentEdition(id) && edObj.ids.includes(id);
-  if(oldEd && !gone) msg += ` This email is from the ${edObj.short} edition; you're viewing the latest one.`;
-  if(gone) msg += ` This insight is no longer in the latest edition, so you're seeing the read-only copy from the ${edObj.short} edition that the email came from.`;
+  if(oldEd && !gone){ const t = FOLLOW_TRACK[id], a = t && t.rows.find(r=>r.ed===edObj.short), b = t && t.rows[t.rows.length-1];
+    msg += (a && b && a.val!==b.val) ? ` <b>This insight has changed since the email:</b> ${a.val} then, ${b.val} now. You're seeing the latest version.` : ` You're seeing the latest version of this insight.`; }
+  if(gone) msg += ` <b>This insight is no longer in your feed</b> because the evidence stopped holding. Here is its history and what it said when it was last published.`;
   else if(id && !INSIGHT_META[id]) msg = `Opened from your email · <b>${digestName}</b>. <b>The insight in that email is no longer available.</b> Here is your current feed.`;
   if(q.get('src')==='email') showEmailBanner(msg + ` <a href="#" data-back-email onclick="openJourney('${back}');return false" style="color:#1a73e8;font-weight:600;margin-left:4px">← Back to email</a>`);
   if(gone){ segNav('insights'); viewEdition(edId); openSnapshot(id); return; }

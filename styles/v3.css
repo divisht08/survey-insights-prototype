@@ -108,6 +108,7 @@ mark.v3-hl{background:#fff1c2;color:inherit;border-radius:3px;padding:0 2px}
 .v3-kpi .v{display:flex;align-items:baseline;gap:6px}
 .v3-kpi.illu{border-style:dashed}
 body.no-pane #page-head.cx{max-width:1008px}
+body:has(#v3-scope-panel:not(.hidden)) #page-head.cx{max-width:none;margin-left:0;margin-right:0}
 #feed-col .feed-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
 .v3-kpi .k{font-size:11px;color:#6b7280} .v3-kpi .v{font-size:17px;font-weight:700;color:#1f2329}
 .v3-kpi .v small{font-size:11.5px;font-weight:600;margin-left:4px}
