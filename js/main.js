@@ -16,5 +16,7 @@ updateAllCardStatusPills();
 renderEditionBar(); renderFreshness(); renderEditionFoot(); applyFeedVisibility();
 syncPaneLayout();
 
+djSetupInit(); // Day 0 setup screen switcher (js/setup.js)
+
 // deep links from email links run last
 gateDeepLink(new URLSearchParams(location.search));
