@@ -9,7 +9,7 @@ var REDUCE=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').
 var REVIEW=7,LAST=8;
 
 var FREQ=[['daily','Daily','Every day at 08:00'],['weekly','Weekly','Start of the workweek, 08:00'],['monthly','Monthly','First workday of the month, 08:00']];
-var ALLOW=[['focused','Only my list','Nothing beyond what I chose'],['balanced','A few extras','Mostly my topics, plus some surprises'],['curious','Look widely','Tell me anything that stands out']];
+var ALLOW=[['focused','Stay on my list','I only look at the topics and numbers you chose'],['balanced','My list, plus related finds','I stay mostly on your topics and flag a few related things I notice'],['curious','Look across everything','I explore your whole survey and tell you anything that stands out']];
 
 
 /* ── content pack 1: Redtag. Figures come from the RT ATYAF MALL sample data; the payment spike, cleanliness driver, staff helpfulness, queue topic and extras are the prototype's placeholders ── */
@@ -200,8 +200,8 @@ function parseDelivery(text){
  if(/daily|every day/.test(t)){S.freq='daily';o.push('daily');}
  else if(/weekly|every week|once a week|every (mon|tue|wed|thu|fri)/.test(t)){S.freq='weekly';o.push('weekly');}
  else if(/monthly|every month|once a month/.test(t)){S.freq='monthly';o.push('monthly');}
- if(/only my list|nothing else|no extras|focused/.test(t)){S.allow='focused';o.push('only your list');}
- else if(/look wide|anything|surprise|curious/.test(t)){S.allow='curious';o.push('look widely');}
+ if(/only my list|stay on my list|stick to my list|nothing else|no extras|focused/.test(t)){S.allow='focused';o.push('only your list');}
+ else if(/look wide|look across|everything|anything|surprise|curious/.test(t)){S.allow='curious';o.push('look widely');}
  return o.length?'Updated: '+o.join(', ')+'. I also saved your words.':'I could not match that to delivery options, so I saved your words. Choose from the options above if you want to change how often or how wide I look.';
 }
 function askAnswer(text){
@@ -285,8 +285,8 @@ function stepBody(){
   h+='<span class="eyebrow dj-lbl2">How often should a new edition arrive?</span><div class="dj-cad" role="group" aria-label="Frequency">';
   FREQ.forEach(function(f){h+=opt({act:'pick',k:'freq',v:f[0],label:f[1],sub:f[2],on:S.freq===f[0],mk:'radio',tag:f[0]===rec?'Recommended':'',star:f[0]===rec});});
   h+='</div><p class="dj-hint">'+esc(P.volume.why[S.freq])+'</p>';
-  if(sim)h+='<p class="dj-hint">I will also look for a few extras beyond your list and mark them Exploratory. Switch to the detailed setup to change that.</p>';
-  else{h+='<span class="eyebrow dj-lbl2">How many extras should I look for beyond your list?</span><div class="dj-cad" role="group" aria-label="Extras">';
+  if(sim)h+='<p class="dj-hint">I will mostly stay on your list and flag a few related things I notice, marked Exploratory. Switch to the detailed setup to change how widely I look.</p>';
+  else{h+='<span class="eyebrow dj-lbl2">How widely should I look for insights?</span><p class="dj-hint" style="margin:2px 0 10px">This sets how far my analysis goes. I always cover your list. Choose whether I also explore beyond it.</p><div class="dj-cad" role="group" aria-label="How widely I look">';
   ALLOW.forEach(function(a){h+=opt({act:'pick',k:'allow',v:a[0],label:a[1],sub:a[2],on:S.allow===a[0],mk:'radio'});});
   h+='</div>';}
   return h+'<p class="dj-hint">I keep learning from what you follow, dismiss or rate, and I will check in again after 30 days.</p>';
@@ -312,7 +312,7 @@ function findings(){
  S.decisions.forEach(function(id){var k=byId(P.decisions,id).find;if(seen[k])return;seen[k]=1;n++;h+=findHtml(P.find[k],'From what you want to do','acc');});
  flagList().forEach(function(id){var k=byId(P.flags,id).key;if(seen[k]||n>=4)return;seen[k]=1;n++;h+=findHtml(P.find[k],'From your list','acc');});
  if(S.context.trim())h+='<div class="dj-find wrn"><span class="tag wrn">Noted</span><h4 class="h4">I will keep this in mind: “'+esc(S.context.trim())+'”</h4><p>I will use it to explain changes and to be careful with the days it affects.</p></div>';
- if(S.allow==='focused')h+='<div class="dj-find dash"><span class="tag wrn">Exploratory</span><h4 class="h4">Switched off</h4><p>You chose Only my list, so I am not looking beyond it. You can change this in your plan.</p></div>';
+ if(S.allow==='focused')h+='<div class="dj-find dash"><span class="tag wrn">Exploratory</span><h4 class="h4">Switched off</h4><p>You chose Stay on my list, so I am not looking beyond it. You can change this in your plan.</p></div>';
  else{
   h+='<div class="dj-find wrn"><span class="tag wrn">Exploratory</span><h4 class="h4">'+esc(P.explor[0][0])+'</h4><p>'+esc(P.explor[0][1])+'</p><p class="nx"><b>Suggested next step:</b> No action yet. I will tell you if it holds.</p></div>';
   if(S.allow==='curious')h+='<div class="dj-find wrn"><span class="tag wrn">Exploratory</span><h4 class="h4">'+esc(P.explor[1][0])+'</h4><p>'+esc(P.explor[1][1])+'</p><p class="nx"><b>Suggested next step:</b> No action yet. I will tell you if it holds.</p></div>';
@@ -353,7 +353,7 @@ function srcBlock(i){
 function stage(){
  var i=S.i,c=COPY(i),h='',k,qs=seq().filter(function(x){return x>=1&&x<=6;}),at=qs.indexOf(i);
  h+='<div class="dj-body"><div class="dj-head"><div class="dj-head-l"><span class="dj-ava">'+SPARK+'</span><div><div class="eyebrow">Survey Insights setup</div></div></div>';
- if(i>=1&&i<=REVIEW)h+='<button type="button" class="dj-link" data-dj="depth">'+(S.depth==='simple'?'Want more control? Use detailed setup':'Prefer fewer questions? Use short setup')+'</button>';
+ if(i===1)h+='<button type="button" class="dj-link" data-dj="depth">'+(S.depth==='simple'?'Want more control? Use detailed setup':'Prefer fewer questions? Use short setup')+'</button>';
  h+='</div>';
  if(at>-1){var b='';for(k=0;k<qs.length;k++)b+='<i class="'+(k<=at?'on':'')+'"></i>';h+='<div class="dj-prog" aria-hidden="true">'+b+'</div><p class="dj-step">Question '+(at+1)+' of '+qs.length+((i===3||i===5||i===6)?' · optional':'')+'</p>';}
  else h+='<p class="dj-step">'+(i===0?'Welcome':i===REVIEW?'Review':i===LAST?'First edition':'Editing')+'</p>';
@@ -392,7 +392,7 @@ function uRows(){
  var fl=flagList().map(function(id){return byId(P.flags,id).short;});
  R.push({l:'Changes to tell you first',s:5,y:(S.free[5]?qt(S.free[5].you):'')+(S.flags.length?ls(S.flags.map(function(id){return esc(byId(P.flags,id).short);})):chip()),a:esc('I will check '+fl.join(', ').toLowerCase()+' first. I check everything else quietly and tell you only when something is clearly unusual.')});
  R.push({l:'Anything else to track',s:6,y:S.context.trim()?qt(S.context.trim()):mut('Nothing added'),a:esc(S.notes.length?S.notes.join(' '):S.context.trim()?'I will keep this in mind when I explain changes.':'Nothing to adjust. I will watch for unusual days myself and tell you.')});
- R.push({l:'Delivery',s:null,y:(S.free[7]?qt(S.free[7].you):'')+esc(fq[1]+' · '+al[1]),a:esc('A new edition arrives '+fq[2].toLowerCase().replace(/^start/,'at the start')+'. '+(S.allow==='focused'?'I will report only what is on your list.':S.allow==='curious'?'I will also tell you anything that stands out, marked Exploratory.':'I will add a few extras beyond your list, marked Exploratory.'))});
+ R.push({l:'Delivery',s:null,y:(S.free[7]?qt(S.free[7].you):'')+esc(fq[1]+' · '+al[1]),a:esc('A new edition arrives '+fq[2].toLowerCase().replace(/^start/,'at the start')+'. '+(S.allow==='focused'?'I will report only what is on your list.':S.allow==='curious'?'I will explore your whole survey and tell you anything that stands out, marked Exploratory.':'I will stay mostly on your list and flag a few related things I notice, marked Exploratory.'))});
  R.push({l:'Who can see it',s:null,y:mut('Set by your administrator'),a:esc('I will only show '+P.access+'.')});
  return R;
 }
