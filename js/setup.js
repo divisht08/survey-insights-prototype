@@ -8,7 +8,7 @@ var MIC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width
 var REDUCE=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 var REVIEW=7,LAST=8;
 
-var FREQ=[['daily','Daily','Every day at 08:00'],['weekly','Weekly','First day of your workweek, 08:00'],['monthly','Monthly','First workday of the month, 08:00']];
+var FREQ=[['daily','Daily','Every day at 08:00'],['weekly','Weekly','Start of the workweek, 08:00'],['monthly','Monthly','First workday of the month, 08:00']];
 var ALLOW=[['focused','Only my list','Nothing beyond what I chose'],['balanced','A few extras','Mostly my topics, plus some surprises'],['curious','Look widely','Tell me anything that stands out']];
 
 
@@ -237,19 +237,21 @@ function multi(label,key,defs,max,ordered,sug){
  return h+'</div><p class="dj-hint">'+arr.length+' of '+max+' chosen'+(ordered?'. The number shows reading order.':'')+'</p>';
 }
 function aiBox(html,actions){return '<div class="dj-ai"><span class="dj-g">'+SPARK+'</span><div>'+html+(actions||'')+'</div></div>';}
-function micRow(t){
+function micRow(t,compact){
  var on=REC.on&&REC.t===t,h='<div class="dj-mrow"><button type="button" class="dj-mic'+(on?' on':'')+'" data-dj="mic" data-v="'+t+'" aria-pressed="'+(on?'true':'false')+'"'+(SR?'':' disabled')+'>'+MIC+'<span>'+(on?'Stop':'Speak')+'</span></button>';
  if(on)h+='<span class="dj-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="dj-lis" role="status">Listening… speak naturally, then tap Stop.</span>';
  else if(!SR)h+='<span class="dj-hint" style="margin:0">Voice typing is not supported in this browser. Try Chrome, Edge or Safari, or type.</span>';
  else if(REC.err&&REC.t===t)h+='<span class="dj-err" style="margin:0" role="alert">'+esc(REC.err)+'</span>';
- else h+='<span class="dj-hint" style="margin:0">Tap Speak to dictate. You can edit the text before you send it.</span>';
+ else if(!compact)h+='<span class="dj-hint" style="margin:0">Tap Speak to dictate. You can edit the text before you send it.</span>';
  return h+'</div>';
 }
-function talkBox(i){
+function talkBox(i,compact){
  var f=S.free[i],h='';
  if(f)h+='<div class="dj-you">'+esc(f.you)+'</div>'+aiBox('<p>'+esc(f.reply)+'</p>');
  var lab=i===LAST?'Ask in your own words':'In your own words';
- return h+'<div class="dj-talk"><label class="eyebrow" for="dj-say">'+lab+'</label><textarea class="dj-ta dj-say-ta" id="dj-say" rows="2" placeholder="'+esc(P.sayPh[i]||'')+'">'+esc(S.draft[i]||'')+'</textarea><div class="dj-tbar">'+micRow('dj-say')+'<button type="button" class="btn-sec" data-dj="send">Send</button></div></div>';
+ var ta='<textarea class="dj-ta dj-say-ta" id="dj-say" rows="'+(compact?1:2)+'" placeholder="'+esc(P.sayPh[i]||'')+'">'+esc(S.draft[i]||'')+'</textarea>';
+ if(compact)return h+'<div class="dj-talk dj-talk-c"><label class="eyebrow" for="dj-say">'+lab+'</label><div class="dj-crow">'+ta+micRow('dj-say',true)+'<button type="button" class="btn-sec" data-dj="send">Send</button></div></div>';
+ return h+'<div class="dj-talk"><label class="eyebrow" for="dj-say">'+lab+'</label>'+ta+'<div class="dj-tbar">'+micRow('dj-say')+'<button type="button" class="btn-sec" data-dj="send">Send</button></div></div>';
 }
 function sugBlock(i){
  var ids=suggest(i);if(!ids.length)return '';
@@ -274,17 +276,16 @@ function stepBody(){
  if(i===6)return '<label class="eyebrow dj-lbl2" style="margin-top:0" for="dj-ctx">What should I know? (optional)</label><textarea class="dj-ta" id="dj-ctx" placeholder="'+esc(P.ctxPh)+'">'+esc(S.context)+'</textarea><div class="dj-tbar">'+micRow('dj-ctx')+'</div>';
  if(i===REVIEW){
   var rec=P.volume.rec;
-  h+=talkBox(7)+'<span class="eyebrow dj-lbl2">Or choose here</span>';
-  h+=aiBox('<p><b>My recommendation: '+esc(pair(FREQ,rec)[1])+'.</b> '+esc(P.volume.why[rec])+'</p>');
-  h+='<span class="eyebrow dj-lbl2" style="margin-top:0">How often should a new edition arrive?</span><div class="dj-cad" role="group" aria-label="Frequency">';
-  FREQ.forEach(function(f){h+=opt({act:'pick',k:'freq',v:f[0],label:f[1],sub:f[2],on:S.freq===f[0],mk:'radio',tag:f[0]===rec?'Recommended':''});});
-  h+='</div>';
-  if(S.freq!==rec)h+='<p class="dj-hint">'+esc(P.volume.why[S.freq])+'</p>';
+  h+=talkBox(7,true);
+  h+='<span class="eyebrow dj-lbl2">How often should a new edition arrive?</span><div class="dj-cad" role="group" aria-label="Frequency">';
+  FREQ.forEach(function(f){h+=opt({act:'pick',k:'freq',v:f[0],label:f[1],sub:f[2],on:S.freq===f[0],mk:'radio',tag:f[0]===rec?'Recommended':'',star:f[0]===rec});});
+  h+='</div><p class="dj-hint">'+esc(P.volume.why[S.freq])+'</p>';
   if(sim)h+='<p class="dj-hint">I will also look for a few extras beyond your list and mark them Exploratory. Switch to the detailed setup to change that.</p>';
-  else{h+='<span class="eyebrow dj-lbl2">How many extras should I look for beyond your list?</span><div class="dj-opts" role="group" aria-label="Extras">';
+  else{h+='<span class="eyebrow dj-lbl2">How many extras should I look for beyond your list?</span><div class="dj-cad" role="group" aria-label="Extras">';
   ALLOW.forEach(function(a){h+=opt({act:'pick',k:'allow',v:a[0],label:a[1],sub:a[2],on:S.allow===a[0],mk:'radio'});});
   h+='</div>';}
-  return h+aiBox('<p><b>I keep learning.</b> In your first edition I will ask one question about what was useful, and I will adjust from what you follow, dismiss or rate. I will check in again after 30 days.</p>');
+  h+='<div class="dj-sum"><span class="eyebrow">What your feed will include</span>'+planRows(true)+'</div>';
+  return h+'<p class="dj-hint">I keep learning from what you follow, dismiss or rate, and I will check in again after 30 days.</p>';
  }
  return findings();
 }
@@ -326,7 +327,7 @@ var COPY=function(i){
   3:{q:'Do you have a target for any of these?',why:'Optional. With a target I can say how far above or below you are. You can skip this.'},
   5:{q:'Which changes do you want to hear about first?',why:'I check for all of these. Your picks go to the top of the feed. Optional.',seen:'You have two periods to compare: '+(gen?'the last four weeks and the four weeks before.':'01 Jun – 23 Sep and 14 Feb – 31 May.')},
   6:{q:'Is there anything recent or unusual about your business that the numbers will not show?',why:'For example a launch, a policy change, a supplier switch or an outage. I use it to explain changes and to be careful with distorted days. Optional. You can type or speak.'},
-  7:{q:'Here is the feed I will build. Change anything, then confirm.',why:'Everything on the right is editable. I will ask again after 30 days.'},
+  7:{q:'Check your feed, then build it.',why:'This is what you will get. Change anything with Edit, or tell me in your own words.'},
   8:{q:'Your feed is live. Here is what the last edition looks like.',why:'Built on sample figures. All numbers are illustrative.'}
  }[i];
 };
@@ -337,7 +338,7 @@ function stage(){
  h+='</div>';
  if(at>-1){var b='';for(k=0;k<qs.length;k++)b+='<i class="'+(k<=at?'on':'')+'"></i>';h+='<div class="dj-prog" aria-hidden="true">'+b+'</div><p class="dj-step">Question '+(at+1)+' of '+qs.length+((i===3||i===5||i===6)?' · optional':'')+'</p>';}
  else h+='<p class="dj-step">'+(i===0?'Welcome':i===REVIEW?'Review':i===LAST?'First edition':'Editing')+'</p>';
- if(S.react&&i>=2&&i<=REVIEW)h+=aiBox('<p>'+esc(S.react)+'</p>');
+ if(S.react&&i>=2&&i<REVIEW)h+=aiBox('<p>'+esc(S.react)+'</p>');
  h+='<h2 class="d3 dj-q" id="dj-q" tabindex="-1">'+esc(c.q)+'</h2>';
  if(c.why)h+='<p class="dj-why">'+esc(c.why)+'</p>';
  if(c.seen)h+='<p class="dj-seen"><b>What I can see</b><span>'+esc(c.seen)+'</span></p>';
@@ -354,9 +355,13 @@ function stage(){
  }
  return h+'</div></div>';
 }
-function brow(l,html,step){return '<div class="dj-brow"><div class="dj-bl">'+l+'</div><div class="dj-bv">'+(html||'<span class="dj-mut">Not yet</span>')+'</div>'+(html&&step!==null&&S.i>0&&S.i<LAST?'<button type="button" class="dj-edit" data-dj="go" data-v="'+step+'" aria-label="Edit '+esc(l.toLowerCase())+'">Edit</button>':'<span></span>')+'</div>';}
+function brow(l,html,step){return '<div class="dj-brow"><div class="dj-bl">'+l+'</div><div class="dj-bv">'+(html||'<span class="dj-mut">Not yet</span>')+'</div>'+(html&&step!==null&&step!==S.i&&S.i>0&&S.i<LAST?'<button type="button" class="dj-edit" data-dj="go" data-v="'+step+'" aria-label="Edit '+esc(l.toLowerCase())+'">Edit</button>':'<span></span>')+'</div>';}
 function ls(a){return a.map(function(t){return '<div>'+t+'</div>';}).join('');}
 function trunc(t){return t.length>70?t.slice(0,67)+'…':t;}
+function planRows(lean){
+ var pins=S.max<1?'':leadPins().map(function(id,n){var p=byId(P.pins,id),t=(S.targets[id]||'').trim();return '<div><span class="dj-mut">'+(n+1)+'</span> '+esc(p.name)+(p.unit&&tState(p)==='ok'?'<span class="tag acc">Target '+esc(t)+'</span>':'')+'</div>';}).join('');
+ return brow('Decisions',S.max<1?'':ls(S.decisions.map(function(id){return esc(byId(P.decisions,id).short);})),1)+brow(S.depth==='simple'?'I will lead with':'Numbers that lead',pins,2)+brow('Your access',S.max>=1?esc(scopeText()):'',null)+brow('Tells you first',S.max<1?'':ls(flagList().map(function(id){return esc(byId(P.flags,id).short);})),5)+brow('Context',S.max>=6?(S.context.trim()?esc(S.context.trim()):'<span class="dj-mut">Nothing added</span>'):'',6)+(lean?'':brow('In your own words',S.said.length?ls(S.said.slice(-2).map(function(t){return esc(trunc(t));})):'',null)+brow('Delivery',S.max>=REVIEW&&S.freq?esc(pair(FREQ,S.freq)[1])+', '+esc(pair(ALLOW,S.allow)[1].toLowerCase()):'',REVIEW));
+}
 function paintRail(){
  var el=document.getElementById('dj-rail');if(!el)return;
  var per=persona(),conf=S.max?Math.min(90,15+S.max*13):5;
@@ -367,8 +372,7 @@ function paintRail(){
  h+='<div class="dj-box"><span class="eyebrow">Working in the background</span>';
  h+=tasks.length?tasks.map(function(t){return '<div class="dj-task'+(t.done?' done':'')+'"><span class="dj-dot'+(t.done?'':' dj-run')+'"></span><span>'+esc(t.t)+(t.done?'. Done':'…')+'</span></div>';}).join(''):'<p class="dj-hint" style="margin:0">I start as soon as you answer.</p>';
  h+='</div>';
- var pins=S.max<1?'':leadPins().map(function(id,n){var p=byId(P.pins,id),t=(S.targets[id]||'').trim();return '<div><span class="dj-mut">'+(n+1)+'</span> '+esc(p.name)+(p.unit&&tState(p)==='ok'?'<span class="tag acc">Target '+esc(t)+'</span>':'')+'</div>';}).join('');
- h+='<div class="dj-box"><span class="eyebrow">Your feed plan</span>'+brow('Decisions',S.max<1?'':ls(S.decisions.map(function(id){return esc(byId(P.decisions,id).short);})),1)+brow(S.depth==='simple'?'I will lead with':'Numbers that lead',pins,2)+brow('Your access',S.max>=1?esc(scopeText()):'',null)+brow('Tells you first',S.max<1?'':ls(flagList().map(function(id){return esc(byId(P.flags,id).short);})),5)+brow('Context',S.max>=6?(S.context.trim()?esc(S.context.trim()):'<span class="dj-mut">Nothing added</span>'):'',6)+brow('In your own words',S.said.length?ls(S.said.slice(-2).map(function(t){return esc(trunc(t));})):'',null)+brow('Delivery',S.max>=REVIEW&&S.freq?esc(pair(FREQ,S.freq)[1])+', '+esc(pair(ALLOW,S.allow)[1].toLowerCase()):'',REVIEW)+'</div>';
+ h+='<div class="dj-box"><span class="eyebrow">Your feed plan</span>'+planRows()+'</div>';
  el.innerHTML=h;
 }
 function fidOf(el){return ['data-dj','data-k','data-v'].map(function(n){return el.getAttribute(n)||'';}).join(':');}

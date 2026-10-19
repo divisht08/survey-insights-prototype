@@ -133,3 +133,15 @@
 .dj-nav>.dj-link{flex:1 1 0;min-width:0;text-align:left;margin-right:12px}
 .dj-navr{flex:none;display:flex;justify-content:flex-end}
 @media (max-width:520px){.dj-body{padding:16px 16px 10px}.dj-foot{padding:0 16px 10px}.dj-nav{gap:8px}.dj-nav .btn-pri,.dj-nav .btn-sec{font-size:12px;padding:7px 10px}.dj-nav .btn-pri{min-width:96px}.dj-nav .btn-sec{min-width:68px}.dj-nav>.dj-link{margin-right:8px;font-size:12px}}
+/* review step: compact input row, plain summary, side-by-side choice cards */
+.dj-talk-c{margin-top:0;padding-top:0;border-top:0}
+.dj-crow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.dj-crow .dj-ta{flex:1 1 220px;min-height:40px;height:40px;resize:none}
+.dj-sum{margin:18px 0 0;padding:2px 14px 4px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface-2)}
+.dj-sum .eyebrow{display:block;margin:10px 0 2px}
+.dj-sum .dj-brow{grid-template-columns:120px minmax(0,1fr) auto;align-items:start;gap:8px}
+.dj-sum .dj-bl{grid-column:auto;padding-top:1px}
+.dj-cad .dj-opt>span:last-child{display:flex;flex-direction:column;min-width:0}
+.dj-cad .dj-opt small{order:2}
+.dj-cad .dj-opt .tag{order:3;margin:6px 0 0;width:fit-content}
+@media (max-width:520px){.dj-sum .dj-brow{grid-template-columns:minmax(0,1fr) auto}.dj-sum .dj-bl{grid-column:1/-1}}
