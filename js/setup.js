@@ -506,21 +506,21 @@ function send(){
  paint(false);
  var again=document.getElementById('dj-say');if(again)again.focus({preventScroll:true});
 }
-function finish(){
+function finish(to){
  var d0=byId(P.decisions,S.decisions[0]),title=d0?d0.title:'My insights';
  var desc='Insights on '+scopeText()+' — '+S.decisions.map(function(id){return byId(P.decisions,id).short.toLowerCase();}).join(', ');
  if(P.finish){title=P.finish.title;var ob=P.finish.order.filter(function(id){return S.decisions.indexOf(id)>-1;}).map(function(id){return P.finish.obj[id];});desc='Insights on '+scopeText()+(ob.length?' — '+ob.join(', '):'');}
  ['obj-title','drawer-obj-title','w-obj-title'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=title;});
  ['obj-desc','drawer-obj-desc','w-obj-desc'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=desc;});
  micAbort();S=fresh();
- if(typeof setJourney==='function'){setJourney('waiting');if(typeof toast==='function')toast('Setup saved — monitoring started');}
+ if(typeof setJourney==='function'){setJourney(to||'waiting');if(typeof toast==='function')toast(to==='first-ready'?'Your feed is built — first insights are ready':'Setup saved — monitoring started');}
  else{root.innerHTML='<div class="dj-end">Setup saved. Monitoring has started: <b>'+esc(title)+'</b>. '+esc(desc)+'</div><p style="margin-top:12px"><button type="button" class="btn-sec" data-dj="restart">Start over</button></p>';}
  if(root&&typeof setJourney==='function')paint(false);
 }
 function onClick(e){
  var el=e.target.closest('[data-dj]');if(!el||!root.contains(el))return;
  var a=el.getAttribute('data-dj'),v=el.getAttribute('data-v'),k=el.getAttribute('data-k');
- if(a==='next'){flush();if(canNext())advance(1);}
+ if(a==='next'){flush();if(S.i===REVIEW){finish('first-ready');}else if(canNext())advance(1);}
  else if(a==='begin'){advance(1);}
  else if(a==='back'){advance(-1);}
  else if(a==='go'){go(parseInt(v,10));}
