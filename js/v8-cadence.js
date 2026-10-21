@@ -61,4 +61,27 @@ pickRadio = function(el, groupId){
   if(i>-1) UC_ROWS[i] = row; else UC_ROWS.push(row);
 })();
 
+/* a quiet update: nothing new, so the feed stays as it was with one line saying so (no separate "still true" view) */
+var v8Quiet = false;
+V7_READ_SEED.quiet = V7_READ_SEED.quiet.concat(['FOL-01','FOL-02']);   // nothing new, so nothing unread
+enterQuiet = function(){
+  v8Quiet = true;
+  const q = document.getElementById('journey-quiet'); if(q){ q.classList.add('hidden'); q.innerHTML = ''; }
+  const r = document.getElementById('journey-returning'); if(r) r.classList.remove('hidden');
+  renderEditionBar(); applyFeedVisibility();
+};
+const _v8Leave = leaveQuiet;
+leaveQuiet = function(){ v8Quiet = false; _v8Leave(); };
+const _v8Bar2 = renderEditionBar;
+renderEditionBar = function(){
+  _v8Bar2();
+  const g = document.getElementById('card-grid'); if(g) g.classList.toggle('v8-q', v8Quiet);
+  if(!v8Quiet || typeof QUIET_ED==='undefined') return;
+  const el = document.getElementById('edition-bar'); if(!el) return;
+  const tag = el.querySelector('[data-edition-tag]');
+  if(tag) tag.innerHTML = `Updated <b style="color:#1f2329">${QUIET_ED.short}</b> · next update ${QUIET_ED.next}`;
+  const bar = el.querySelector('[data-edition-bar]');
+  if(bar && !el.querySelector('[data-v8-quiet]')) bar.insertAdjacentHTML('afterend', `<div class="v8-quiet" data-v8-quiet><b>Nothing new in the ${QUIET_ED.short} update.</b> Responses came in at the usual level, about ${V8_PER_WEEK} a week, and nothing in them was significant. Your insights from earlier updates are below.</div>`);
+};
+
 renderEditionBar();
