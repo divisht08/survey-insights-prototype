@@ -584,7 +584,6 @@ function configureHTML(){
           <a href="#" data-jlink="email" onclick="closeDrawer();openJourney('email');return false" style="color:#1a73e8">Preview the email →</a>
         </div>
       </div>
-      </div>
 
       <div class="border-t border-line2"></div>
 
