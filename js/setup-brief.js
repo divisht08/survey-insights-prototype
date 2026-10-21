@@ -12,8 +12,8 @@ var INFO='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-widt
 var STEPS=['Your role','What you decide','Numbers that lead','How often'];
 var STARTERS=[['Run a store','I run a store. Each week I decide what to fix and which staff to recognise.'],['Cover several stores','I cover several stores and decide where to send support each week.'],['Own one area, like checkout','I own checkout. I decide what to fix in payments and queues.'],['Check a change worked','I made a change in the store and want to know whether it worked.']];
 var METRICS=[{id:'overall',n:'Overall satisfaction',now:'9.63 out of 10',aim:true},{id:'service',n:'Service satisfaction',now:'9.67 out of 10',aim:true},{id:'staff',n:'Staff helpfulness',now:'9.1 out of 10',aim:true},{id:'vol',n:'Responses a week',now:'about 16'}];
-var FREQ=[['weekly','Weekly · recommended'],['daily','Daily'],['monthly','Monthly'],['ask','Only when I ask']];
-var FREQ_TXT={weekly:'weekly, by email too',daily:'daily, by email too',monthly:'monthly, by email too',ask:'only when you ask'};
+var FREQ=[['weekly','Weekly · recommended'],['daily','Daily'],['monthly','Monthly']];
+var FREQ_TXT={weekly:'weekly, by email too',daily:'daily, by email too',monthly:'monthly, by email too'};
 var CARDS=[
  {id:'INS-05',prio:'high',type:'anomaly',kind:'Anomaly · Checkout &amp; payments',topic:'payment-failure complaints',title:'Payment-failure complaints spiked on 14–15 Sep',sum:'11 respondents over 2 days described card or wallet payments failing at the till, against ~1 a week normally.',next:'<span class="font-600">Recommended action:</span> check with IT whether card terminals or the payment gateway had an outage on those days.',stat:'<p class="ic-num" style="color:#c5221f">11</p><p class="ic-unit">mentions on 14–15 Sep</p><p class="ic-unit">usual: ~1 a week</p>',basis:'New this period — not seen in the previous 89 days',why:['New this period, and a sharp break from the usual rate','The customers involved scored very low','You decide what to fix in the store each week']},
  {id:'INS-04',prio:'med',type:'driver',kind:'Key driver · Cleanliness',topic:'cleanliness cards',title:'Store &amp; fitting-room cleanliness is most associated with low satisfaction',sum:'Of 5 service factors, cleanliness has the strongest association with overall satisfaction — and it is also the lowest-scoring one.',next:'<span class="font-600">Recommended action:</span> add a fitting-room reset to each shift checklist, especially at peak hours.',stat:'<p class="ic-num">31%</p><p class="ic-unit">of satisfaction variation</p><div class="ic-bars"><div class="top"><span>Cleanliness</span><i style="width:48px"></i></div><div><span>Staff help</span><i style="width:37px"></i></div><div><span>Checkout</span><i style="width:28px"></i></div></div>',basis:'Current period · 01 Jun – 23 Sep 2026',why:['It has the strongest link to low satisfaction','It is also the lowest-scoring service factor','You decide what to fix in the store each week']},
@@ -46,7 +46,7 @@ function parseMetrics(t){
  if(any){METRICS.forEach(function(x){if(!new RegExp({overall:'overall',service:'service',staff:'staff|helpful',vol:'respon|volume'}[x.id]).test(l))S.m[x.id].on=false;});}
  var n=l.match(/\d+(\.\d+)?/);if(n&&parseFloat(n[0])<=10)METRICS.forEach(function(x){if(x.aim&&S.m[x.id].on)S.m[x.id].aim=n[0];});
 }
-function parseFreq(t){var l=t.toLowerCase();if(/daily|every day/.test(l))return 'daily';if(/month/.test(l))return 'monthly';if(/ask|demand|manual/.test(l))return 'ask';if(/week/.test(l))return 'weekly';return null;}
+function parseFreq(t){var l=t.toLowerCase();if(/daily|every day/.test(l))return 'daily';if(/month/.test(l))return 'monthly';if(/week/.test(l))return 'weekly';return null;}
 function onList(){return METRICS.filter(function(x){return S.m[x.id].on;});}
 function metricSummary(){
  var on=onList();if(!on.length)return 'No numbers in particular.';
@@ -190,7 +190,7 @@ function chatSend(){
  if(!v){return;}
  S.draft='';
  if(!S.sent||S.phase==='metrics'&&!S.sent){parseMetrics(v);S.sent=true;S.phase='freq';render(true);return;}
- var f=parseFreq(v);if(f){S.freq=f;S.step='preview';render(true);}else{S.micErr='I did not catch how often. Pick one of the options, or say weekly, daily, monthly or only when I ask.';render(false);}
+ var f=parseFreq(v);if(f){S.freq=f;S.step='preview';render(true);}else{S.micErr='I did not catch how often. Pick one of the options, or say weekly, daily or monthly.';render(false);}
 }
 function onClick(e){
  if(!S||!root)return;
