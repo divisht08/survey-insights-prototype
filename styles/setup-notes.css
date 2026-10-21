@@ -1,0 +1,32 @@
+/* Setup notes: "For discussion" panel on the Generic AI setup. Prefix djn. Tokens only, no new colours. */
+.djn-toggle{margin-left:auto}
+.djn-toggle[hidden]{display:none}
+.djn-card{margin:0 0 16px;padding:14px 16px;border:1px dashed var(--accent);border-radius:var(--r-md);background:var(--accent-wash);color:var(--ink);font-size:13px;line-height:1.5;text-align:left}
+.djn-eye{margin:0 0 10px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--accent-deep)}
+.djn-tag{display:inline-block;padding:1px 8px;border-radius:999px;background:#fff;border:1px dashed var(--accent);font-size:11px;font-weight:600;color:var(--accent-deep)}
+.djn-cols{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px}
+.djn-h{margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3)}
+.djn-h2{margin-top:12px}
+.djn-card ul{margin:0;padding-left:18px}
+.djn-card li{margin:0 0 4px;color:var(--ink-2)}
+.djn-aim{margin:0;color:var(--ink-2)}
+.djn-by{display:flex;flex-direction:column;border:1px solid var(--line-soft);border-radius:var(--r-sm);background:#fff;overflow:hidden}
+.djn-row{display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;padding:8px 12px;border-top:1px solid var(--line-soft)}
+.djn-row:first-child{border-top:0}
+.djn-row b{font-weight:600;color:var(--ink)}
+.djn-row span{color:var(--ink-2)}
+@media (max-width:720px){.djn-cols{grid-template-columns:minmax(0,1fr);gap:10px}.djn-row{grid-template-columns:minmax(0,1fr);gap:2px}}
+
+.djn-smart{margin:0 0 12px;padding:10px 12px;border-radius:var(--r-sm);background:#fff;border:1px solid var(--accent)}
+.djn-smart .djn-by{margin-top:4px}
+.djn-chk{display:block;margin:0 0 4px}
+.djn-chk i{font-style:normal;display:inline-block;margin-right:4px;padding:0 7px;border-radius:999px;font-size:11px;font-weight:600;background:var(--accent-wash);color:var(--accent-deep);border:1px solid var(--accent)}
+.djn-chk.no i{background:var(--surface-2);color:var(--ink-3);border-color:var(--line-soft)}
+.djn-chk u{text-decoration:none;font-weight:600;color:var(--ink)}
+.djn-try{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin:0 0 12px}
+.djn-ex{text-align:left;height:auto;white-space:normal;line-height:1.4;padding:6px 10px;font-size:12.5px}
+
+.djn-ins{margin-top:10px;padding:10px 12px;border-radius:var(--r-sm);background:var(--surface-2);border:1px solid var(--line-soft)}
+.djn-ins p{margin:6px 0 0;color:var(--ink-2)}
+.djn-ins .djn-it{font-weight:600;color:var(--ink)}
+.djn-ins .djn-q{font-style:italic}

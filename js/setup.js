@@ -118,7 +118,7 @@ var P=REDTAG,S=null,view='redtag',host=null,legacy=null,root=null,tmr=[];
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function byId(a,id){for(var k=0;k<a.length;k++){if(a[k].id===id)return a[k];}return null;}
 function pair(a,id){for(var k=0;k<a.length;k++){if(a[k][0]===id)return a[k];}return a[0];}
-function fresh(){return {i:0,max:0,depth:P.depth,depthBy:'auto',decisions:[],pins:[],targets:{},flags:[],context:'',notes:[],said:[],draft:{},allow:'balanced',freq:null,react:'',free:{},tasks:[],watch:false,asked:[]};}
+function fresh(){if(window.djnReset)djnReset(P);return {i:0,max:0,depth:P.depth,depthBy:'auto',decisions:[],pins:[],targets:{},flags:[],context:'',notes:[],said:[],draft:{},allow:'balanced',freq:null,react:'',free:{},tasks:[],watch:false,asked:[]};}
 
 /* ── derived state ── */
 var ORDER=[0,1,2,3,5,6,7,8];
@@ -171,6 +171,7 @@ function whyOne(i,id){
  return suggestWhy(i);
 }
 function parse(i,text){
+ if(i===1&&window.djnInterpret){var dy=djnInterpret(text,P);if(dy){S.decisions=S.decisions.filter(function(id){return !!byId(P.decisions,id);});if(S.decisions.indexOf(dy.id)<0&&S.decisions.length<3)S.decisions.push(dy.id);return dy.reply;}}
  var t=text.toLowerCase(),defs=i===1?P.decisions:i===2?P.pins:P.flags,max=i===1?3:i===2?4:3,key=i===1?'decisions':i===2?'pins':'flags',hit=[];
  defs.forEach(function(d){if(d.kw.some(function(w){return t.indexOf(w)>-1;}))hit.push(d.id);});
  var added=[];hit.forEach(function(id){if(S[key].indexOf(id)<0&&S[key].length<max){S[key].push(id);added.push(id);}});
@@ -322,7 +323,7 @@ function findings(){
  return h+talkBox(8)+'<p class="dj-hint">Next edition: '+esc(pair(FREQ,S.freq)[1].toLowerCase())+'. I will check in after 30 days.</p>';
 }
 
-var COPY=function(i){
+var COPY0=function(i){
  var gen=P.key==='generic',sim=S.depth==='simple';
  return {
   0:{q:'Let’s set up your insights feed. I have already read your '+(gen?'post-contact':'store visit')+' survey, so I only need to know what you want from it.',why:sim?'About a minute. I ask two questions and set up the rest myself. You can change everything later.':'About three minutes. Each answer shapes the next question, and you can change everything later.'},
@@ -335,6 +336,7 @@ var COPY=function(i){
   8:{q:'Your feed is live. Here is what the last edition looks like.',why:'Built on sample figures. All numbers are illustrative.'}
  }[i];
 };
+var COPY=function(i){var c=COPY0(i);return window.djnCopy?(window.djnCopy(i,c,S)||c):c;};
 function srcNote(i){
  var g=P===GENERIC,sv=g?'post-contact survey':'store-visit survey';
  return {
