@@ -102,7 +102,7 @@ function sChat(){
 }
 function cardHTML(c){
  var cur=S.tuned[c.id];
- var html=jrCard({variant:'feed',type:c.type,prio:c.prio,kind:c.kind,title:c.title,sum:c.sum,next:c.next,stat:c.stat,basis:c.basis,tags:[],right:[]});
+ var html=jrCard({variant:'feed',type:c.type,prio:c.prio,kind:c.kind,title:c.title,sum:c.sum,next:c.next,stat:c.stat,basis:c.basis,tags:[{html:'<span class="djb-sc">Sample</span>'}],right:[]});
  html=html.replace('sample-card jr-card ic spr-card','insight-card ic spr-card djb-ic');
  return '<div class="djb-cw" data-id="'+c.id+'">'+html+'<button type="button" class="djb-why'+(S.popId===c.id?' open':'')+'" data-djb="why" data-v="'+c.id+'" aria-expanded="'+(S.popId===c.id?'true':'false')+'">'+INFO+'Why is this here?</button>'+(cur?'<span class="djb-tuned">Tuned</span>':'')
  +(S.popId===c.id?'<div class="djb-pop" role="dialog" aria-label="Why this is here"><p class="djb-pt">Why this is here</p><ul>'+c.why.map(function(w){return '<li>'+w+'</li>';}).join('')+'</ul><div class="djb-pa"><button type="button" class="btn-pri" data-djb="tune" data-v="'+c.id+'">Tune this with the AI</button><button type="button" class="btn-sec" data-djb="notuseful" data-v="'+c.id+'">Not useful</button></div></div>':'')+'</div>';
@@ -117,9 +117,9 @@ function sPreview(){
   +(leadTxt?(leadTxt.charAt(0).toUpperCase()+leadTxt.slice(1)+(lead.length>1?' lead':' leads')+' your feed'+(aims.length?', with an aim of '+link('edit-metrics',esc(S.m[aims[0].id].aim)):'')+'. '):'')
   +'I will update you '+link('edit-freq',FREQ_TXT[S.freq])+'.';
  var vis=CARDS.filter(function(c){return !S.hidden[c.id];});
- var h='<div class="djb-shell"><div class="djb-top">'+head()+'</div><div class="djb-pv"><h2 class="djb-h left" id="djb-h" tabindex="-1">Your feed is ready to build</h2><p class="djb-sub left">Here is what I understood, and how your first insights will read.</p>'
+ var h='<div class="djb-shell"><div class="djb-top">'+head()+'</div><div class="djb-pv"><h2 class="djb-h left" id="djb-h" tabindex="-1">Your feed is ready to build</h2><p class="djb-sub left">Here is what I understood, and a sample of how your first insights will read.</p>'
  +'<div class="djb-und"><p>'+sent+'</p><p class="dj-hint" style="margin:8px 0 0">Tap any underlined part to change it.</p></div>'
- +'<div class="djb-first"><p class="djb-fh">What you will see first</p><p class="dj-hint" style="margin:0 0 10px">A preview with sample figures. Hover a card, or tap it on a touch screen, to see why it is here and tune it.</p>'
+ +'<div class="djb-first"><p class="djb-fh">Sample feed <span class="djb-samp">Sample</span></p><div class="djb-sbn"><b>This is a sample feed, not your real insights.</b> It shows how cards will look and why they appear, using example figures. Your real feed is created when you build it. Hover a card, or tap it on a touch screen, to see why it is here and tune it.</div>'
  +(vis.length?vis.map(cardHTML).join(''):'<p class="dj-banner">All three sample cards were tuned away. Your real feed will follow what you told me.</p>')
  +S.notes.map(function(n){return '<p class="djb-note">'+n+'</p>';}).join('')+'</div></div>'
  +'<div class="djb-foot"><button type="button" class="btn-sec" data-djb="back-chat">Back</button><button type="button" class="btn-pri" data-djb="build">Build my feed</button></div></div>';
@@ -128,7 +128,7 @@ function sPreview(){
 function tuneHTML(){
  var t=S.tune;if(!t)return '';var c=byId(t.id);
  var h='<div class="djb-scrim" data-djb="tclose"></div><aside class="djb-dr" role="dialog" aria-modal="true" aria-label="Tune this card"><div class="djb-drh"><span class="eyebrow">Tune this card</span><button type="button" class="djb-x" data-djb="tclose" aria-label="Close">×</button></div>'
- +'<div class="djb-mini"><div><span class="prio '+c.prio+'"><i></i>'+PRIO_LABEL[c.prio]+'</span><span class="djb-minik">'+c.kind+'</span></div><p>'+c.title+'</p></div><div class="djb-thread djb-tt" id="djb-tt" aria-live="polite">'
+ +'<div class="djb-mini"><div><span class="prio '+c.prio+'"><i></i>'+PRIO_LABEL[c.prio]+'</span><span class="djb-minik">'+c.kind+' · Sample</span></div><p>'+c.title+'</p></div><div class="djb-thread djb-tt" id="djb-tt" aria-live="polite">'
  +ai('<p>This is here because '+tuneWhy(c)+' What would you like to change?</p>'+(t.msgs.length?'':'<div class="djb-pills left">'+TUNE_PILLS.map(function(p){return '<button type="button" class="djb-pill" data-djb="tpill" data-v="'+p[1]+'">'+p[0]+'</button>';}).join('')+'</div>'));
  t.msgs.forEach(function(m){
   if(m.who==='you')h+=you(m.t);
