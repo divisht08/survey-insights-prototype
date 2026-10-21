@@ -70,15 +70,16 @@
 .djb-ed:hover{color:var(--accent)}
 .djb-first{margin-top:24px}
 .djb-fh{margin:0 0 4px;font-size:13px;font-weight:600}
-.djb-cw{position:relative;margin-bottom:12px}
+.djb-cw{position:relative}
+.djb-grid{display:grid;gap:12px}
 .djb-ic{cursor:default}
-.djb-ic .ic-foot{pointer-events:none}
-.djb-why{position:absolute;top:10px;right:14px;z-index:2;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border:1px solid #d0d5de;border-radius:999px;background:var(--surface);color:var(--ink);font:600 12px Inter,system-ui,sans-serif;cursor:pointer;opacity:0;transition:opacity .12s}
-.djb-why svg{width:13px;height:13px}
-.djb-cw:hover .djb-why,.djb-cw:focus-within .djb-why,.djb-why.open{opacity:1}
-@media (hover:none){.djb-why{opacity:1}}
-.djb-tuned{position:absolute;top:13px;right:158px;z-index:1;font-size:11.5px;font-weight:600;color:var(--accent-deep)}
-.djb-pop{position:absolute;right:14px;top:44px;z-index:12;width:min(340px,calc(100% - 28px));box-sizing:border-box;padding:14px 16px;border:1px solid #c7ccd6;border-radius:12px;background:var(--surface);box-shadow:0 12px 28px -10px rgba(11,14,20,.3)}
+.djb-ic .ic-next,.djb-ic .ic-bars,.djb-ic .ic-stat>div[style]{display:none}
+.djb-ic .ic-acts svg{width:14px;height:14px;flex:none}
+.djb-ic .ic-acts .btn-sec,.djb-ic .ic-acts .btn-pri{display:inline-flex;align-items:center;gap:6px}
+.djb-ic .ic-acts .btn-pri svg{fill:currentColor}
+.djb-tuned{background:var(--pos-wash);border:1px solid var(--pos);color:var(--pos)}
+.djb-cw .v3-x{display:none}
+.djb-pop{position:absolute;right:14px;bottom:52px;z-index:12;width:min(340px,calc(100% - 28px));box-sizing:border-box;padding:14px 16px;border:1px solid #c7ccd6;border-radius:12px;background:var(--surface);box-shadow:0 12px 28px -10px rgba(11,14,20,.3)}
 .djb-pt{margin:0 0 8px;font-size:13px;font-weight:600}
 .djb-pop ul{margin:0;padding:0 0 0 16px;font-size:12.5px;line-height:1.6;color:var(--ink-2)}
 .djb-pa{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
@@ -111,4 +112,3 @@
 .djb-samp,.djb-sc{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--accent-wash);border:1px dashed var(--accent);color:var(--accent-deep);font-size:11px;font-weight:600;letter-spacing:.02em;vertical-align:1px}
 .djb-sbn{margin:0 0 12px;padding:10px 14px;border-radius:var(--r-md);background:var(--accent-wash);border:1px dashed var(--accent);font-size:12.5px;line-height:1.55;color:var(--ink-2)}
 .djb-sbn b{color:var(--ink);font-weight:600}
-.djb-tuned{right:170px}
