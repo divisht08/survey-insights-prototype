@@ -30,3 +30,13 @@
 .djn-ins p{margin:6px 0 0;color:var(--ink-2)}
 .djn-ins .djn-it{font-weight:600;color:var(--ink)}
 .djn-ins .djn-q{font-style:italic}
+
+.djn-q2{display:block;margin:0 0 6px}
+.djn-q2 i{font-style:normal;display:inline-block;margin-right:4px;padding:0 7px;border-radius:999px;font-size:11px;font-weight:600;background:var(--surface-2);color:var(--ink-3);border:1px solid var(--line-soft)}
+.djn-q2.changed i{background:var(--accent-wash);color:var(--accent-deep);border-color:var(--accent)}
+.djn-q2.dropped i{background:#fff;color:var(--ink-3);border-style:dashed}
+.djn-q2 u{text-decoration:none;font-weight:600;color:var(--ink)}
+.djn-q2 s{color:var(--ink-3)}
+.djn-groups{margin:0 0 14px}
+.djn-gr{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.djn-chip.on{background:var(--accent-wash);border-color:var(--accent);color:var(--accent-deep);font-weight:600}

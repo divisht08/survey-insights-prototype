@@ -244,6 +244,7 @@ function opt(o){
  return '<button type="button" class="dj-opt" data-dj="'+o.act+'"'+(o.k?' data-k="'+esc(o.k)+'"':'')+' data-v="'+esc(o.v)+'"'+(o.max?' data-max="'+o.max+'"':'')+' aria-pressed="'+(o.on?'true':'false')+'"'+(o.dis?' disabled':'')+'>'+mk+'<span>'+esc(o.label)+(o.tag?'<span class="tag acc"'+(o.tip?' data-tip="'+esc(o.tip)+'"':'')+'>'+(o.star?SPARK:'')+esc(o.tag)+(o.tip?'<span class="dj-sr">. '+esc(o.tip)+'</span>':'')+'</span>':'')+(o.sub?'<small>'+esc(o.sub)+'</small>':'')+'</span></button>';
 }
 function multi(label,key,defs,max,ordered,sug){
+ defs=defs.filter(function(d){return !d.hide;});
  var arr=S[key],h='<div class="dj-opts'+(defs.length>4&&key==='pins'?' two':'')+'" role="group" aria-label="'+esc(label)+'">';
  defs.forEach(function(d){var at=arr.indexOf(d.id),on=at>-1;h+=opt({act:'multi',k:key,v:d.id,label:d.name,sub:d.sub,on:on,dis:!on&&arr.length>=max,mk:ordered?'ord':'chk',n:on?at+1:0,max:max,tag:(sug&&sug.indexOf(d.id)>-1)?'Suggested':'',star:true,tip:(sug&&sug.indexOf(d.id)>-1)?whyOne(S.i,d.id):''});});
  var miss=sug?sug.filter(function(id){return arr.indexOf(id)<0;}):[];
@@ -279,7 +280,7 @@ function stepBody(){
   return talkBox(3)+'<span class="eyebrow dj-lbl2">Or type them here</span>'+h+'<p class="dj-hint">Leave any empty if you have no target for it.</p>';
  }
  if(i===5)return talkBox(5)+'<span class="eyebrow dj-lbl2">Or pick from the list</span>'+multi('Changes to flag','flags',P.flags,3,false,suggest(5));
- if(i===6)return '<label class="eyebrow dj-lbl2" style="margin-top:0" for="dj-ctx">What else should I track or focus on? (optional)</label><textarea class="dj-ta" id="dj-ctx" placeholder="'+esc(P.ctxPh)+'">'+esc(S.context)+'</textarea><div class="dj-tbar">'+micRow('dj-ctx')+'</div>';
+ if(i===6)return (window.djnExtra?djnExtra(6,S):'')+'<label class="eyebrow dj-lbl2" style="margin-top:0" for="dj-ctx">What else should I track or focus on? (optional)</label><textarea class="dj-ta" id="dj-ctx" placeholder="'+esc(P.ctxPh)+'">'+esc(S.context)+'</textarea><div class="dj-tbar">'+micRow('dj-ctx')+'</div>';
  if(i===REVIEW){
   var rec=P.volume.rec;
   h+=talkBox(7,true)+uTable();
@@ -353,7 +354,7 @@ function srcBlock(i){
  return '<div class="dj-src"><span class="dj-info" tabindex="0" role="note" aria-label="Mock-up note. Why this question: '+esc(n[0])+' Where it comes from in the live product: '+esc(n[1])+'"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 7.2v4M8 4.8v.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Mock-up note<span class="dj-pop" aria-hidden="true"><b>Why this question</b>'+esc(n[0])+'<b>Where it comes from in the live product</b>'+esc(n[1])+'</span></span></div>';
 }
 function stage(){
- var i=S.i,c=COPY(i),h='',k,qs=seq().filter(function(x){return x>=1&&x<=6;}),at=qs.indexOf(i);
+ var i=S.i,c=COPY(i),h='',k,qs=seq().filter(function(x){return x>=1&&x<=6&&!(x===3&&!numPins().length);}),at=qs.indexOf(i);
  h+='<div class="dj-body"><div class="dj-head"><div class="dj-head-l"><span class="dj-ava">'+SPARK+'</span><div><div class="eyebrow">Survey Insights setup</div></div></div>';
  if(i===1)h+='<button type="button" class="dj-link" data-dj="depth">'+(S.depth==='simple'?'Want more control? Use detailed setup':'Prefer fewer questions? Use short setup')+'</button>';
  h+='</div>';
@@ -390,7 +391,7 @@ function uRows(){
  var lp=leadPins().map(function(id){return byId(P.pins,id).name;});
  R.push({l:'Numbers that lead',s:2,y:(S.free[2]?qt(S.free[2].you):'')+(S.pins.length?ls(S.pins.map(function(id,n){return (n+1)+' '+esc(byId(P.pins,id).name);})):chip()),a:esc('I will lead with '+lp[0]+(lp.length>1?', then '+lp.slice(1).join(', '):'')+'. Every other number in your survey stays in your feed.')});
  var ok=numPins().filter(function(p){return tState(p)==='ok';});
- R.push({l:'Targets',s:3,y:(S.free[3]?qt(S.free[3].you):'')+(ok.length?ls(ok.map(function(p){return esc(p.name+': '+S.targets[p.id].trim());})):mut('None set')),a:esc(ok.length?'I will say how far above or below each target you are.':'I will show change against the previous period instead.')});
+ if(numPins().length)R.push({l:'Targets',s:3,y:(S.free[3]?qt(S.free[3].you):'')+(ok.length?ls(ok.map(function(p){return esc(p.name+': '+S.targets[p.id].trim());})):mut('None set')),a:esc(ok.length?'I will say how far above or below each target you are.':'I will show change against the previous period instead.')});
  var fl=flagList().map(function(id){return byId(P.flags,id).short;});
  R.push({l:'Changes to tell you first',s:5,y:(S.free[5]?qt(S.free[5].you):'')+(S.flags.length?ls(S.flags.map(function(id){return esc(byId(P.flags,id).short);})):chip()),a:esc('I will check '+fl.join(', ').toLowerCase()+' first. I check everything else quietly and tell you only when something is clearly unusual.')});
  R.push({l:'Anything else to track',s:6,y:S.context.trim()?qt(S.context.trim()):mut('Nothing added'),a:esc(S.notes.length?S.notes.join(' '):S.context.trim()?'I will keep this in mind when I explain changes.':'Nothing to adjust. I will watch for unusual days myself and tell you.')});

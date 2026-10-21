@@ -47,7 +47,7 @@ function smartHTML(step){
    h+='<div class="djn-row"><b>You said</b><span>\u201c'+esc(L.said)+'\u201d</span></div>';
    h+='<div class="djn-row"><b>It understood</b><span>'+esc(L.read)+'</span></div>';
    h+='<div class="djn-row"><b>Checked against your survey</b><span>'+L.checks.map(function(c){return '<span class="djn-chk'+(c[0]?' ok':' no')+'"><i>'+(c[0]?'Can use':'Not in survey')+'</i> <u>'+esc(c[1])+'.</u> '+esc(c[2])+'</span>';}).join('')+'</span></div>';
-   h+='<div class="djn-row"><b>It built</b><span>'+esc(L.built)+'</span></div>';
+   h+='<div class="djn-row"><b>Questions it asks for this goal</b><span>'+L.qs.map(function(q){return '<span class="djn-q2 '+q[0]+'"><i>'+(q[0]==='same'?'Same':q[0]==='changed'?'Changed':'Dropped')+'</i> <u>'+esc(q[1])+'.</u> '+(q[0]==='same'?esc(q[3]):q[0]==='dropped'?'<s>'+esc(q[2])+'</s> '+esc(q[3]):'<s>'+esc(q[2])+'</s> '+esc(q[3]))+'</span>';}).join('')+'</span></div>';
    h+='<div class="djn-row"><b>A fixed list would have said</b><span>\u201cI could not match that to an option.\u201d</span></div>';
    h+='</div></div>';
   }
