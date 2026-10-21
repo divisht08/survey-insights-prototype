@@ -118,7 +118,7 @@ var P=REDTAG,S=null,view='redtag',host=null,legacy=null,root=null,tmr=[];
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function byId(a,id){for(var k=0;k<a.length;k++){if(a[k].id===id)return a[k];}return null;}
 function pair(a,id){for(var k=0;k<a.length;k++){if(a[k][0]===id)return a[k];}return a[0];}
-function fresh(){if(window.djnReset)djnReset(P);return {i:0,max:0,depth:P.depth,depthBy:'auto',decisions:[],pins:[],targets:{},flags:[],context:'',notes:[],said:[],draft:{},allow:'balanced',freq:null,react:'',free:{},tasks:[],watch:false,asked:[]};}
+function fresh(){return {i:0,max:0,depth:P.depth,depthBy:'auto',decisions:[],pins:[],targets:{},flags:[],context:'',notes:[],said:[],draft:{},allow:'balanced',freq:null,react:'',free:{},tasks:[],watch:false,asked:[]};}
 
 /* ── derived state ── */
 var ORDER=[0,1,2,3,5,6,7,8];
@@ -171,7 +171,6 @@ function whyOne(i,id){
  return suggestWhy(i);
 }
 function parse(i,text){
- if(i===1&&window.djnInterpret){var dy=djnInterpret(text,P);if(dy){S.decisions=S.decisions.filter(function(id){return !!byId(P.decisions,id);});if(S.decisions.indexOf(dy.id)<0&&S.decisions.length<3)S.decisions.push(dy.id);return dy.reply;}}
  var t=text.toLowerCase(),defs=i===1?P.decisions:i===2?P.pins:P.flags,max=i===1?3:i===2?4:3,key=i===1?'decisions':i===2?'pins':'flags',hit=[];
  defs.forEach(function(d){if(d.kw.some(function(w){return t.indexOf(w)>-1;}))hit.push(d.id);});
  var added=[];hit.forEach(function(id){if(S[key].indexOf(id)<0&&S[key].length<max){S[key].push(id);added.push(id);}});
@@ -244,7 +243,6 @@ function opt(o){
  return '<button type="button" class="dj-opt" data-dj="'+o.act+'"'+(o.k?' data-k="'+esc(o.k)+'"':'')+' data-v="'+esc(o.v)+'"'+(o.max?' data-max="'+o.max+'"':'')+' aria-pressed="'+(o.on?'true':'false')+'"'+(o.dis?' disabled':'')+'>'+mk+'<span>'+esc(o.label)+(o.tag?'<span class="tag acc"'+(o.tip?' data-tip="'+esc(o.tip)+'"':'')+'>'+(o.star?SPARK:'')+esc(o.tag)+(o.tip?'<span class="dj-sr">. '+esc(o.tip)+'</span>':'')+'</span>':'')+(o.sub?'<small>'+esc(o.sub)+'</small>':'')+'</span></button>';
 }
 function multi(label,key,defs,max,ordered,sug){
- defs=defs.filter(function(d){return !d.hide;});
  var arr=S[key],h='<div class="dj-opts'+(defs.length>4&&key==='pins'?' two':'')+'" role="group" aria-label="'+esc(label)+'">';
  defs.forEach(function(d){var at=arr.indexOf(d.id),on=at>-1;h+=opt({act:'multi',k:key,v:d.id,label:d.name,sub:d.sub,on:on,dis:!on&&arr.length>=max,mk:ordered?'ord':'chk',n:on?at+1:0,max:max,tag:(sug&&sug.indexOf(d.id)>-1)?'Suggested':'',star:true,tip:(sug&&sug.indexOf(d.id)>-1)?whyOne(S.i,d.id):''});});
  var miss=sug?sug.filter(function(id){return arr.indexOf(id)<0;}):[];
@@ -280,7 +278,7 @@ function stepBody(){
   return talkBox(3)+'<span class="eyebrow dj-lbl2">Or type them here</span>'+h+'<p class="dj-hint">Leave any empty if you have no target for it.</p>';
  }
  if(i===5)return talkBox(5)+'<span class="eyebrow dj-lbl2">Or pick from the list</span>'+multi('Changes to flag','flags',P.flags,3,false,suggest(5));
- if(i===6)return (window.djnExtra?djnExtra(6,S):'')+'<label class="eyebrow dj-lbl2" style="margin-top:0" for="dj-ctx">What else should I track or focus on? (optional)</label><textarea class="dj-ta" id="dj-ctx" placeholder="'+esc(P.ctxPh)+'">'+esc(S.context)+'</textarea><div class="dj-tbar">'+micRow('dj-ctx')+'</div>';
+ if(i===6)return '<label class="eyebrow dj-lbl2" style="margin-top:0" for="dj-ctx">What else should I track or focus on? (optional)</label><textarea class="dj-ta" id="dj-ctx" placeholder="'+esc(P.ctxPh)+'">'+esc(S.context)+'</textarea><div class="dj-tbar">'+micRow('dj-ctx')+'</div>';
  if(i===REVIEW){
   var rec=P.volume.rec;
   h+=talkBox(7,true)+uTable();
@@ -324,7 +322,7 @@ function findings(){
  return h+talkBox(8)+'<p class="dj-hint">Next edition: '+esc(pair(FREQ,S.freq)[1].toLowerCase())+'. I will check in after 30 days.</p>';
 }
 
-var COPY0=function(i){
+var COPY=function(i){
  var gen=P.key==='generic',sim=S.depth==='simple';
  return {
   0:{q:'Let’s set up your insights feed. I have already read your '+(gen?'post-contact':'store visit')+' survey, so I only need to know what you want from it.',why:sim?'About a minute. I ask two questions and set up the rest myself. You can change everything later.':'About three minutes. Each answer shapes the next question, and you can change everything later.'},
@@ -337,7 +335,6 @@ var COPY0=function(i){
   8:{q:'Your feed is live. Here is what the last edition looks like.',why:'Built on sample figures. All numbers are illustrative.'}
  }[i];
 };
-var COPY=function(i){var c=COPY0(i);return window.djnCopy?(window.djnCopy(i,c,S)||c):c;};
 function srcNote(i){
  var g=P===GENERIC,sv=g?'post-contact survey':'store-visit survey';
  return {
@@ -354,7 +351,7 @@ function srcBlock(i){
  return '<div class="dj-src"><span class="dj-info" tabindex="0" role="note" aria-label="Mock-up note. Why this question: '+esc(n[0])+' Where it comes from in the live product: '+esc(n[1])+'"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 7.2v4M8 4.8v.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Mock-up note<span class="dj-pop" aria-hidden="true"><b>Why this question</b>'+esc(n[0])+'<b>Where it comes from in the live product</b>'+esc(n[1])+'</span></span></div>';
 }
 function stage(){
- var i=S.i,c=COPY(i),h='',k,qs=seq().filter(function(x){return x>=1&&x<=6&&!(x===3&&!numPins().length);}),at=qs.indexOf(i);
+ var i=S.i,c=COPY(i),h='',k,qs=seq().filter(function(x){return x>=1&&x<=6;}),at=qs.indexOf(i);
  h+='<div class="dj-body"><div class="dj-head"><div class="dj-head-l"><span class="dj-ava">'+SPARK+'</span><div><div class="eyebrow">Survey Insights setup</div></div></div>';
  if(i===1)h+='<button type="button" class="dj-link" data-dj="depth">'+(S.depth==='simple'?'Want more control? Use detailed setup':'Prefer fewer questions? Use short setup')+'</button>';
  h+='</div>';
@@ -391,7 +388,7 @@ function uRows(){
  var lp=leadPins().map(function(id){return byId(P.pins,id).name;});
  R.push({l:'Numbers that lead',s:2,y:(S.free[2]?qt(S.free[2].you):'')+(S.pins.length?ls(S.pins.map(function(id,n){return (n+1)+' '+esc(byId(P.pins,id).name);})):chip()),a:esc('I will lead with '+lp[0]+(lp.length>1?', then '+lp.slice(1).join(', '):'')+'. Every other number in your survey stays in your feed.')});
  var ok=numPins().filter(function(p){return tState(p)==='ok';});
- if(numPins().length)R.push({l:'Targets',s:3,y:(S.free[3]?qt(S.free[3].you):'')+(ok.length?ls(ok.map(function(p){return esc(p.name+': '+S.targets[p.id].trim());})):mut('None set')),a:esc(ok.length?'I will say how far above or below each target you are.':'I will show change against the previous period instead.')});
+ R.push({l:'Targets',s:3,y:(S.free[3]?qt(S.free[3].you):'')+(ok.length?ls(ok.map(function(p){return esc(p.name+': '+S.targets[p.id].trim());})):mut('None set')),a:esc(ok.length?'I will say how far above or below each target you are.':'I will show change against the previous period instead.')});
  var fl=flagList().map(function(id){return byId(P.flags,id).short;});
  R.push({l:'Changes to tell you first',s:5,y:(S.free[5]?qt(S.free[5].you):'')+(S.flags.length?ls(S.flags.map(function(id){return esc(byId(P.flags,id).short);})):chip()),a:esc('I will check '+fl.join(', ').toLowerCase()+' first. I check everything else quietly and tell you only when something is clearly unusual.')});
  R.push({l:'Anything else to track',s:6,y:S.context.trim()?qt(S.context.trim()):mut('Nothing added'),a:esc(S.notes.length?S.notes.join(' '):S.context.trim()?'I will keep this in mind when I explain changes.':'Nothing to adjust. I will watch for unusual days myself and tell you.')});
@@ -550,7 +547,7 @@ function onClick(e){
 function setView(v){
  view=v;
  var cur=v==='current';
- if(v==='redtag'&&window.djbMount){micAbort();P=PACKS[v];S=fresh();applyPrefill();tmr.forEach(clearTimeout);tmr=[];if(legacy)legacy.classList.add('hidden');root.hidden=false;var bt=host?host.querySelectorAll('[data-djv]'):[];for(var q=0;q<bt.length;q++)bt[q].setAttribute('aria-pressed',bt[q].getAttribute('data-djv')===v?'true':'false');window.djbMount(root,{prefill:!!P.prefill,done:function(){S.decisions=['fix','recognise'];finish('first-ready');}});return;}
+ if((v==='redtag'||v==='generic')&&window.djbMount){micAbort();P=PACKS[v];S=fresh();applyPrefill();tmr.forEach(clearTimeout);tmr=[];if(legacy)legacy.classList.add('hidden');root.hidden=false;var bt=host?host.querySelectorAll('[data-djv]'):[];for(var q=0;q<bt.length;q++)bt[q].setAttribute('aria-pressed',bt[q].getAttribute('data-djv')===v?'true':'false');window.djbMount(root,{pack:v,prefill:!!P.prefill,done:function(){S.decisions=v==='generic'?['coach','change']:['fix','recognise'];finish('first-ready');}});return;}
  if(window.djbUnmount)window.djbUnmount();
  if(legacy)legacy.classList.toggle('hidden',!cur);
  if(root)root.hidden=cur;

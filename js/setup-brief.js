@@ -2,7 +2,7 @@
    Screens: 1 start card · 2 talk it through · 3 the AI asks the rest · 4 check and build (real feed cards) · 5 tune a card by talking to the AI */
 (function(){
 'use strict';
-var PRE='I run the RT ATYAF MALL store. Each week I decide what to fix, who to recognise and what to raise with head office. We changed the fitting-room rota in September, and the card terminals were down on 14\u201315 Sep.';
+var PRE='';
 var root=null,cb=null,bound=false,S=null,SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null;
 var SP='<svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.07 3.29a1 1 0 00.95.69h3.46c.97 0 1.37 1.24.59 1.81l-2.8 2.03a1 1 0 00-.36 1.12l1.07 3.29c.3.92-.75 1.69-1.54 1.12l-2.8-2.03a1 1 0 00-1.18 0l-2.8 2.03c-.79.57-1.84-.2-1.54-1.12l1.07-3.29a1 1 0 00-.36-1.12L2.98 8.72c-.78-.57-.38-1.81.59-1.81h3.46a1 1 0 00.95-.69l1.07-3.29z"/></svg>';
 var CK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>';
@@ -10,53 +10,89 @@ var MIC='<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5.5" y="1.5" width
 var UP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
 var INFO='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 7.2v4M8 4.9v.1"/></svg>';
 var STEPS=['Your role','What you decide','Numbers that lead','How often','Alerts'];
-var STARTERS=[['Run a store','I run a store. Each week I decide what to fix and which staff to recognise.'],['Cover several stores','I cover several stores and decide where to send support each week.'],['Own one area, like checkout','I own checkout. I decide what to fix in payments and queues.'],['Check a change worked','I made a change in the store and want to know whether it worked.']];
-var METRICS=[{id:'overall',n:'Overall satisfaction',now:'9.63 out of 10',aim:true},{id:'service',n:'Service satisfaction',now:'9.67 out of 10',aim:true},{id:'staff',n:'Staff helpfulness',now:'9.1 out of 10',aim:true},{id:'vol',n:'Responses a week',now:'about 16'}];
+var PACKS=window.djbPacks=window.djbPacks||{};
+/* ── content packs. Redtag is defined here; Generic lives in js/setup-brief-generic.js ── */
+PACKS.redtag={key:'redtag',org:'RT ATYAF MALL',orgPhrase:' at RT ATYAF MALL',survey:'Store experience survey',surveyLow:'store experience survey',
+ pre:'I run the RT ATYAF MALL store. Each week I decide what to fix, who to recognise and what to raise with head office. We changed the fitting-room rota in September, and the card terminals were down on 14\u201315 Sep.',
+ role0:'store manager',decides0:['what to fix each week','who to recognise'],
+ volN:16,volLow:4,sampleN:17,freqAdvice:'With about 16 responses a week, weekly works best.',
+ qMetrics:'Which numbers should lead your feed? Add an aim if you have a figure in mind.',qHint:'These come first. I still analyse the rest of your survey and tell you what stands out.',
+ volFix:'Check the survey link and the till prompt are working.',
+ saySub:'I have read your store experience survey, so a sentence or two is enough. I will ask only about what is still missing.',sayPh:'Tell me about your role and what you want from this feed',
+ starters:[['Run a store','I run a store. Each week I decide what to fix and which staff to recognise.'],['Cover several stores','I cover several stores and decide where to send support each week.'],['Own one area, like checkout','I own checkout. I decide what to fix in payments and queues.'],['Check a change worked','I made a change in the store and want to know whether it worked.']],
+ metrics:[{id:'overall',n:'Overall satisfaction',sh:'overall',al:'overall satisfaction',now:'9.63 out of 10',val:'9.63',low:'9.21',drop:'0.4',aimDef:'9.5',min:0,max:10,unitTxt:'out of 10',au:'',re:'overall',on0:true,aim:true},{id:'service',n:'Service satisfaction',sh:'service',al:'service satisfaction',now:'9.67 out of 10',val:'9.67',low:'9.31',drop:'0.4',aimDef:'9.5',min:0,max:10,unitTxt:'out of 10',au:'',re:'service',on0:true,aim:true},{id:'staff',n:'Staff helpfulness',sh:'staff',al:'staff helpfulness',now:'9.1 out of 10',val:'9.1',low:'8.7',drop:'0.4',aimDef:'9.5',min:0,max:10,unitTxt:'out of 10',au:'',re:'staff|helpful',aim:true},{id:'vol',n:'Responses a week',sh:'responses a week',now:'about 16',re:'respon|volume'}],
+ cards:[
+ {id:'INS-05',prio:'high',type:'anomaly',kind:'Anomaly · Checkout &amp; payments',topic:'payment-failure complaints',title:'Payment-failure complaints spiked on 14–15 Sep',sum:'11 respondents over 2 days described card or wallet payments failing at the till, against ~1 a week normally.',next:'<span class="font-600">Recommended action:</span> check with IT whether card terminals or the payment gateway had an outage on those days.',stat:'<p class="ic-num" style="color:#c5221f">11</p><p class="ic-unit">mentions on 14–15 Sep</p><p class="ic-unit">usual: ~1 a week</p>',basis:'14–15 Sep vs the previous 89 days',data:['New this period: 11 mentions in 2 days against about 1 a week','The customers involved scored very low'],link:'fix',said:[{re:/terminal|payment|till/i,t:'You said \u201c{q}\u201d. Tune this card if it is the same event'}]},
+ {id:'INS-04',prio:'med',type:'driver',kind:'Key driver · Cleanliness',topic:'cleanliness cards',title:'Store &amp; fitting-room cleanliness is most associated with low satisfaction',sum:'Of 5 service factors, cleanliness has the strongest association with overall satisfaction — and it is also the lowest-scoring one.',next:'<span class="font-600">Recommended action:</span> add a fitting-room reset to each shift checklist, especially at peak hours.',stat:'<p class="ic-num">31%</p><p class="ic-unit">of satisfaction variation</p>',basis:'Current period · 01 Jun – 23 Sep 2026',data:['It has the strongest link to low satisfaction','It is also the lowest-scoring service factor'],link:'fix',useAim:true,said:[{re:/rota|fitting|clean/i,t:'You said \u201c{q}\u201d, so I check whether cleanliness moved'}]},
+ {id:'INS-06',prio:'pos',type:'comparison',kind:'Period comparison · Staff',topic:'staff praise cards',title:'Staff helpfulness is the most-praised part of the visit — and still rising',sum:'The highest-scoring of 5 service factors this period, up on the previous period. Promoters mention friendly, helpful staff more than anything else.',next:'<span class="font-600">Recommended action:</span> name what customers praise in the next team briefing, and recognise the shifts behind it.',stat:'<p class="ic-num" style="color:#0b7a53">9.1</p><p class="ic-unit">out of 10</p><p class="ic-delta up">▲ +0.3<small>vs 8.8</small></p>',basis:'vs 14 Feb – 31 May 2026',data:['It is the most-praised part of the visit','It rose to 9.1, up 0.3 on the previous period'],link:'recognise',useAim:true}
+],
+ al:[{id:'overall',t:'Overall satisfaction falls below your aim',m:'overall'},{id:'service',t:'Service satisfaction falls below your aim',m:'service'},{id:'vol',t:'Responses a week drop sharply',sub:'Usual about 16 \u00b7 a sign the survey itself has a problem',th0:'8',on0:true},{id:'theme',t:'A complaint theme spikes',sub:'Like the card-payment failures on 14\u201315 Sep',th0:'3',sample:{subj:'payment-failure complaints are 11 times the usual rate',body:'RT ATYAF MALL \u00b7 14\u201315 Sep. 11 respondents described card or wallet payments failing at the till.'},ex:'This would have fired once: the payment failures on 14\u201315 Sep (example).'}],
+ alertRe:[['overall',/overall/],['service',/service/],['vol',/respon|volume|survey/],['theme',/complain|theme|spike|payment/]],
+ links:{fix:{re:/fix/,has:'You said you decide <b>{d}</b>, so problems customers report come first',none:'You did not mention fixing problems, so I used the usual focus for a {role}'},recognise:{re:/recogni/,has:'You said you decide <b>{d}</b>, so praise is shown too',none:'You did not mention recognition, so I show praise as a bright spot'}},
+ parseSay:function(l){
+  var role='store manager',d=[];
+  if(/several|multiple|region|area manager|cluster/.test(l))role='area manager';
+  else if(/checkout|payment|till|queue/.test(l))role='checkout owner';
+  else if(/made a change|launch|pilot|trial/.test(l))role='owner of a store change';
+  if(/fix|improv|problem|complain|issue|support|payment|queue/.test(l))d.push('what to fix each week');
+  if(/recogni|praise|reward|staff|team/.test(l))d.push('who to recognise');
+  if(/head office|escalat|raise/.test(l))d.push('what to raise with head office');
+  if(/made a change|whether .*(worked|change)|check.* change|trial|pilot/.test(l))d.push('whether a change worked');
+  if(!d.length)d=['what to fix each week','who to recognise'];
+  return [role,d];
+ }};
+function usePack(key,fam){
+ PK=PACKS[key]||PACKS.redtag;var o=(fam&&PK.fams&&PK.fams[fam])||null;PK.cur=o;
+ PRE=PK.pre||'';STARTERS=PK.starters;METRICS=(o&&o.metrics)||PK.metrics;CARDS=(o&&o.cards)||PK.cards;AL=(o&&o.al)||PK.al;
+}
+function T(k){return (PK.cur&&PK.cur[k])||PK[k];}
+function mById(id){for(var i=0;i<METRICS.length;i++)if(METRICS[i].id===id)return METRICS[i];return null;}
+
+var STARTERS,METRICS,CARDS,AL,PK=null;
 var FREQ=[['weekly','Weekly · recommended'],['daily','Daily'],['monthly','Monthly']];
 var FREQ_TXT={weekly:'weekly, by email too',daily:'daily, by email too',monthly:'monthly, by email too'};
-var CARDS=[
- {id:'INS-05',prio:'high',type:'anomaly',kind:'Anomaly · Checkout &amp; payments',topic:'payment-failure complaints',title:'Payment-failure complaints spiked on 14–15 Sep',sum:'11 respondents over 2 days described card or wallet payments failing at the till, against ~1 a week normally.',next:'<span class="font-600">Recommended action:</span> check with IT whether card terminals or the payment gateway had an outage on those days.',stat:'<p class="ic-num" style="color:#c5221f">11</p><p class="ic-unit">mentions on 14–15 Sep</p><p class="ic-unit">usual: ~1 a week</p>',basis:'14–15 Sep vs the previous 89 days',data:['New this period: 11 mentions in 2 days against about 1 a week','The customers involved scored very low'],link:'fix'},
- {id:'INS-04',prio:'med',type:'driver',kind:'Key driver · Cleanliness',topic:'cleanliness cards',title:'Store &amp; fitting-room cleanliness is most associated with low satisfaction',sum:'Of 5 service factors, cleanliness has the strongest association with overall satisfaction — and it is also the lowest-scoring one.',next:'<span class="font-600">Recommended action:</span> add a fitting-room reset to each shift checklist, especially at peak hours.',stat:'<p class="ic-num">31%</p><p class="ic-unit">of satisfaction variation</p>',basis:'Current period · 01 Jun – 23 Sep 2026',data:['It has the strongest link to low satisfaction','It is also the lowest-scoring service factor'],link:'fix'},
- {id:'INS-06',prio:'pos',type:'comparison',kind:'Period comparison · Staff',topic:'staff praise cards',title:'Staff helpfulness is the most-praised part of the visit — and still rising',sum:'The highest-scoring of 5 service factors this period, up on the previous period. Promoters mention friendly, helpful staff more than anything else.',next:'<span class="font-600">Recommended action:</span> name what customers praise in the next team briefing, and recognise the shifts behind it.',stat:'<p class="ic-num" style="color:#0b7a53">9.1</p><p class="ic-unit">out of 10</p><p class="ic-delta up">▲ +0.3<small>vs 8.8</small></p>',basis:'vs 14 Feb – 31 May 2026',data:['It is the most-praised part of the visit','It rose to 9.1, up 0.3 on the previous period'],link:'recognise'}
-];
-var AL=[{id:'overall',t:'Overall satisfaction falls below your aim',m:'overall'},{id:'service',t:'Service satisfaction falls below your aim',m:'service'},{id:'vol',t:'Responses a week drop sharply',sub:'Usual about 16 \u00b7 a sign the survey itself has a problem'},{id:'theme',t:'A complaint theme spikes',sub:'Like the card-payment failures on 14\u201315 Sep'}];
 var CHEV='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 var BELL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg>';
 var TUNE_PILLS=[['Show me this less','less'],['Not my area','area'],['Tell me sooner','sooner'],['I already know about this','known']];
 
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-function fresh(){var m={};METRICS.forEach(function(x){m[x.id]={on:x.id==='overall'||x.id==='service',aim:'9.5'};});
- return {step:'start',text:'',role:'store manager',decides:['what to fix each week','who to recognise'],m:m,phase:'metrics',sent:false,freq:'weekly',tab:'insights',alOpen:null,al:{overall:{on:true,sig:true,email:true,app:true},service:{on:true,sig:true,email:true,app:true},vol:{on:true,th:'8',sig:true,email:true,app:true},theme:{on:false,th:'3',sig:true,email:true,app:true}},hidden:{},tuned:{},popId:null,tune:null,notes:[]};}
+function mkSel(){
+ var m={},al={};
+ METRICS.forEach(function(x){m[x.id]={on:!!x.on0,aim:x.aimDef||''};});
+ AL.forEach(function(a){al[a.id]={on:a.m?!!(m[a.m]&&m[a.m].on):!!a.on0,th:a.th0||'',sig:true,email:true,app:true};});
+ return {m:m,al:al};
+}
+function fresh(){var sel=mkSel();
+ return {step:'start',text:'',role:PK.role0,decides:PK.decides0.slice(),m:sel.m,phase:'metrics',sent:false,freq:'weekly',tab:'insights',alOpen:null,al:sel.al,hidden:{},tuned:{},popId:null,tune:null,notes:[]};}
 function byId(id){for(var i=0;i<CARDS.length;i++)if(CARDS[i].id===id)return CARDS[i];return null;}
 
 /* ── understanding what was said (keyword stand-in for the real model) ── */
 function parseSay(t){
- var l=t.toLowerCase(),role='store manager',d=[];
- if(/several|multiple|region|area manager|cluster/.test(l))role='area manager';
- else if(/checkout|payment|till|queue/.test(l))role='checkout owner';
- else if(/made a change|launch|pilot|trial/.test(l))role='owner of a store change';
- if(/fix|improv|problem|complain|issue|support|payment|queue/.test(l))d.push('what to fix each week');
- if(/recogni|praise|reward|staff|team/.test(l))d.push('who to recognise');
- if(/head office|escalat|raise/.test(l))d.push('what to raise with head office');
- if(/made a change|whether .*(worked|change)|check.* change|trial|pilot/.test(l))d.push('whether a change worked');
- if(!d.length)d=['what to fix each week','who to recognise'];
- S.role=role;S.decides=d;
+ var r=PK.parseSay(t.toLowerCase());S.role=r[0];S.decides=r[1];
+ /* a goal that is not on the standard list: the pack may build its own questions, numbers, alerts and sample cards around it */
+ var fam=PK.interpret?PK.interpret(t):null;
+ usePack(PK.key,fam?fam.id:null);
+ var sel=mkSel();S.m=sel.m;S.al=sel.al;S.hidden={};S.tuned={};
+ if(fam){S.role=fam.role;S.decides=[fam.decides];}
+ window.djbLast=fam?{id:fam.id,said:t.trim(),read:fam.read,checks:fam.checks,qs:fam.qs}:null;
 }
 function parseMetrics(t){
  var l=t.toLowerCase();if(!l.trim())return;
  var any=false;
- [['overall',/overall/],['service',/service/],['staff',/staff|helpful/],['vol',/respon|volume/]].forEach(function(p){if(p[1].test(l)){S.m[p[0]].on=true;any=true;}});
- if(any){METRICS.forEach(function(x){if(!new RegExp({overall:'overall',service:'service',staff:'staff|helpful',vol:'respon|volume'}[x.id]).test(l))S.m[x.id].on=false;});}
- var n=l.match(/\d+(\.\d+)?/);if(n&&parseFloat(n[0])<=10)METRICS.forEach(function(x){if(x.aim&&S.m[x.id].on)S.m[x.id].aim=n[0];});
+ METRICS.forEach(function(x){if(new RegExp(x.re).test(l)){S.m[x.id].on=true;any=true;}});
+ if(any){METRICS.forEach(function(x){if(!new RegExp(x.re).test(l))S.m[x.id].on=false;});}
+ var nums=l.match(/-?\d+(\.\d+)?/g)||[],aimed=METRICS.filter(function(x){return x.aim&&S.m[x.id].on;});
+ if(nums.length===1&&aimed.length){aimed.forEach(function(x){var v=parseFloat(nums[0]);if(v>=x.min&&v<=x.max)S.m[x.id].aim=nums[0];});}
+ else if(nums.length>1){l.split(/[,;.]|\band\b/).forEach(function(c){var n=c.match(/-?\d+(\.\d+)?/);if(!n)return;aimed.forEach(function(x){var v=parseFloat(n[0]);if(new RegExp(x.re).test(c)&&v>=x.min&&v<=x.max)S.m[x.id].aim=n[0];});});}
 }
 function parseFreq(t){var l=t.toLowerCase();if(/daily|every day/.test(l))return 'daily';if(/month/.test(l))return 'monthly';if(/week/.test(l))return 'weekly';return null;}
 function onList(){return METRICS.filter(function(x){return S.m[x.id].on;});}
 function metricSummary(){
  var on=onList();if(!on.length)return 'No numbers in particular.';
- var names=on.map(function(x){return x.n.replace(' satisfaction','').replace(' helpfulness','');});
+ var names=on.map(function(x){return x.sh;});
  var txt=names.length>1?names.slice(0,-1).join(', ')+' and '+names[names.length-1]:names[0];
  txt=txt.charAt(0).toUpperCase()+txt.slice(1);
- var aims=on.filter(function(x){return x.aim&&S.m[x.id].aim;}).map(function(x){return S.m[x.id].aim;});
+ var ao=on.filter(function(x){return x.aim&&S.m[x.id].aim;}),aims=ao.map(function(x){return S.m[x.id].aim+(x.au||'');});
  var same=aims.length>1&&aims.every(function(a){return a===aims[0];});
  return txt+'.'+(aims.length?(same?' Aim for '+aims[0]+' on '+(aims.length>2?'all':'both')+'.':' Aims: '+aims.join(', ')+'.'):'');
 }
@@ -69,7 +105,7 @@ function progress(){
   var st=i<done?'done':i===act?'act':'';
   return '<div class="djb-pi '+st+'" role="listitem"><i class="djb-bar"></i><span class="djb-pl"><i class="djb-dot">'+(st==='done'?CK:'')+'</i>'+n+'<span class="dj-sr">'+(st==='done'?', done':st==='act'?', current':'')+'</span></span></div>';}).join('')+'</div>';
 }
-function head(){return '<span class="eyebrow">Survey Insights setup · Store experience survey</span>'+progress();}
+function head(){return '<span class="eyebrow">Survey Insights setup · '+esc(PK.survey)+'</span>'+progress();}
 function ai(inner){return '<div class="djb-m ai"><span class="djb-av">'+SP+'</span><div class="djb-mb">'+inner+'</div></div>';}
 function you(t){return '<div class="djb-m you"><div class="djb-yb">'+esc(t)+'</div></div>';}
 function composer(ph,btn){
@@ -82,8 +118,8 @@ function sStart(){
  return '<div class="dj-empty"><div class="dj-empty-card"><span class="dj-empty-ico">'+SP+'</span><h2 class="d3" id="djb-h" tabindex="-1">Your feed is not set up yet</h2><p>Tell me what you are responsible for and what you want to know. I have already read your survey, so a sentence or two is enough.</p><div class="dj-empty-act"><button type="button" class="btn-pri" data-djb="begin">Set up my feed</button><button type="button" class="btn-sec" data-djb="defaults">Use a recommended setup</button></div><p class="dj-hint" style="margin-top:14px">About two minutes. You can change everything later in My feed setup.</p></div></div>';
 }
 function sSay(){
- return '<div class="djb-shell"><div class="djb-top">'+head()+'</div><div class="djb-say"><span class="dj-empty-ico">'+SP+'</span><h2 class="djb-h" id="djb-h" tabindex="-1">What are you responsible for here, and what do you want to know?</h2><p class="djb-sub">I have read your store experience survey, so a sentence or two is enough. I will ask only about what is still missing.</p>'
- +'<div class="djb-box"><label class="dj-sr" for="djb-ta">Your answer</label><textarea id="djb-ta" rows="3" placeholder="'+(rec&&rec.on?'Listening…':'Tell me about your role and what you want from this feed')+'">'+esc(S.text)+'</textarea><div class="djb-boxbar"><span class="djb-boxnote">'+(rec&&rec.on?'<span class="dj-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span> Listening':(SR?'Speak or type':'Type your answer'))+'</span>'+(SR?'<button type="button" class="djb-ib'+(rec&&rec.on?' on':'')+'" data-djb="mic" data-t="djb-ta" aria-label="'+(rec&&rec.on?'Stop listening':'Speak your answer')+'" aria-pressed="'+(rec&&rec.on?'true':'false')+'">'+MIC+'</button>':'')+'<button type="button" class="djb-ib pri" id="djb-go" data-djb="saysend" aria-label="Send"'+(S.text.trim()?'':' disabled')+'>'+UP+'</button></div></div>'
+ return '<div class="djb-shell"><div class="djb-top">'+head()+'</div><div class="djb-say"><span class="dj-empty-ico">'+SP+'</span><h2 class="djb-h" id="djb-h" tabindex="-1">What are you responsible for here, and what do you want to know?</h2><p class="djb-sub">'+esc(PK.saySub)+'</p>'
+ +'<div class="djb-box"><label class="dj-sr" for="djb-ta">Your answer</label><textarea id="djb-ta" rows="3" placeholder="'+(rec&&rec.on?'Listening…':PK.sayPh)+'">'+esc(S.text)+'</textarea><div class="djb-boxbar"><span class="djb-boxnote">'+(rec&&rec.on?'<span class="dj-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span> Listening':(SR?'Speak or type':'Type your answer'))+'</span>'+(SR?'<button type="button" class="djb-ib'+(rec&&rec.on?' on':'')+'" data-djb="mic" data-t="djb-ta" aria-label="'+(rec&&rec.on?'Stop listening':'Speak your answer')+'" aria-pressed="'+(rec&&rec.on?'true':'false')+'">'+MIC+'</button>':'')+'<button type="button" class="djb-ib pri" id="djb-go" data-djb="saysend" aria-label="Send"'+(S.text.trim()?'':' disabled')+'>'+UP+'</button></div></div>'
  +(S.micErr?'<p class="dj-err">'+esc(S.micErr)+'</p>':'')
  +(S.prefilled?'<p class="dj-banner" style="margin:12px 0 0;text-align:left">I filled this in to match what this store\u2019s feed shows. Check it and change anything.</p>':'')
  +'<div class="djb-pills">'+STARTERS.map(function(p,i){return '<button type="button" class="djb-pill" data-djb="starter" data-v="'+i+'">'+p[0]+'</button>';}).join('')+'</div><p class="dj-hint" style="text-align:center">Tap one to fill in a starting sentence, then change it to fit you.</p>'
@@ -94,33 +130,31 @@ function sChat(){
  h+='<div class="djb-earlier"><span>Earlier</span><b>'+esc(S.role.charAt(0).toUpperCase()+S.role.slice(1))+'</b>'+S.decides.map(function(d){return '<b>'+esc(d.charAt(0).toUpperCase()+d.slice(1))+'</b>';}).join('')+'<button type="button" class="dj-link" data-djb="edit-say">Change</button></div>';
  h+='<div class="djb-thread" id="djb-thread" aria-live="polite">';
  var list='<div class="djb-list">'+METRICS.map(function(x){var on=S.m[x.id].on;
-  return '<div class="djb-li'+(on?' on':'')+'"><button type="button" class="djb-lb" data-djb="tm" data-v="'+x.id+'" aria-pressed="'+(on?'true':'false')+'" '+(S.sent?'disabled':'')+'><span class="djb-cb">'+(on?CK:'')+'</span><span class="djb-ln">'+x.n+' <em>· now '+x.now+'</em></span></button>'+(x.aim&&on?'<label class="djb-aim">Aim <input type="text" inputmode="decimal" data-djb-aim="'+x.id+'" value="'+esc(S.m[x.id].aim)+'" aria-label="Aim for '+x.n.toLowerCase()+' out of 10" '+(S.sent?'disabled':'')+'></label>':'')+'</div>';}).join('')+'</div>';
- h+=ai('<p>Which numbers should lead your feed? Add an aim if you have a figure in mind.</p>'+list+'<p class="dj-hint" style="margin:8px 0 0">These come first. I still analyse the rest of your survey and tell you what stands out.</p>'+(S.sent?'':'<div class="dj-ai-actions"><button type="button" class="btn-pri" data-djb="usemetrics">Use these</button></div>'));
+  return '<div class="djb-li'+(on?' on':'')+'"><button type="button" class="djb-lb" data-djb="tm" data-v="'+x.id+'" aria-pressed="'+(on?'true':'false')+'" '+(S.sent?'disabled':'')+'><span class="djb-cb">'+(on?CK:'')+'</span><span class="djb-ln">'+x.n+' <em>· now '+x.now+'</em></span></button>'+(x.aim&&on?'<label class="djb-aim">Aim <input type="text" inputmode="decimal" data-djb-aim="'+x.id+'" value="'+esc(S.m[x.id].aim)+'" aria-label="Aim for '+x.n.toLowerCase()+' '+x.unitTxt+'" '+(S.sent?'disabled':'')+'></label>':'')+'</div>';}).join('')+'</div>';
+ h+=ai('<p>'+esc(T('qMetrics'))+'</p>'+list+'<p class="dj-hint" style="margin:8px 0 0">'+esc(T('qHint'))+'</p>'+(S.sent?'':'<div class="dj-ai-actions"><button type="button" class="btn-pri" data-djb="usemetrics">Use these</button></div>'));
  if(S.sent){
   h+=you(metricSummary());
-  h+=ai('<p>Next, how often should I update you? With about 16 responses a week, weekly works best. I will email each update too.</p><div class="dj-hint" style="margin:8px 0 0">This also sets the period I analyse: each week against the weeks before it, each day against earlier days, and so on. I show only changes that are statistically significant.</div><div class="djb-pills left">'+FREQ.map(function(f){return '<button type="button" class="djb-pill'+(f[0]===S.freq?' on':'')+'" data-djb="freq" data-v="'+f[0]+'"'+(S.phase==='alerts'?' disabled':'')+'>'+f[1]+'</button>';}).join('')+'</div>');
+  h+=ai('<p>Next, how often should I update you? '+esc(PK.freqAdvice)+' I will email each update too.</p><div class="dj-hint" style="margin:8px 0 0">This also sets the period I analyse: each week against the weeks before it, each day against earlier days, and so on. I show only changes that are statistically significant.</div><div class="djb-pills left">'+FREQ.map(function(f){return '<button type="button" class="djb-pill'+(f[0]===S.freq?' on':'')+'" data-djb="freq" data-v="'+f[0]+'"'+(S.phase==='alerts'?' disabled':'')+'>'+f[1]+'</button>';}).join('')+'</div>');
   if(S.phase==='alerts'){h+=you(FREQ.filter(function(f){return f[0]===S.freq;})[0][1].replace(' \u00b7 recommended','')+' is fine');h+=alChat();}
  }
- h+='</div>'+composer(S.phase==='alerts'?'Or say which alerts you want':S.sent?'Or type or say how often':'Or type or say which numbers and what aim')+'</div>';
+ h+='</div>'+composer(S.phase==='alerts'?'Or say which alerts you want':S.sent?'Or type or say how often':(T('metricPh')||'Or type or say which numbers and what aim'))+'</div>';
  return h;
 }
 function cardHTML(c){
  var cur=S.tuned[c.id],open=S.popId===c.id;
  return '<div class="djb-cw" data-id="'+c.id+'"><div class="insight-card ic spr-card djb-ic" data-priority="'+c.prio+'"><div class="ic-body"><div class="ic-head"><div class="ic-kind"><span class="ic-type">'+TYPE_PILL[c.type].icon+'<span>'+c.kind+'</span></span><span class="djb-sc">Sample</span>'+(cur?'<span class="djb-sc djb-tuned">Tuned</span>':'')+'</div></div>'
- +'<div class="ic-main"><div class="ic-text"><p class="ic-title">'+c.title+'</p><p class="ic-sum">'+c.sum+'</p></div><div class="ic-stat">'+c.stat+'</div></div></div>'
+ +'<div class="ic-main"><div class="ic-text"><p class="ic-title">'+c.title+'</p><p class="ic-sum">'+c.sum+'</p></div>'+(c.stat?'<div class="ic-stat">'+c.stat+'</div>':'')+'</div></div>'
  +'<div class="ic-foot"><p class="ic-basis">'+c.basis+'</p><div class="ic-acts"><button type="button" class="btn-sec" data-djb="why" data-v="'+c.id+'" aria-expanded="'+(open?'true':'false')+'">'+INFO+'Why is this here?</button><button type="button" class="btn-pri" data-djb="tune" data-v="'+c.id+'">'+SP+'Tune with AI</button></div></div></div>'
  +(open?'<div class="djb-pop" role="dialog" aria-label="Why this is here">'+whyHTML(c)+'<div class="djb-pa"><button type="button" class="btn-pri" data-djb="tune" data-v="'+c.id+'">Tune this with the AI</button><button type="button" class="btn-sec" data-djb="notuseful" data-v="'+c.id+'">Not relevant to me</button></div></div>':'')+'</div>';
 }
 function sayQuote(re_){var t=S.text||'',parts=t.split(/[.!?]+\s+|,\s+(?:and\s+)?|\s+and\s+(?=the\b)/);for(var i=0;i<parts.length;i++)if(re_.test(parts[i]))return parts[i].replace(/[.!?]+$/,'').trim();return '';}
 function decided(re_,fallback){for(var i=0;i<S.decides.length;i++)if(re_.test(S.decides[i]))return S.decides[i];return fallback;}
 function youSaid(c){
- var out=[],q,d;
- if(c.link==='fix'){d=decided(/fix/,'');out.push(d?'You said you decide <b>'+esc(d)+'</b>, so problems customers report come first':'You did not mention fixing problems, so I used the usual focus for a '+esc(S.role));}
- if(c.link==='recognise'){d=decided(/recogni/,'');out.push(d?'You said you decide <b>'+esc(d)+'</b>, so praise is shown too':'You did not mention recognition, so I show praise as a bright spot');}
- if(c.id==='INS-04'){q=sayQuote(/rota|fitting|clean/i);if(q)out.push('You said \u201c'+esc(q)+'\u201d, so I check whether cleanliness moved');}
- if(c.id==='INS-05'){q=sayQuote(/terminal|payment|till/i);if(q)out.push('You said \u201c'+esc(q)+'\u201d. Tune this card if it is the same event');}
+ var out=[],q,d,L=c.link&&PK.links[c.link];
+ if(L){d=decided(L.re,'');out.push(d?L.has.replace('{d}',esc(d)):L.none.replace('{role}',esc(S.role)));}
+ (c.said||[]).forEach(function(x){q=sayQuote(x.re);if(q)out.push(x.t.replace('{q}',esc(q)));});
  var on=onList().filter(function(x){return x.aim;});
- if(on.length&&(c.id==='INS-06'||c.id==='INS-04'))out.push('You asked for <b>'+esc(on.map(function(x){return x.n.toLowerCase();}).join(' and '))+'</b> to lead, with an aim of '+esc(S.m[on[0].id].aim));
+ if(on.length&&c.useAim)out.push('You asked for <b>'+esc(on.map(function(x){return x.al||x.n.toLowerCase();}).join(' and '))+'</b> to lead, with an aim of '+esc(S.m[on[0].id].aim+(on[0].au||'')));
  return out;
 }
 function whyHTML(c){
@@ -132,14 +166,14 @@ function feedHTML(vis){
   return '<div class="v3-sec"><i style="background:'+x[2]+'"></i>'+x[1]+'<span class="n">'+cs.length+'</span></div>'+cs.map(cardHTML).join('');}).join('')+'</div>';
 }
 function alTitle(a){return a.t;}
-function alSub(a){return a.m?'Aim '+esc(S.m[a.m].aim)+' \u00b7 now '+(a.m==='overall'?'9.63':'9.67'):a.sub;}
+function alSub(a){return a.m?'Aim '+esc(S.m[a.m].aim)+(mById(a.m).au||'')+' \u00b7 now '+mById(a.m).val:a.sub;}
 function alOnN(){return AL.filter(function(a){return S.al[a.id].on;}).length;}
-function alRec(){return AL.filter(function(a){return a.id==='vol'||(a.m&&S.m[a.m].on);}).map(function(a){return a.id;});}
-function syncAl(){AL.forEach(function(a){if(a.m)S.al[a.id].on=!!S.m[a.m].on;});S.al.vol.on=true;S.al.theme.on=false;}
+function alRec(){return AL.filter(function(a){return !a.m||S.m[a.m].on;}).filter(function(a){return a.m||a.on0;}).map(function(a){return a.id;});}
+function syncAl(){AL.forEach(function(a){S.al[a.id].on=a.m?!!S.m[a.m].on:!!a.on0;});}
 function swH(on){return '<span class="djb-sw'+(on?' on':'')+'" aria-hidden="true"><i></i></span>';}
 function parseAlerts(t){var l=t.toLowerCase();if(/\b(no|none|not now|skip|nothing)\b/.test(l)){AL.forEach(function(a){S.al[a.id].on=false;});return;}
- var K=[['overall',/overall/],['service',/service/],['vol',/respon|volume|survey/],['theme',/complain|theme|spike|payment/]],any=K.some(function(x){return x[1].test(l);});
- if(any)K.forEach(function(x){S.al[x[0]].on=x[1].test(l);});}
+ var K=T('alertRe'),any=K.some(function(x){return x[1].test(l);});
+ if(any)K.forEach(function(x){if(S.al[x[0]])S.al[x[0]].on=x[1].test(l);});}
 function alChat(){
  var rec=alRec(),cur=AL.filter(function(a){return S.al[a.id].on;}).map(function(a){return a.id;});
  var same=rec.length===cur.length&&rec.every(function(x){return cur.indexOf(x)>-1;});
@@ -149,20 +183,21 @@ function alChat(){
 function tabsH(n){return '<div class="djb-tabs" role="tablist"><button type="button" role="tab" class="djb-tab'+(S.tab==='insights'?' on':'')+'" data-djb="tab" data-v="insights" aria-selected="'+(S.tab==='insights'?'true':'false')+'">Insights <span>'+n+'</span></button><button type="button" role="tab" class="djb-tab'+(S.tab==='alerts'?' on':'')+'" data-djb="tab" data-v="alerts" aria-selected="'+(S.tab==='alerts'?'true':'false')+'"><i class="djb-ti">'+BELL+'</i>Alerts <span class="djb-badge">'+alOnN()+' on</span></button></div>';}
 function chk(on){return '<span class="djb-cb">'+(on?CK:'')+'</span>';}
 function alPanel(a){
- var v=S.al[a.id],f;
- if(a.m)f='<p class="djb-al-s">Alert me when <b>'+(a.m==='overall'?'overall':'service')+' satisfaction</b> falls below <input class="djb-th" type="text" inputmode="decimal" data-djb-aim="'+a.m+'" value="'+esc(S.m[a.m].aim)+'" aria-label="Alert below this score"></p>';
- else if(a.id==='vol')f='<p class="djb-al-s">Alert me when responses a week fall below <input class="djb-th" type="text" inputmode="numeric" data-djb-th="vol" value="'+esc(v.th)+'" aria-label="Alert below this many responses a week"> (usual about 16)</p>';
- else f='<p class="djb-al-s">Alert me when a complaint theme is mentioned <input class="djb-th" type="text" inputmode="numeric" data-djb-th="theme" value="'+esc(v.th)+'" aria-label="Alert at this many times the usual rate"> times more than usual</p>';
- var ex=a.m?'With about 16 responses a week, a drop below '+esc(S.m[a.m].aim)+' this size would have fired once in the last 8 weeks (example).':a.id==='vol'?'A week this quiet has not happened in the last 8 weeks (example).':'This would have fired once: the payment failures on 14\u201315 Sep (example).';
+ var v=S.al[a.id],f,mx=a.m?mById(a.m):null,usual=a.usual||PK.volN;
+ if(mx)f='<p class="djb-al-s">Alert me when <b>'+esc(mx.al)+'</b> falls below <input class="djb-th" type="text" inputmode="decimal" data-djb-aim="'+a.m+'" value="'+esc(S.m[a.m].aim)+'" aria-label="Alert below this score"></p>';
+ else if(a.id==='vol')f='<p class="djb-al-s">Alert me when responses a week fall below <input class="djb-th" type="text" inputmode="numeric" data-djb-th="vol" value="'+esc(v.th)+'" aria-label="Alert below this many responses a week"> (usual about '+usual+')</p>';
+ else f='<p class="djb-al-s">'+(a.pre||'Alert me when a complaint theme is mentioned')+' <input class="djb-th" type="text" inputmode="numeric" data-djb-th="'+a.id+'" value="'+esc(v.th)+'" aria-label="Alert at this many times the usual rate"> '+(a.post||'times more than usual')+'</p>';
+ var ex=mx?'With about '+PK.volN+' responses a week, a drop below '+esc(S.m[a.m].aim)+(mx.au||'')+' this size would have fired once in the last 8 weeks (example).':a.id==='vol'?'A week this quiet has not happened in the last 8 weeks (example).':a.ex;
  var opt=function(k,t){return '<button type="button" class="djb-opt" data-djb="alopt" data-v="'+a.id+':'+k+'" role="checkbox" aria-checked="'+(v[k]?'true':'false')+'">'+chk(v[k])+t+'</button>';};
  return '<div class="djb-alp">'+f+'<div class="djb-alo">'+opt('sig','Only when the change is statistically significant')+opt('email','Send by email')+opt('app','Show in the app')+'</div><p class="dj-hint" style="margin:10px 0 0">'+ex+(a.m?' The aim stays linked to the number you chose to lead your feed.':'')+'</p></div>';
 }
 function alSample(){
  var a=AL.filter(function(x){return S.al[x.id].on;})[0];
  if(!a)return '<p class="djb-note">No alerts are on. Turn one on to see a sample alert.</p>';
- var subj=a.id==='overall'?'overall satisfaction fell to 9.21, below your aim of '+esc(S.m.overall.aim):a.id==='service'?'service satisfaction fell to 9.31, below your aim of '+esc(S.m.service.aim):a.id==='vol'?'responses this week fell to 4, well below the usual 16':'payment-failure complaints are 11 times the usual rate';
- var body=a.m?'RT ATYAF MALL \u00b7 week to Sunday. Down 0.4 on the week before, across 17 responses. This change is statistically significant.':a.id==='vol'?'RT ATYAF MALL \u00b7 this week so far. Check the survey link and the till prompt are working.':'RT ATYAF MALL \u00b7 14\u201315 Sep. 11 respondents described card or wallet payments failing at the till.';
- var why=a.m?'you asked to hear straight away when '+(a.m==='overall'?'overall':'service')+' satisfaction falls below your aim of '+esc(S.m[a.m].aim)+'.':a.id==='vol'?'you asked to hear straight away when responses a week drop sharply.':'you asked to hear straight away when a complaint theme spikes.';
+ var mx=a.m?mById(a.m):null,subj,body,why;
+ if(mx){subj=mx.al+' fell to '+mx.low+(mx.au||'')+', below your aim of '+esc(S.m[a.m].aim)+(mx.au||'');body=PK.org+' \u00b7 week to Sunday. Down '+mx.drop+' on the week before, across '+PK.sampleN+' responses. This change is statistically significant.';why='you asked to hear straight away when '+mx.al+' falls below your aim of '+esc(S.m[a.m].aim)+(mx.au||'')+'.';}
+ else if(a.id==='vol'){subj='responses this week fell to '+PK.volLow+', well below the usual '+(a.usual||PK.volN);body=PK.org+' \u00b7 this week so far. '+PK.volFix;why='you asked to hear straight away when responses a week drop sharply.';}
+ else{subj=a.sample.subj;body=a.sample.body;why='you asked to hear straight away when '+(a.why||'a complaint theme spikes')+'.';}
  return '<div class="djb-mail"><div class="djb-mailh"><i>'+BELL+'</i><span>Sample alert, sent by email and shown in the app</span><span class="djb-samp">Sample</span></div><div class="djb-mailb"><p class="djb-mlab">Subject</p><p class="djb-msub">Alert: '+subj+'</p><p>'+body+'</p><p><b>Why you got this:</b> '+why+'</p><div class="djb-pa"><button type="button" class="btn-pri" tabindex="-1">Open Email preview</button><button type="button" class="btn-sec" data-djb="alt" data-v="'+a.id+'">Turn off this alert</button></div></div></div>';
 }
 function alertsTab(){
@@ -175,10 +210,10 @@ function link(k,t){return '<button type="button" class="djb-ed" data-djb="'+k+'"
 function sPreview(){
  var dec=S.decides.map(function(d,i){return link('edit-say',d);});
  var aims=onList().filter(function(x){return x.aim;});
- var lead=onList().map(function(x){return x.n.replace(' satisfaction','').replace(' helpfulness','').toLowerCase();});
+ var lead=onList().map(function(x){return x.sh;});
  var leadTxt=lead.length>1?lead.slice(0,-1).join(', ')+' and '+lead[lead.length-1]:(lead[0]||'');
- var sent='You are a '+link('edit-say',esc(S.role))+' at RT ATYAF MALL. You decide '+(dec.length>1?dec.slice(0,-1).join(', ')+' and '+dec[dec.length-1]:dec[0])+'. '
-  +(leadTxt?(leadTxt.charAt(0).toUpperCase()+leadTxt.slice(1)+(lead.length>1?' lead':' leads')+' your feed'+(aims.length?', with an aim of '+link('edit-metrics',esc(S.m[aims[0].id].aim)):'')+'. '):'')
+ var sent='You are a '+link('edit-say',esc(S.role))+esc(PK.orgPhrase)+'. You decide '+(dec.length>1?dec.slice(0,-1).join(', ')+' and '+dec[dec.length-1]:dec[0])+'. '
+  +(leadTxt?(leadTxt.charAt(0).toUpperCase()+leadTxt.slice(1)+(lead.length>1?' lead':' leads')+' your feed'+(aims.length?', with an aim of '+link('edit-metrics',esc(S.m[aims[0].id].aim+(aims[0].au||''))):'')+'. '):'')
   +'I will update you '+link('edit-freq',FREQ_TXT[S.freq])+'.';
  var vis=CARDS.filter(function(c){return !S.hidden[c.id];});
  var h='<div class="djb-shell"><div class="djb-top">'+head()+'</div><div class="djb-pv"><h2 class="djb-h left" id="djb-h" tabindex="-1">Your feed is ready to build</h2><p class="djb-sub left">Here is what I understood, and a sample of both parts of your feed.</p>'
@@ -225,7 +260,9 @@ function render(focus){
  var keep=null,ae=document.activeElement;
  if(ae&&ae.id&&root.contains(ae)&&/^djb-(in|ta|tin)$/.test(ae.id))keep={id:ae.id,s:ae.selectionStart};
  root.className='djb-root';
+ root.setAttribute('data-djb-pack',PK.key);root.setAttribute('data-djb-step',S.step==='chat'?S.phase:S.step);
  root.innerHTML=S.step==='start'?sStart():S.step==='say'?sSay():S.step==='chat'?sChat():sPreview();
+ if(window.djbAfter)window.djbAfter(root,PK.key,S.step==='chat'?S.phase:S.step);
  var th=document.getElementById('djb-thread');if(th&&S.step==='chat'){var last=th.lastElementChild;if(last&&focus)last.scrollIntoView({block:'nearest',behavior:'smooth'});}
  var tt=document.getElementById('djb-tt');if(tt)tt.scrollTop=tt.scrollHeight;
  var el=keep&&document.getElementById(keep.id);
@@ -246,7 +283,7 @@ function mic(tid){
  rec=r;r.on=true;try{r.start();}catch(e){r.on=false;S.micErr='Voice typing could not start. You can type instead.';}
  render(false);
 }
-function finishUp(){micStop();var f=cb&&cb.done;S=fresh();if(f)f();}
+function finishUp(){micStop();var f=cb&&cb.done;usePack(PK.key,null);S=fresh();if(f)f();}
 
 /* ── actions ── */
 function chatSend(){
@@ -263,7 +300,7 @@ function onClick(e){
  var el=e.target.closest('[data-djb]');if(!el||!root.contains(el))return;
  var a=el.getAttribute('data-djb'),v=el.getAttribute('data-v');
  if(a==='begin'){S.step='say';render(true);}
- else if(a==='defaults'){S.role='store manager';S.decides=['what to fix each week','who to recognise'];S.step='preview';render(true);}
+ else if(a==='defaults'){S.role=PK.role0;S.decides=PK.decides0.slice();S.step='preview';render(true);}
  else if(a==='starter'){S.text=STARTERS[+v][1];render(false);var ta=document.getElementById('djb-ta');if(ta){ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);}}
  else if(a==='saysend'){var t=document.getElementById('djb-ta');S.text=t?t.value:S.text;if(!S.text.trim())return;micStop();parseSay(S.text);S.phase='metrics';S.sent=false;S.step='chat';render(true);}
  else if(a==='mic')mic(el.getAttribute('data-t'));
@@ -310,7 +347,7 @@ function onInput(e){
 }
 
 window.djbMount=function(rt,opts){
- root=rt;cb=opts||{};S=fresh();if(cb.prefill){S.text=PRE;S.prefilled=true;}
+ root=rt;cb=opts||{};usePack(cb.pack||'redtag',null);window.djbLast=null;S=fresh();if(cb.prefill&&PRE){S.text=PRE;S.prefilled=true;}
  if(!bound){bound=true;root.addEventListener('click',onClick);root.addEventListener('keydown',onKey);root.addEventListener('input',onInput);}
  render(false);
 };
