@@ -1,7 +1,7 @@
 /* ═══ SETUP BRIEF — conversational onboarding (Redtag AI setup). Prefix djb-. Uses base.css tokens only. ═══ */
 .djb-shell{position:relative;width:100%;max-width:820px;margin:0 auto;box-sizing:border-box;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-1);padding:22px 28px 0;min-width:0}
 .djb-top .eyebrow{display:block}
-.djb-prog{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}
+.djb-prog{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:14px}
 .djb-bar{display:block;height:3px;border-radius:2px;background:var(--line)}
 .djb-pi.done .djb-bar{background:var(--ink)}
 .djb-pi.act .djb-bar{background:var(--accent)}
@@ -116,3 +116,48 @@
 .djb-pt+.djb-pg{margin-top:0}
 .djb-you li::marker{color:var(--accent)}
 .djb-you li{color:var(--ink)}
+
+/* Alerts: chat step, preview tabs, alerts tab */
+.djb-alb .djb-ln b{display:block;font-weight:600}
+.djb-alb .djb-ln em{display:block;font-size:12px}
+.djb-sw{display:block;flex:none;width:34px;height:20px;border-radius:999px;background:#c3c8d1;position:relative;transition:background .15s}
+.djb-sw i{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:left .15s}
+.djb-sw.on{background:var(--accent)}
+.djb-sw.on i{left:16px}
+.djb-tabs{display:flex;gap:4px;margin-top:22px;border-bottom:1px solid var(--line-soft)}
+.djb-tab{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;background:none;font:inherit;font-size:13px;font-weight:600;color:var(--ink-3);cursor:pointer}
+.djb-tab.on{color:var(--accent-deep);border-bottom-color:var(--accent)}
+.djb-tab span{font-weight:600;font-size:11px;padding:1px 7px;border-radius:999px;background:var(--surface-2);color:var(--ink-2)}
+.djb-tab.on span{background:var(--accent-wash);color:var(--accent-deep)}
+.djb-ti{display:inline-flex}.djb-ti svg{width:14px;height:14px}
+.djb-tabs+.djb-first{margin-top:16px}
+.djb-alt{border:1px solid var(--line-soft);border-radius:var(--r-md);overflow:hidden;background:#fff}
+.djb-alth{display:flex;justify-content:space-between;padding:7px 14px;background:var(--surface-2);font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3)}
+.djb-ar{border-top:1px solid var(--line-soft)}
+.djb-alth+.djb-ar{border-top:0}
+.djb-ar.open{background:var(--accent-wash)}
+.djb-arh{display:flex;align-items:center;gap:10px;padding-right:14px}
+.djb-arb{flex:1;display:flex;align-items:center;gap:10px;min-width:0;padding:10px 0 10px 14px;border:0;background:none;text-align:left;font:inherit;font-size:13px;color:var(--ink);cursor:pointer}
+.djb-arb .djb-ln{flex:1;min-width:0}
+.djb-arb .djb-ln b{display:block;font-weight:600}
+.djb-arb .djb-ln em{display:block;font-size:12px}
+.djb-chev{flex:none;display:inline-flex;color:var(--ink-3);transition:transform .15s}
+.djb-chev svg{width:16px;height:16px}
+.djb-ar.open .djb-chev{transform:rotate(180deg)}
+.djb-swb{flex:none;border:0;background:none;padding:6px 0;cursor:pointer}
+.djb-alp{padding:2px 14px 14px}
+.djb-al-s{margin:0 0 10px;font-size:13px;color:var(--ink)}
+.djb-th{width:64px;margin:0 4px;padding:5px 8px;border:1px solid var(--line);border-radius:var(--r-sm,6px);font:inherit;font-size:13px;font-weight:600;text-align:center;background:#fff;color:var(--ink)}
+.djb-th:focus{outline:2px solid var(--accent);outline-offset:1px}
+.djb-alo{display:flex;flex-direction:column;gap:2px}
+.djb-opt{display:flex;align-items:center;gap:10px;padding:6px 0;border:0;background:none;font:inherit;font-size:13px;color:var(--ink);text-align:left;cursor:pointer}
+.djb-opt[aria-checked=true] .djb-cb{background:var(--accent);border-color:var(--accent)}
+.djb-mail{border:1px solid var(--line-soft);border-radius:var(--r-md);overflow:hidden;background:#fff}
+.djb-mailh{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--surface-2);font-size:12px;color:var(--ink-2)}
+.djb-mailh i{display:inline-flex;color:var(--accent-deep)}.djb-mailh i svg{width:15px;height:15px}
+.djb-mailh .djb-samp{margin-left:auto}
+.djb-mailb{padding:12px 14px 14px;font-size:13px}
+.djb-mailb p{margin:0 0 8px}
+.djb-mlab{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3)}
+.djb-msub{font-weight:600;font-size:14px}
+@media (max-width:640px){.djb-tab{padding:9px 10px}}
