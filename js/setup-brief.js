@@ -95,7 +95,7 @@ function sChat(){
  h+=ai('<p>Which numbers should lead your feed? Add an aim if you have a figure in mind.</p>'+list+'<p class="dj-hint" style="margin:8px 0 0">These come first. I still analyse the rest of your survey and tell you what stands out.</p>'+(S.sent?'':'<div class="dj-ai-actions"><button type="button" class="btn-pri" data-djb="usemetrics">Use these</button></div>'));
  if(S.sent){
   h+=you(metricSummary());
-  h+=ai('<p>Last one: how often should I update you? With about 16 responses a week, weekly works best. I will email each update too.</p><div class="djb-pills left">'+FREQ.map(function(f){return '<button type="button" class="djb-pill'+(S.phase==='freq'&&f[0]===S.freq?' on':'')+'" data-djb="freq" data-v="'+f[0]+'">'+f[1]+'</button>';}).join('')+'</div>');
+  h+=ai('<p>Last one: how often should I update you? With about 16 responses a week, weekly works best. I will email each update too.</p><div class="dj-hint" style="margin:8px 0 0">This also sets the period I analyse: each week against the weeks before it, each day against earlier days, and so on. I show only changes that are statistically significant.</div><div class="djb-pills left">'+FREQ.map(function(f){return '<button type="button" class="djb-pill'+(S.phase==='freq'&&f[0]===S.freq?' on':'')+'" data-djb="freq" data-v="'+f[0]+'">'+f[1]+'</button>';}).join('')+'</div>');
  }
  h+='</div>'+composer(S.sent?'Or type or say how often':'Or type or say which numbers and what aim')+'</div>';
  return h;
@@ -105,7 +105,7 @@ function cardHTML(c){
  return '<div class="djb-cw" data-id="'+c.id+'"><div class="insight-card ic spr-card djb-ic" data-priority="'+c.prio+'"><div class="ic-body"><div class="ic-head"><div class="ic-kind"><span class="ic-type">'+TYPE_PILL[c.type].icon+'<span>'+c.kind+'</span></span><span class="djb-sc">Sample</span>'+(cur?'<span class="djb-sc djb-tuned">Tuned</span>':'')+'</div></div>'
  +'<div class="ic-main"><div class="ic-text"><p class="ic-title">'+c.title+'</p><p class="ic-sum">'+c.sum+'</p></div><div class="ic-stat">'+c.stat+'</div></div></div>'
  +'<div class="ic-foot"><p class="ic-basis">'+c.basis+'</p><div class="ic-acts"><button type="button" class="btn-sec" data-djb="why" data-v="'+c.id+'" aria-expanded="'+(open?'true':'false')+'">'+INFO+'Why is this here?</button><button type="button" class="btn-pri" data-djb="tune" data-v="'+c.id+'">'+SP+'Tune with AI</button></div></div></div>'
- +(open?'<div class="djb-pop" role="dialog" aria-label="Why this is here">'+whyHTML(c)+'<div class="djb-pa"><button type="button" class="btn-pri" data-djb="tune" data-v="'+c.id+'">Tune this with the AI</button><button type="button" class="btn-sec" data-djb="notuseful" data-v="'+c.id+'">Not useful</button></div></div>':'')+'</div>';
+ +(open?'<div class="djb-pop" role="dialog" aria-label="Why this is here">'+whyHTML(c)+'<div class="djb-pa"><button type="button" class="btn-pri" data-djb="tune" data-v="'+c.id+'">Tune this with the AI</button><button type="button" class="btn-sec" data-djb="notuseful" data-v="'+c.id+'">Not relevant to me</button></div></div>':'')+'</div>';
 }
 function sayQuote(re_){var t=S.text||'',parts=t.split(/[.!?]+\s+|,\s+(?:and\s+)?|\s+and\s+(?=the\b)/);for(var i=0;i<parts.length;i++)if(re_.test(parts[i]))return parts[i].replace(/[.!?]+$/,'').trim();return '';}
 function decided(re_,fallback){for(var i=0;i<S.decides.length;i++)if(re_.test(S.decides[i]))return S.decides[i];return fallback;}
