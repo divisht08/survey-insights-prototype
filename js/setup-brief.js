@@ -2,6 +2,7 @@
    Screens: 1 start card · 2 talk it through · 3 the AI asks the rest · 4 check and build (real feed cards) · 5 tune a card by talking to the AI */
 (function(){
 'use strict';
+var PRE='I run the RT ATYAF MALL store. Each week I decide what to fix, who to recognise and what to raise with head office. We changed the fitting-room rota in September, and the card terminals were down on 14\u201315 Sep.';
 var root=null,cb=null,bound=false,S=null,SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null;
 var SP='<svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.07 3.29a1 1 0 00.95.69h3.46c.97 0 1.37 1.24.59 1.81l-2.8 2.03a1 1 0 00-.36 1.12l1.07 3.29c.3.92-.75 1.69-1.54 1.12l-2.8-2.03a1 1 0 00-1.18 0l-2.8 2.03c-.79.57-1.84-.2-1.54-1.12l1.07-3.29a1 1 0 00-.36-1.12L2.98 8.72c-.78-.57-.38-1.81.59-1.81h3.46a1 1 0 00.95-.69l1.07-3.29z"/></svg>';
 var CK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>';
@@ -30,10 +31,11 @@ function parseSay(t){
  var l=t.toLowerCase(),role='store manager',d=[];
  if(/several|multiple|region|area manager|cluster/.test(l))role='area manager';
  else if(/checkout|payment|till|queue/.test(l))role='checkout owner';
- else if(/change|worked|launch|pilot|trial/.test(l))role='owner of a store change';
+ else if(/made a change|launch|pilot|trial/.test(l))role='owner of a store change';
  if(/fix|improv|problem|complain|issue|support|payment|queue/.test(l))d.push('what to fix each week');
  if(/recogni|praise|reward|staff|team/.test(l))d.push('who to recognise');
- if(/worked|change|trial|pilot/.test(l))d.push('whether a change worked');
+ if(/head office|escalat|raise/.test(l))d.push('what to raise with head office');
+ if(/made a change|whether .*(worked|change)|check.* change|trial|pilot/.test(l))d.push('whether a change worked');
  if(!d.length)d=['what to fix each week','who to recognise'];
  S.role=role;S.decides=d;
 }
@@ -80,6 +82,7 @@ function sSay(){
  return '<div class="djb-shell"><div class="djb-top">'+head()+'</div><div class="djb-say"><span class="dj-empty-ico">'+SP+'</span><h2 class="djb-h" id="djb-h" tabindex="-1">What are you responsible for here, and what do you want to know?</h2><p class="djb-sub">I have read your store experience survey, so a sentence or two is enough. I will ask only about what is still missing.</p>'
  +'<div class="djb-box"><label class="dj-sr" for="djb-ta">Your answer</label><textarea id="djb-ta" rows="3" placeholder="'+(rec&&rec.on?'Listening…':'Tell me about your role and what you want from this feed')+'">'+esc(S.text)+'</textarea><div class="djb-boxbar"><span class="djb-boxnote">'+(rec&&rec.on?'<span class="dj-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span> Listening':(SR?'Speak or type':'Type your answer'))+'</span>'+(SR?'<button type="button" class="djb-ib'+(rec&&rec.on?' on':'')+'" data-djb="mic" data-t="djb-ta" aria-label="'+(rec&&rec.on?'Stop listening':'Speak your answer')+'" aria-pressed="'+(rec&&rec.on?'true':'false')+'">'+MIC+'</button>':'')+'<button type="button" class="djb-ib pri" id="djb-go" data-djb="saysend" aria-label="Send"'+(S.text.trim()?'':' disabled')+'>'+UP+'</button></div></div>'
  +(S.micErr?'<p class="dj-err">'+esc(S.micErr)+'</p>':'')
+ +(S.prefilled?'<p class="dj-banner" style="margin:12px 0 0;text-align:left">I filled this in to match what this store\u2019s feed shows. Check it and change anything.</p>':'')
  +'<div class="djb-pills">'+STARTERS.map(function(p,i){return '<button type="button" class="djb-pill" data-djb="starter" data-v="'+i+'">'+p[0]+'</button>';}).join('')+'</div><p class="dj-hint" style="text-align:center">Tap one to fill in a starting sentence, then change it to fit you.</p>'
  +'<p class="djb-skip"><button type="button" class="dj-link" data-djb="defaults">Skip and use a recommended setup</button></p></div></div>';
 }
@@ -110,7 +113,7 @@ function sPreview(){
  var aims=onList().filter(function(x){return x.aim;});
  var lead=onList().map(function(x){return x.n.replace(' satisfaction','').replace(' helpfulness','').toLowerCase();});
  var leadTxt=lead.length>1?lead.slice(0,-1).join(', ')+' and '+lead[lead.length-1]:(lead[0]||'');
- var sent='You are a '+link('edit-say',esc(S.role))+' at RT ATYAF MALL. You decide '+dec.join(' and ')+'. '
+ var sent='You are a '+link('edit-say',esc(S.role))+' at RT ATYAF MALL. You decide '+(dec.length>1?dec.slice(0,-1).join(', ')+' and '+dec[dec.length-1]:dec[0])+'. '
   +(leadTxt?(leadTxt.charAt(0).toUpperCase()+leadTxt.slice(1)+(lead.length>1?' lead':' leads')+' your feed'+(aims.length?', with an aim of '+link('edit-metrics',esc(S.m[aims[0].id].aim)):'')+'. '):'')
   +'I will update you '+link('edit-freq',FREQ_TXT[S.freq])+'.';
  var vis=CARDS.filter(function(c){return !S.hidden[c.id];});
@@ -235,7 +238,7 @@ function onInput(e){
 }
 
 window.djbMount=function(rt,opts){
- root=rt;cb=opts||{};S=fresh();
+ root=rt;cb=opts||{};S=fresh();if(cb.prefill){S.text=PRE;S.prefilled=true;}
  if(!bound){bound=true;root.addEventListener('click',onClick);root.addEventListener('keydown',onKey);root.addEventListener('input',onInput);}
  render(false);
 };
