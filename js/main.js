@@ -17,6 +17,7 @@ renderEditionBar(); renderFreshness(); renderEditionFoot(); applyFeedVisibility(
 syncPaneLayout();
 
 djSetupInit(); // Day 0 setup screen switcher (js/setup.js)
+djnInit(); // Generic setup 'For discussion' notes (js/setup-notes.js)
 
 // deep links from email links run last
 gateDeepLink(new URLSearchParams(location.search));
