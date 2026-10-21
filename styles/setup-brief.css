@@ -112,3 +112,7 @@
 .djb-samp,.djb-sc{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--accent-wash);border:1px dashed var(--accent);color:var(--accent-deep);font-size:11px;font-weight:600;letter-spacing:.02em;vertical-align:1px}
 .djb-sbn{margin:0 0 12px;padding:10px 14px;border-radius:var(--r-md);background:var(--accent-wash);border:1px dashed var(--accent);font-size:12.5px;line-height:1.55;color:var(--ink-2)}
 .djb-sbn b{color:var(--ink);font-weight:600}
+.djb-pg{margin:10px 0 4px;font-size:11px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.djb-pt+.djb-pg{margin-top:0}
+.djb-you li::marker{color:var(--accent)}
+.djb-you li{color:var(--ink)}
