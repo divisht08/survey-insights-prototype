@@ -547,6 +547,8 @@ function onClick(e){
 function setView(v){
  view=v;
  var cur=v==='current';
+ if(v==='redtag'&&window.djbMount){micAbort();P=PACKS[v];S=fresh();applyPrefill();tmr.forEach(clearTimeout);tmr=[];if(legacy)legacy.classList.add('hidden');root.hidden=false;var bt=host?host.querySelectorAll('[data-djv]'):[];for(var q=0;q<bt.length;q++)bt[q].setAttribute('aria-pressed',bt[q].getAttribute('data-djv')===v?'true':'false');window.djbMount(root,{done:function(){S.decisions=['fix','recognise'];finish('first-ready');}});return;}
+ if(window.djbUnmount)window.djbUnmount();
  if(legacy)legacy.classList.toggle('hidden',!cur);
  if(root)root.hidden=cur;
  var bs=host?host.querySelectorAll('[data-djv]'):[];
