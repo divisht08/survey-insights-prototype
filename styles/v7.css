@@ -1,0 +1,32 @@
+/* ═══ v7 — inbox-style feed: date groups, read/unread, activity icons, dismiss menu ═══ */
+.v7-date{grid-column:1/-1;display:flex;align-items:center;gap:8px;margin:14px 0 2px;font-size:12px;color:#6b7280}
+.v7-date:first-child{margin-top:0}
+.v7-date b{font-size:12.5px;font-weight:600;color:#1f2329}
+.v7-date .lt{font-size:11px;font-weight:600;color:#1967d2;background:#e8f0fe;border-radius:5px;padding:1px 6px}
+.v7-date .n{font-size:11px;color:#9aa0a8}
+.v7-date::after{content:"";flex:1;height:1px;background:#e9ebf0}
+
+/* read / unread */
+.insight-card .ic-title{font-weight:500}
+.insight-card.v7-unread .ic-title{font-weight:700;color:#111318}
+.insight-card.v7-unread .ic-title::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#1a73e8;margin:0 8px 2px 0;vertical-align:middle}
+.v7-unread-chip.on{background:#e8f0fe!important;border-color:#1a73e8!important;color:#1967d2!important}
+
+/* key figure only when it adds something */
+.insight-card.v7-nostat .ic-stat{display:none!important}
+
+/* activity icons: lit when used */
+.v7-act{display:inline-flex;align-items:center;gap:8px;margin-left:auto;margin-right:10px;color:#c3c7ce}
+.v7-act > span{display:inline-flex;align-items:center;gap:2px}
+.v7-act > span.on{color:#1a73e8}
+.v7-act b{font-size:11px;font-weight:600}
+
+.v7-nosig{color:#6b7280;font-style:italic}
+.v7-found{font-size:11.5px;color:#9aa0a8;margin:6px 0 0}
+
+/* dismiss menu: pick a reason, add a note */
+#v3-dm .v7-r{display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:12.5px;color:#1f2329;cursor:pointer;border-radius:6px}
+#v3-dm .v7-r:hover{background:#f7f8fa}
+#v3-dm textarea{width:calc(100% - 20px);margin:6px 10px 0;font-size:12.5px;border:1px solid #d7dae0;border-radius:7px;padding:6px 8px;resize:vertical;font-family:inherit}
+#v3-dm .v7-dm-acts{display:flex;justify-content:flex-end;gap:6px;padding:8px 10px 4px}
+.insight-card [data-v4-since]{display:none!important}
