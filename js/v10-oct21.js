@@ -138,6 +138,7 @@ function v10Reshape(html, id){
     .replace(/^Same 5-factor analysis as the cleanliness driver insight$/,'').replace(/^Staff in open comments$/,'How often comments mention staff')
     .replace(/^Rank among praise themes$/,'Rank among the reasons promoters give').replace(/^SHARE OF SATISFACTION VARIATION$/i,'How closely it moves with satisfaction')
     .replace(/^SCORE · VS PREV\.$/i,'Score, change'); });
+  ev.querySelectorAll('thead').forEach(th=>{ if(!th.textContent.trim()) th.remove(); });
   if(ev.children.length>1){ if(found) found.after(ev); else body.prepend(ev); }
   // 3. What customers say: the period only when the insight compares two periods
   const secs = [...body.querySelectorAll(':scope > .id-sect')];
@@ -150,9 +151,6 @@ function v10Reshape(html, id){
     const both = /Current period/.test(voice.textContent) && /Previous period/.test(voice.textContent);
     if(!both){ voice.querySelectorAll('.v3-q *').forEach(n=>{ if(!n.children.length) n.textContent = n.textContent.replace(/^·\s*(Current|Previous) period\s*$/,'').replace(/^·\s*(\d+ \w{3}) period\s*$/,'· $1'); });
       voice.querySelectorAll('p.eyebrow').forEach(p=>{ if(/period/i.test(p.textContent)) p.remove(); }); }
-    // no staff names in quotes
-    const tw = document.createTreeWalker(voice, NodeFilter.SHOW_TEXT); let tn;
-    while((tn = tw.nextNode())) tn.nodeValue = tn.nodeValue.replace('أستاذ زياد','[اسم الموظف]').replace(/Mr\. Ziad/g,'[Staff member]');
     const all = voice.querySelector('[data-v3-see-all]'); if(all){ all.setAttribute('onclick', "toast('In the product this lists every comment behind the insight')"); all.textContent = 'See all comments'; }
   }
   // 4. Recommended actions
@@ -226,3 +224,103 @@ v9AMCardHTML = function(a){ return _v10AMCard(a).replace('<span class="illus" st
 
 /* ── start ── */
 (function v10Init(){ applyFeedVisibility(); })();
+
+/* ═══ every other drill-down, rewritten the same way ═══ */
+Object.assign(V10_DRILL, {
+  'INS-02': {
+    what:'Shoppers in both periods said offers were not what they seemed: a "2+2 free" that turned out to apply only to some items, and "40 SAR off" that applied to a future purchase rather than the bill in hand. These are complaints about how offers are explained, not about prices being high. There are only a few such comments, so the data cannot say how many shoppers are affected.',
+    compares:'01 Jun – 23 Sep vs 14 Feb – 31 May 2026', responses:'261 this period, 568 before',
+    stats:[['Seen in','Both periods','14 Feb – 31 May and 01 Jun – 23 Sep'],['Clear examples','1 each','one in each period'],['Change between periods','Not measured','too few comments to compare']],
+    actions:[
+      {who:'', t:'Walk each active offer from the door to the till', d:'Check that the sign, what staff say and what the till applies all match.', cta:'plan'},
+      {who:'Central Operations', t:'Ask for clearer wording on offer mechanics', d:'If the offer itself is confusing, the fix is in the campaign, not the store.', cta:'share'}]
+  },
+  'INS-03': {
+    what:'Some comments this period say prices are too high, for example "Plz less the price". In the previous period, comments about price were mostly positive, such as "Affordable" and "High quality and suitable price". There are only a few comments either way, so this is worth watching rather than acting on, and price levels are set outside the store.',
+    compares:'01 Jun – 23 Sep vs 14 Feb – 31 May 2026', responses:'261 this period, 568 before',
+    stats:[['Seen in','Both periods','negative now, mostly positive before'],['Clear examples','1 now, 2 before',''],['Change between periods','Not measured','too few comments to compare']],
+    actions:[
+      {who:'', t:'Check whether price comments point to particular products', d:'And make sure staff can explain value and the current offers.', cta:'plan'},
+      {who:'Central Operations', t:'Pass repeated price complaints to pricing', d:'Price levels are set centrally, not by the store.', cta:'share'}]
+  },
+  'FOL-01': {
+    what:'In early September, weekend shoppers rated checkout 7.4 out of 10, lower than in the period before. The score has risen in each update since, to 8.0 in the latest one, and the difference is now within normal variation. A third till was added on Saturdays from 12 Sep, as noted in the activity on this insight.',
+    compares:'Weekend visits vs the previous period',
+    stats:[['Weekend checkout score','8.0','out of 10 · 7.4 when you followed']],
+    actions:[{who:'', t:'Keep the third Saturday till for another update', d:'If the score holds, mark this insight as done.', cta:'plan'}]
+  },
+  'FOL-02': {
+    what:'In mid-September, first-time shoppers rated fitting-room help 1.3 points lower than returning shoppers, and 1.1 lower in the 20 Sep update. In the latest update only 18 first-time shoppers responded, fewer than the 30 needed to compare the two groups, so the gap could not be checked again.',
+    compares:'First-time vs returning shoppers',
+    stats:[['Gap, last reliable figure','−1.1','points · Sun 20 Sep update'],['First-time shoppers who responded','18','30 needed to compare']],
+    actions:[{who:'', t:'Offer fitting-room help to first-time shoppers', d:'Check the gap again when enough first-time shoppers have responded.', cta:'plan'}]
+  },
+  // Day 50 · Area Manager (sample content)
+  'AM-01': {what:'Checkout is rated lower in 4 of your 30 stores than anywhere else in the area: between 7.6 and 7.8 out of 10, against an area average of 8.6. Each of the 4 has more than 100 responses, so the gap is not down to a few unhappy shoppers. Store 07 in Riyadh is furthest behind, a full point below the area.',
+    table:'Checkout score by store', actions:[{who:'',t:'Compare till cover at peak hours with your best checkout stores',d:'Start with Store 07, a full point behind the area.',cta:'plan'},{who:'Store Managers',t:'Show each manager their store against the area',d:'Each of the 4 sees their checkout score next to the area average.',cta:'share'}]},
+  'AM-02': {what:'Comments about waiting for a fitting room have grown every week for 4 weeks in 5 stores, to two or three times the level of the 12 weeks before. The other 25 stores show no change, so this is about these stores rather than the season. Store 03 in Riyadh has the most, 21 mentions in 4 weeks.',
+    table:'Fitting-room wait mentions by store', actions:[{who:'',t:'Check fitting-room staffing in these 5 stores',d:'Compare the rota with the days and times the comments were left.',cta:'plan'}]},
+  'AM-03': {what:'In 18 of your 30 stores, fitting-room cleanliness is the part of the visit that moves most closely with overall satisfaction, and in 7 more it is second. Only 5 stores have it outside their top 3. Because it shows up almost everywhere, one area standard is likely to help more than store-by-store fixes.',
+    table:'Where cleanliness ranks, by store', actions:[{who:'',t:'Make a fitting-room reset part of the area shift standard',d:'Then check whether cleanliness scores move in the next update.',cta:'plan'}]},
+  'AM-04': {what:'RT ATYAF MALL and Stores 05, 09, 14 and 28 have each scored above 9.5 out of 10 every week since the start of September, the highest in the area. Four weeks in a row makes a one-off good week unlikely.',
+    table:'Overall score, week of 21 Sep', actions:[{who:'Store Managers',t:'Ask these 5 managers what they do differently',d:'Use the next area call, and pass it on to the stores below the area average.',cta:'share'}]},
+  'AM-05': {what:'Parking had not come up in comments for 12 weeks. In the last 3 weeks it came up 14 times, all at stores inside malls: Stores 03, 14 and 21. The numbers are small so far, but a new topic appearing in 3 stores at once is worth a check.',
+    table:'Parking mentions, last 3 weeks', actions:[{who:'',t:'Ask the mall operators whether parking changed',d:'For example roadworks or new paid parking in the last 3 weeks.',cta:'plan'}]},
+  'AM-06': {what:'In 7 stores, staff helpfulness is rated about 0.6 lower at weekends than on weekdays, for example 9.2 on weekdays and 8.4 at weekends in Store 02. Across the other stores the gap is only 0.1. Weekday scores in these 7 stores are normal, so weekend staffing is the place to look.',
+    table:'Staff helpfulness, weekday vs weekend', actions:[{who:'',t:'Compare weekend and weekday staffing in these 7 stores',d:'Look at how many staff are on the floor at peak weekend hours.',cta:'plan'}]},
+  'AM-07': {what:'On 14 and 15 September, payment-failure complaints jumped in 6 stores at once, 51 mentions between them in two days. Because the spike hit 6 stores on the same 2 days, it points to one shared cause, such as the payment provider, rather than a problem in each store. Mentions went back to normal afterwards, so it is no longer significant.',
+    table:'Payment-failure mentions on 14–15 Sep', actions:[{who:'Central Operations',t:'Ask IT or the payment provider about an outage on 14–15 Sep',d:'One answer covers all 6 stores.',cta:'share'}]},
+  'AM-08': {what:'Comments saying an offer was unclear at the till appear in 22 of your 30 stores: every week in 9 of them and most weeks in another 13. The rate is similar from store to store, which suggests the offers themselves are confusing rather than how each store explains them.',
+    table:'How often stores see offer-clarity comments', actions:[{who:'Central Operations',t:'Ask for clearer offer signage across the network',d:'A pattern this wide needs one central fix.',cta:'share'}]},
+  'AM-09': {what:'9 stores received at least 30% fewer survey responses in the last 4 weeks than in the 4 weeks before, for example 41 instead of 77 at Store 08. This often means the invitation is not reaching shoppers, such as the QR code on receipts not printing. Fewer responses also make these stores\' other results less reliable.',
+    table:'Responses by store', actions:[{who:'',t:'Check that the receipt QR code prints in these 9 stores',d:'Start with Store 08, which lost almost half its responses.',cta:'plan'}]},
+  'AM-10': {what:'About 11% of comments mention high prices this period, against 12% in the period before, and the share is similar in most stores. Nothing points to one store or one week, so this is a steady background view of pricing rather than something new.',
+    table:'Share of comments about price', actions:[{who:'Central Operations',t:'Share it with the pricing team for awareness',d:'Prices are set centrally, so there is little for stores to change.',cta:'share'}]},
+  'AM-11': {what:'Between June and mid-September, loyalty members rated their visit 9.4 out of 10 against 8.9 for other shoppers, and the gap appeared in 24 of 30 stores. In the latest update the gap is no longer large enough to be significant, so it may be narrowing.',
+    table:'Overall score by group', actions:[{who:'',t:'Look at what members get at the till that others do not',d:'If it is the offer itself, consider showing it to every shopper.',cta:'plan'}]},
+  'AM-12': {what:'In the week of 30 August, 18 comments said the store was too hot, 11 at Store 17 and 7 at Store 24, against about 1 a month before. The comments stopped the next week, so it is no longer significant, but it is worth confirming the air conditioning was fixed.',
+    table:'Comments about heat, week of 30 Aug', actions:[{who:'Central Operations',t:'Check with facilities that the air conditioning was repaired',d:'At Stores 17 and 24.',cta:'share'}]},
+  'AM-13': {what:'After cleanliness, finding your size is the part of the visit that moves most with satisfaction in 11 stores. 8 of these 11 are small stores, which suggests smaller stores run out of sizes more often.',
+    table:'Stores where size availability ranks second', actions:[{who:'Merchandising',t:'Review size allocation for smaller stores',d:'8 of the 11 stores are small.',cta:'share'}]},
+  'AM-14': {what:'Shoppers who came in to return an online order rated the visit 0.7 lower than other shoppers, 8.4 against 9.1, between June and August. In the latest update too few of these visits were rated to confirm it again.',
+    table:'Overall score by visit type', actions:[{who:'',t:'Time how long an online return takes at the till',d:'Compare it with a normal purchase.',cta:'plan'}]},
+  'AM-15': {what:'In all 30 stores, friendly and helpful staff is the reason promoters give most often for their score. It ranges from 18% of promoter comments in the lowest store to 46% in the highest, with 31% on average.',
+    table:'Promoter comments that mention staff', actions:[{who:'Store Managers',t:'Recognise it on the next area call',d:'Ask the stores at the top of the range what they do.',cta:'share'}]},
+  // other surveys (sample content)
+  'AL-03': {what:'Late or missed delivery windows came up in detractor comments in every one of the last 12 weeks, more than any other reason detractors give. Because it appears every week, it is a standing delivery problem rather than a one-off.',
+    table:'Weeks with the theme', actions:[{who:'Central Operations',t:'Share the delivery comments with whoever owns the delivery partner',d:'Every week of the period has them.',cta:'share'}]},
+  'AL-04': {what:'Comments about refunds taking too long appeared in the last 3 weeks. They were not seen at all in the 6 months before, so this is new.',
+    table:'When the theme appeared', actions:[{who:'',t:'Check refund processing times with finance',d:'Compare the last 3 weeks with the months before.',cta:'plan'}]}
+});
+// sample insights keep their store-level table as the evidence
+Object.keys(V10_DRILL).forEach(k=>{ const c = V10_DRILL[k]; if(c.table){ c.keepChart = /^The evidence$/i; c.chartTitle = c.table; c.stats = c.stats || []; } });
+const _v10Stats = v10Stats;
+v10Stats = function(stats){ return stats && stats.length ? _v10Stats(stats) : ''; };
+const _v10Facts = v10Facts;
+v10Facts = function(id){ const c = V10_DRILL[id]; if(c && !c.compares){ const am = (typeof V9_AM_BY!=='undefined' && V9_AM_BY[id]) || (typeof v3FindScopeCard==='function' && v3FindScopeCard(id)); if(am) c.compares = am.basis; } return _v10Facts(id); };
+
+/* other surveys: the same drill-down as the feed */
+const V10_SCOPE_IDS = ['AL-01','AL-02','AL-03','AL-04','AR-01','AR-02','AR-03','AR-04'];
+const _v10InCur = inCurrentEdition;
+inCurrentEdition = function(id){ return V10_SCOPE_IDS.includes(id) ? true : _v10InCur(id); };
+v3OpenScopeCard = function(cid){
+  const c = v3FindScopeCard(cid); if(!c) return;
+  const list = document.getElementById('v3-scope-list'), panel = document.getElementById('v3-scope-panel');
+  INSIGHT_META[cid] = INSIGHT_META[cid] || {title:c.title, summary:c.sum, category:c.type, tag:c.type.split(' · ')[1]||'', type:'recurring', ctx:c.basis};
+  PRIORITY[cid] = PRIORITY[cid] || {level:c.prio, reason:''};
+  COPILOT_QA[cid] = COPILOT_QA[cid] || [['Has this happened before?','Not in this survey\'s earlier updates. This is the first time it has come up.','Earlier updates of this survey']];
+  list.style.maxWidth = '460px'; list.style.flex = '0 0 460px'; list.style.margin = '0';
+  list.querySelectorAll('.v3-card').forEach(x=>x.classList.toggle('active', x.dataset.v3Card===cid));
+  list.querySelectorAll('.ic-sum,.ic-foot,.ic-stat').forEach(x=>x.style.display='none');
+  const a = {id:cid, kind:c.type, title:c.title, sum:c.sum, basis:c.basis, prio:c.prio, type:'recurring', th:c.tableHead, rows:c.table,
+    review:'review', steps:c.steps.map(s=>[s[0].replace(/\.$/,''), s[1], s[2]==='central' ? 'share:Central Operations' : s[2]==='share' ? 'share:Area Managers' : 'plan'])};
+  panel.innerHTML = v6Shape(v9AMPanelRaw(a).replace(/closeInvestigatePanel\(true\)/g,'v3CloseScopeCard()'), cid, {full:false});
+  panel.classList.remove('hidden'); panel.scrollTop = 0;
+};
+{ const g = V9_GROUPS.find(x=>x.name==='Merchandising'); if(g) g.on = true; }
+// the old sample-data banners stay off everywhere, including shared views
+document.head.insertAdjacentHTML('beforeend','<style>.illus-banner{display:none!important}</style>');
+// other surveys' lists: no Illustrative tag, no urgency sections (same as the feed)
+const _v10ScopeCard = v3ScopeCardHTML;
+v3ScopeCardHTML = function(c){ return _v10ScopeCard(c).replace('<span class="illus" style="display:inline-flex!important">Illustrative</span>',''); };
+document.head.insertAdjacentHTML('beforeend','<style>#v3-scope-list .v3-sec{display:none!important}</style>');
