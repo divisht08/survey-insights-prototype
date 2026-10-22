@@ -1,0 +1,7 @@
+/* ═══ v11 — one drill-down structure everywhere ═══ */
+.v11-outcome{font-size:12px;font-weight:600;margin:0 0 8px;color:#42474f}
+.v11-outcome.consistent{color:#0b6b48}
+.v10-main > .id-sect[data-v11-sect="What customers say"] > .space-y-2,.v10-main > .id-sect[data-v11-sect="Activity and comments"] > *:not(.v6-sh){margin-left:16px;margin-right:16px}
+.v10-main > .id-sect[data-v11-sect] > .v3-seeall{margin:10px 16px 14px}
+.v10-main > .id-sect[data-v11-sect="Activity and comments"] > *:last-child{margin-bottom:14px}
+.v10-main > .id-sect[data-v11-sect="What customers say"] > .space-y-2{margin-bottom:6px}

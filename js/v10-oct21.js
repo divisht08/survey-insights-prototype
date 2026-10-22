@@ -244,10 +244,10 @@ Object.assign(V10_DRILL, {
       {who:'Central Operations', t:'Pass repeated price complaints to pricing', d:'Price levels are set centrally, not by the store.', cta:'share'}]
   },
   'FOL-01': {
-    what:'In early September, weekend shoppers rated checkout 7.4 out of 10, lower than in the period before. The score has risen in each update since, to 8.0 in the latest one, and the difference is now within normal variation. A third till was added on Saturdays from 12 Sep, as noted in the activity on this insight.',
+    what:'In early September, weekend shoppers rated checkout 7.4 out of 10, lower than in the period before. The score has risen in each update since, to 8.0 in the latest one, and the difference is now within normal variation.',
     compares:'Weekend visits vs the previous period',
     stats:[['Weekend checkout score','8.0','out of 10 · 7.4 when you followed']],
-    actions:[{who:'', t:'Keep the third Saturday till for another update', d:'If the score holds, mark this insight as done.', cta:'plan'}]
+    actions:[{who:'', t:'Keep weekend till cover as it is now', d:'If the score holds for another update, there is nothing more to do here.', cta:'plan'}]
   },
   'FOL-02': {
     what:'In mid-September, first-time shoppers rated fitting-room help 1.3 points lower than returning shoppers, and 1.1 lower in the 20 Sep update. In the latest update only 18 first-time shoppers responded, fewer than the 30 needed to compare the two groups, so the gap could not be checked again.',
