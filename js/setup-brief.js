@@ -14,7 +14,7 @@ var PACKS=window.djbPacks=window.djbPacks||{};
 /* ── content packs. Redtag is defined here; Generic lives in js/setup-brief-generic.js ── */
 PACKS.redtag={key:'redtag',org:'RT ATYAF MALL',orgPhrase:' at RT ATYAF MALL',survey:'Store experience survey',surveyLow:'store experience survey',
  pre:'I run the RT ATYAF MALL store. Each week I decide what to fix, who to recognise and what to raise with head office. We changed the fitting-room rota in September, and the card terminals were down on 14\u201315 Sep.',
- role0:'store manager',decides0:['what to fix each week','who to recognise'],
+ role0:'store manager',decides0:['what to fix each week','who to recognise'],decOpts:['what to fix each week','who to recognise','what to raise with head office','whether a change worked'],
  volN:16,volLow:4,sampleN:17,freqAdvice:'With about 16 responses a week, weekly works best.',
  qMetrics:'Which numbers should lead your feed? Add an aim if you have a figure in mind.',qHint:'These come first. I still analyse the rest of your survey and tell you what stands out.',
  volFix:'Check the survey link and the till prompt are working.',
@@ -63,7 +63,7 @@ function mkSel(){
  return {m:m,al:al};
 }
 function fresh(){var sel=mkSel();
- return {step:'start',text:'',role:PK.role0,decides:PK.decides0.slice(),m:sel.m,phase:'metrics',sent:false,freq:'weekly',tab:'insights',alOpen:null,al:sel.al,hidden:{},tuned:{},popId:null,tune:null,notes:[]};}
+ return {step:'start',text:'',role:PK.role0,decides:PK.decides0.slice(),m:sel.m,phase:'metrics',dsent:false,dsel:PK.decides0.slice(),dcustom:[],sent:false,freq:'weekly',tab:'insights',alOpen:null,al:sel.al,hidden:{},tuned:{},popId:null,tune:null,notes:[]};}
 function byId(id){for(var i=0;i<CARDS.length;i++)if(CARDS[i].id===id)return CARDS[i];return null;}
 
 /* ── understanding what was said (keyword stand-in for the real model) ── */
@@ -74,6 +74,7 @@ function parseSay(t){
  usePack(PK.key,fam?fam.id:null);
  var sel=mkSel();S.m=sel.m;S.al=sel.al;S.hidden={};S.tuned={};
  if(fam){S.role=fam.role;S.decides=[fam.decides];}
+ S.dsel=S.decides.slice();S.dcustom=[];S.dsent=false;
  window.djbLast=fam?{id:fam.id,said:t.trim(),read:fam.read,checks:fam.checks,qs:fam.qs}:null;
 }
 function parseMetrics(t){
@@ -100,7 +101,7 @@ function metricSummary(){
 
 /* ── pieces ── */
 function progress(){
- var done=S.step==='preview'?5:S.step==='chat'?(S.phase==='metrics'?2:S.phase==='freq'?3:4):0,act=S.step==='chat'?done:-1;
+ var done=S.step==='preview'?5:S.step==='chat'?(S.phase==='decide'?1:S.phase==='metrics'?2:S.phase==='freq'?3:4):0,act=S.step==='chat'?done:-1;
  if(S.step==='say')act=0;
  return '<div class="djb-prog" role="list" aria-label="Setup progress">'+STEPS.map(function(n,i){
   var st=i<done?'done':i===act?'act':'';
@@ -130,7 +131,7 @@ function split(shell){return '<div class="djb-split"><div class="djb-main">'+she
 function learnHTML(){
  var cap=function(t){return t.charAt(0).toUpperCase()+t.slice(1);},st=S.step,ph=S.phase;
  var fam=window.djbLast&&PK.cur&&window.djbLast.id===PK.cur.id?window.djbLast:null;
- var it=[['Your role',cap(S.role),'From your first answer','edit-say'],['What you decide',S.decides.map(cap).join(', ')+'.','From your first answer','edit-say']];
+ var it=[['Your role',cap(S.role),'From your first answer','edit-say'],['What you decide',(S.dsent||st==='preview'?S.decides:S.dsel).map(cap).join(', ')+'.',S.dsent||st==='preview'?'You confirmed this':'My first read of your answer','edit-decide']];
  if(fam)it.push(['How I read it',fam.read,'Checked against your survey','']);
  var todo=[];
  if(S.sent||st==='preview')it.push(['What leads your feed',metricSummary(),'Your numbers and aims','edit-metrics']);else todo.push('which numbers lead');
@@ -142,9 +143,21 @@ function learnHTML(){
   return '<li'+(i===last?' class="new"':'')+'><span class="djb-lk">'+esc(x[0])+(i===last?' <i>Just learned</i>':'')+'</span><span class="djb-lv">'+esc(x[1])+'</span><span class="djb-ls">'+esc(x[2])+(x[3]?' \u00b7 '+'<button type="button" class="dj-link" data-djb="'+x[3]+'">Change</button>':'')+'</span></li>';}).join('')+'</ul>'
   +(todo.length?'<p class="djb-lt">Still to learn: '+esc(todo.join(', '))+'.</p>':'')+'</aside>';
 }
+/* ── the decision question: what the feed should help you decide, pre-selected from the first answer ── */
+function decOpts(){var b=(T('decOpts')||[]).slice();S.dsel.concat(S.dcustom,S.decides).forEach(function(d){if(b.indexOf(d)<0)b.push(d);});return b;}
+function decCap(t){return t.charAt(0).toUpperCase()+t.slice(1);}
+function parseDecide(t){
+ var l=t.toLowerCase(),o=decOpts(),hit=o.filter(function(d){return d.split(/\s+/).some(function(w){return w.length>3&&l.indexOf(w)>-1;});});
+ if(!hit.length){var c=t.trim().replace(/[.!?]+$/,'');c=c.charAt(0).toLowerCase()+c.slice(1);S.dcustom.push(c);hit=[c];}
+ S.dsel=hit;
+}
 function sChat(){
  var h='<div class="djb-shell"><div class="djb-top">'+head()+'</div>';
  h+='<div class="djb-thread" id="djb-thread" aria-live="polite">';
+ var dl='<div class="djb-list">'+decOpts().map(function(d,i){var on=S.dsel.indexOf(d)>-1;
+  return '<div class="djb-li'+(on?' on':'')+'"><button type="button" class="djb-lb" data-djb="td" data-v="'+i+'" aria-pressed="'+(on?'true':'false')+'" '+(S.dsent?'disabled':'')+'><span class="djb-cb">'+(on?CK:'')+'</span><span class="djb-ln">'+esc(decCap(d))+'</span></button></div>';}).join('')+'</div>';
+ h+=ai('<p>Here is what I took from that. What should this feed help you decide? Change anything that is not right.</p>'+dl+(S.dsent?'':'<div class="dj-ai-actions"><button type="button" class="btn-pri" data-djb="usedecide">Use these</button></div>'));
+ if(S.dsent){h+=you(S.decides.map(decCap).join(', ')+'.');
  var list='<div class="djb-list">'+METRICS.map(function(x){var on=S.m[x.id].on;
   return '<div class="djb-li'+(on?' on':'')+'"><button type="button" class="djb-lb" data-djb="tm" data-v="'+x.id+'" aria-pressed="'+(on?'true':'false')+'" '+(S.sent?'disabled':'')+'><span class="djb-cb">'+(on?CK:'')+'</span><span class="djb-ln">'+x.n+' <em>· now '+x.now+'</em></span></button>'+(x.aim&&on?(S.m[x.id].aim!==''?'<span class="djb-aim"><label>Aim <input type="text" inputmode="decimal" data-djb-aim="'+x.id+'" value="'+esc(S.m[x.id].aim)+'" aria-label="Aim for '+x.n.toLowerCase()+' '+x.unitTxt+'" '+(S.sent?'disabled':'')+'></label>'+(S.sent?'':'<button type="button" class="dj-link" data-djb="aimskip" data-v="'+x.id+'">Skip</button>')+'</span>':(S.sent?'':'<span class="djb-aim"><button type="button" class="dj-link" data-djb="aimadd" data-v="'+x.id+'">Add an aim</button></span>')):'')+'</div>';}).join('')+'</div>';
  h+=ai('<p>'+esc(T('qMetrics'))+'</p>'+list+'<p class="dj-hint" style="margin:8px 0 0">'+esc(T('qHint'))+'</p>'+(S.sent?'':'<div class="dj-ai-actions"><button type="button" class="btn-pri" data-djb="usemetrics">Use these</button></div>'));
@@ -153,7 +166,8 @@ function sChat(){
   h+=ai('<p>Next, how often should I update you? '+esc(PK.freqAdvice)+' I will email each update too.</p><div class="dj-hint" style="margin:8px 0 0">This also sets the period I analyse: each week against the weeks before it, each day against earlier days, and so on. I show only changes that are statistically significant.</div><div class="djb-pills left">'+FREQ.map(function(f){return '<button type="button" class="djb-pill'+(f[0]===S.freq?' on':'')+'" data-djb="freq" data-v="'+f[0]+'"'+(S.phase==='alerts'?' disabled':'')+'>'+f[1]+'</button>';}).join('')+'</div>');
   if(S.phase==='alerts'){h+=you(FREQ.filter(function(f){return f[0]===S.freq;})[0][1].replace(' \u00b7 recommended','')+' is fine');h+=alChat();}
  }
- h+='</div>'+composer(S.phase==='alerts'?'Or say which alerts you want':S.sent?'Or type or say how often':(T('metricPh')||'Or type or say which numbers and what aim'))+'</div>';
+ }
+ h+='</div>'+composer(S.phase==='decide'?'Or type or say what you decide':S.phase==='alerts'?'Or say which alerts you want':S.sent?'Or type or say how often':(T('metricPh')||'Or type or say which numbers and what aim'))+'</div>';
  return split(h);
 }
 function cardHTML(c){
@@ -227,7 +241,7 @@ function alertsTab(){
 }
 function link(k,t){return '<button type="button" class="djb-ed" data-djb="'+k+'">'+t+'</button>';}
 function sPreview(){
- var dec=S.decides.map(function(d,i){return link('edit-say',d);});
+ var dec=S.decides.map(function(d,i){return link('edit-decide',d);});
  var aims=onList().filter(function(x){return x.aim&&S.m[x.id].aim!=='';});
  var lead=onList().map(function(x){return x.sh;});
  var leadTxt=lead.length>1?lead.slice(0,-1).join(', ')+' and '+lead[lead.length-1]:(lead[0]||'');
@@ -307,6 +321,7 @@ function finishUp(){micStop();var f=cb&&cb.done;usePack(PK.key,null);S=fresh();i
 /* ── actions ── */
 /* the recommended answer for the current step, used when Send is pressed with nothing typed */
 function advance(){
+ if(S.phase==='decide'){if(!S.dsel.length){S.micErr='Pick at least one, or type what you decide.';render(false);return;}S.decides=S.dsel.slice();S.dsent=true;S.phase='metrics';render(true);return;}
  if(S.phase==='alerts'){S.step='preview';render(true);return;}
  if(!S.sent){syncAl();S.sent=true;S.phase='freq';render(true);return;}
  S.phase='alerts';render(true);
@@ -315,6 +330,7 @@ function chatSend(){
  var inp=document.getElementById('djb-in');var v=inp?inp.value.trim():'';micStop();
  if(!v){advance();return;}
  S.draft='';
+ if(S.phase==='decide'){parseDecide(v);S.decides=S.dsel.slice();S.dsent=true;S.phase='metrics';render(true);return;}
  if(S.phase==='alerts'){parseAlerts(v);S.step='preview';render(true);return;}
  if(!S.sent||S.phase==='metrics'&&!S.sent){parseMetrics(v);syncAl();S.sent=true;S.phase='freq';render(true);return;}
  var f=parseFreq(v);if(f){S.freq=f;S.phase='alerts';render(true);}else{S.micErr='I did not catch how often. Pick one of the options, or say weekly, daily or monthly.';render(false);}
@@ -327,10 +343,13 @@ function onClick(e){
  if(a==='begin'){S.step='say';render(true);}
  else if(a==='defaults'){S.role=PK.role0;S.decides=PK.decides0.slice();S.step='preview';render(true);}
  else if(a==='starter'){S.text=STARTERS[+v][1];render(false);var ta=document.getElementById('djb-ta');if(ta){ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);}}
- else if(a==='saysend'){var t=document.getElementById('djb-ta');S.text=t?t.value:S.text;if(!S.text.trim())return;micStop();parseSay(S.text);S.phase='metrics';S.sent=false;S.step='chat';render(true);}
+ else if(a==='saysend'){var t=document.getElementById('djb-ta');S.text=t?t.value:S.text;if(!S.text.trim())return;micStop();parseSay(S.text);S.phase='decide';S.sent=false;S.step='chat';render(true);}
  else if(a==='mic')mic(el.getAttribute('data-t'));
  else if(a==='aimadd'){S.m[v].aim=mById(v).aimDef||'';render(false);var ai_=root.querySelector('[data-djb-aim="'+v+'"]');if(ai_)ai_.focus({preventScroll:true});}
  else if(a==='aimskip'){S.m[v].aim='';render(false);}
+ else if(a==='td'){var o=decOpts(),d=o[+v],k=S.dsel.indexOf(d);if(k>-1)S.dsel.splice(k,1);else S.dsel.push(d);render(false);}
+ else if(a==='usedecide')chatSend();
+ else if(a==='edit-decide'){S.step='chat';S.dsent=false;S.sent=false;S.dsel=S.decides.slice();S.phase='decide';render(true);}
  else if(a==='tm'){S.m[v].on=!S.m[v].on;render(false);}
  else if(a==='usemetrics')chatSend();
  else if(a==='chatsend')chatSend();
