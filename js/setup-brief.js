@@ -144,7 +144,6 @@ function learnHTML(){
 }
 function sChat(){
  var h='<div class="djb-shell"><div class="djb-top">'+head()+'</div>';
- h+='<div class="djb-earlier"><span>Earlier</span><b>'+esc(S.role.charAt(0).toUpperCase()+S.role.slice(1))+'</b>'+S.decides.map(function(d){return '<b>'+esc(d.charAt(0).toUpperCase()+d.slice(1))+'</b>';}).join('')+'<button type="button" class="dj-link" data-djb="edit-say">Change</button></div>';
  h+='<div class="djb-thread" id="djb-thread" aria-live="polite">';
  var list='<div class="djb-list">'+METRICS.map(function(x){var on=S.m[x.id].on;
   return '<div class="djb-li'+(on?' on':'')+'"><button type="button" class="djb-lb" data-djb="tm" data-v="'+x.id+'" aria-pressed="'+(on?'true':'false')+'" '+(S.sent?'disabled':'')+'><span class="djb-cb">'+(on?CK:'')+'</span><span class="djb-ln">'+x.n+' <em>· now '+x.now+'</em></span></button>'+(x.aim&&on?(S.m[x.id].aim!==''?'<span class="djb-aim"><label>Aim <input type="text" inputmode="decimal" data-djb-aim="'+x.id+'" value="'+esc(S.m[x.id].aim)+'" aria-label="Aim for '+x.n.toLowerCase()+' '+x.unitTxt+'" '+(S.sent?'disabled':'')+'></label>'+(S.sent?'':'<button type="button" class="dj-link" data-djb="aimskip" data-v="'+x.id+'">Skip</button>')+'</span>':(S.sent?'':'<span class="djb-aim"><button type="button" class="dj-link" data-djb="aimadd" data-v="'+x.id+'">Add an aim</button></span>')):'')+'</div>';}).join('')+'</div>';
