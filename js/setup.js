@@ -515,7 +515,8 @@ function finish(to){
  micAbort();S=fresh();
  if(typeof setJourney==='function'){setJourney(to||'waiting');if(typeof toast==='function')toast(to==='first-ready'?'Your feed is built — first insights are ready':'Setup saved — monitoring started');}
  else{root.innerHTML='<div class="dj-end">Setup saved. Monitoring has started: <b>'+esc(title)+'</b>. '+esc(desc)+'</div><p style="margin-top:12px"><button type="button" class="btn-sec" data-dj="restart">Start over</button></p>';}
- if(root&&typeof setJourney==='function')paint(false);
+ /* put the active setup version back, so returning to Day 0 shows the same flow as a fresh load (the old engine must not repaint over it) */
+ if(root&&typeof setJourney==='function')setView(view);
 }
 function onClick(e){
  var el=e.target.closest('[data-dj]');if(!el||!root.contains(el))return;

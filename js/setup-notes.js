@@ -13,6 +13,10 @@ var NOTES={
   assume:['The customer acts on feedback and does not want to build a report.','The customer can say anything. The AI maps the words to a job, and where the job is not one it knows, it builds new questions around it.','A short sentence is enough. The AI asks only about what is still missing.'],
   aim:'Learn the job in the customer’s own words. Everything after this follows from it: the numbers that lead, the alerts and the wording of the feed. It is the one question that is not a list.',
   by:[['Redtag store manager','What to fix in my store, who to recognise, whether a change worked.'],['Generic contact center','Which agents to coach, which processes to change, which brands need attention.'],['Someone who buys for a store','Which products to buy more of. Nothing on a standard list matches, so the AI changes the questions after this one.']]},
+ decide:{t:'What should this feed help you decide?',
+  assume:['The AI has already taken a first read of the decisions from the sentence, so they arrive ticked. The customer confirms or changes them, and does not start from a blank list.','The options come from the survey, the industry and the role. They are not a fixed list. For a store buyer they are about buying, for a contact-center lead they are about coaching and processes.','Anything typed that is not on the list is added as a new decision.'],
+  aim:'Confirm the job before configuring anything. Every later choice, the numbers that lead, the alerts and the wording of the feed, follows from what the customer says they decide.',
+  by:[['Redtag store manager','What to fix each week, who to recognise, what to raise with head office.'],['Generic contact center','Which agents or teams to coach, which processes to change, which brands need attention.'],['Someone who buys for a store','What to buy more of, what to stop buying, what to start stocking. The numbers and alerts that follow are about products.']]},
  metrics:{t:'Which numbers should lead your feed?',
   assume:['Only numbers that exist as questions in this survey are offered: CSAT, NPS, effort, first-contact resolution and response count.','All numbers are still tracked. This only decides what comes first.','Suggestions come from the job. Coaching suggests CSAT, effort and first-contact resolution.','An aim is optional. The allowed range follows the question: 0 to 100 for percentages, minus 100 to 100 for NPS, 1 to 7 for effort.'],
   aim:'Decide what sits at the top of every update, and turn a number into a verdict when the customer gives an aim.',
@@ -46,7 +50,7 @@ function smartHTML(step){
   return h;
  }
  if(!L)return '';
- if(step==='metrics'){
+ if(step==='decide'){
   h+='<div class="djn-smart"><p class="djn-h">How the AI read what you said</p><div class="djn-by">';
   h+='<div class="djn-row"><b>You said</b><span>“'+esc(L.said)+'”</span></div>';
   h+='<div class="djn-row"><b>It understood</b><span>'+esc(L.read)+'</span></div>';
