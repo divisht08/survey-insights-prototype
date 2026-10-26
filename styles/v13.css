@@ -1,0 +1,16 @@
+/* ═══ v13 — Use cases from the hypothesis sheet; Option 2 cards identical to the feed ═══ */
+.v13-uc .uc-tbl td{font-size:12.5px}
+.v13-chg{color:#7a4f06;font-weight:600}
+.v13-pend{color:#9aa0a8}
+.v13-list{gap:10px}
+#v13-filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.v13-grid{display:flex;flex-direction:column;gap:12px}
+.v13-grid .v7-date{margin:4px 0 0}
+.v13-card{cursor:pointer}
+.v13-card .ic-foot{display:flex;align-items:center}
+/* with a drill-down open: the same compact list as the feed */
+.v12-split.open .v12-list{flex:0 0 460px;max-width:460px}
+.v12-split.open .v13-card .ic-sum,.v12-split.open .v13-card .ic-foot,.v12-split.open .v13-card .ic-stat,.v12-split.open .v13-card .ic-unit{display:none!important}
+.v12-split.open .v13-card .ic-title{font-size:14px}
+.v12-split.open #v13-filters{display:none}
+.lo-wrap.v13-uc{max-width:1440px}
