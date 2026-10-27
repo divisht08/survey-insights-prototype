@@ -51,16 +51,14 @@ function djaFreqText(){
 /* ── shell ── */
 function djaEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function djaShell(inner){
-  var I = V14_I, tabs = [['Builder',I.builder],['Translations',I.transl],['Distribution',I.send],['Responses',I.resp],['Analytics',I.anal],['Insights',I.ins],['Automation',I.auto],['Settings',I.wrench]];
+  var I = V14_I, nav = [['Feed',0],['Followed',0],['Shared',0],['-'],['Configure',0],['My email',0],['Admin setup',1]];
   return '<div class="hm-proto"><b>Prototype · Admin setup</b>'
     +'<button data-dja-go="empty" onclick="djaReset(\'empty\')">First visit</button><button data-dja-go="matrix" onclick="djaReset(\'matrix\')">Setups exist</button>'
     +'<button style="margin-left:auto" data-dja-close onclick="djaClose()">✕ Back to Survey Insights</button></div>'
-    +'<div class="v14-app"><nav class="v14-rail"><span class="v14-logo">✱</span><a class="on">'+I.doc+'</a><a>'+I.people+'</a><a>'+I.cal+'</a><a>'+I.down+'</a><a>'+I.bars+'</a><a>'+I.store+'</a><a>'+I.ticket+'</a><a>'+I.list+'</a>'
+    +'<div class="v14-app"><nav class="v14-rail"><span class="v14-logo">✱</span><a>'+I.bars+'</a><a>'+I.list+'</a><a>'+I.ticket+'</a><a class="on" title="Survey Insights">'+I.ins+'</a>'
     +'<span class="v14-rail-end"><a>'+I.gear+'</a><a>'+I.bell+'</a><span class="v14-me">D</span></span></nav>'
-    +'<div class="v14-main"><header class="v14-sbar"><span class="v14-sname">Store experience survey <i class="v14-dot"></i></span><div class="v14-tabs">'
-    +tabs.map(function(t){return '<button class="'+(t[0]==='Settings'?'on':'')+'">'+t[1]+t[0]+'</button>';}).join('')+'</div></header>'
-    +'<div class="dja-set"><nav class="dja-snav" data-dja-subnav>'+['General','Distribution','Data governance','Insights setup','Notifications'].map(function(x){return '<a class="'+(x==='Insights setup'?'on':'')+'">'+x+'</a>';}).join('')+'</nav>'
-    +'<div class="dja-page"><div class="dja-wrap">'+inner+'</div></div></div></div></div>'
+    +'<div class="dja-set"><nav class="dja-snav" data-dja-subnav><p class="dja-snh">Survey Insights</p>'+nav.map(function(x){return x[0]==='-'?'<hr>':'<a class="'+(x[1]?'on':'')+'">'+x[0]+(x[1]?'<small>Admins</small>':'')+'</a>';}).join('')+'</nav>'
+    +'<div class="dja-page"><div class="dja-wrap">'+inner+'</div></div></div></div>'
     +(djaS.toast?'<div class="dja-toast">'+djaEsc(djaS.toast)+'</div>':'');
 }
 function djaStepBar(cur){
@@ -82,7 +80,7 @@ function djaMatrixHTML(){
     var pr = s.preset ? djaEsc(s.preset)+'<small>Preset used to prefill</small>' : (s.preset===''?'No preset<small>Set up from scratch</small>':'<span class="dja-note">None yet</span>');
     return '<tr><td class="num">'+(i+1)+'</td><td><b>'+djaEsc(s.g)+'</b><small>'+djaEsc(s.sees)+'</small></td><td>'+s.n+'</td><td>'+pr+'</td><td>'+(s.when?djaEsc(s.when):(s.preset===null?'<button class="dja-b dja-sm" onclick="djaStartFor(\''+djaEsc(s.g)+'\')">+ Set up</button>':''))+'</td><td>'+(s.live===null?'':'<span class="dja-state"><button class="dja-toggle'+(s.live?' on':'')+'" data-dja-live="'+i+'" onclick="djaSetLive('+i+')" '+(!s.live&&s.missing&&s.missing.length?'style="opacity:.45"':'')+' aria-label="Live or draft"></button><b class="'+(s.live?'l':'')+'">'+(s.live?'Live':'Draft')+'</b>'+(!s.live&&s.missing&&s.missing.length?'<small class="dja-inc">Finish '+s.missing.length+' step'+(s.missing.length>1?'s':'')+' to go live</small>':'')+'</span>')+'</td></tr>';
   }).join('');
-  return '<div class="dja-hd"><h1>Setups in this survey</h1><button class="dja-b pri" style="margin-left:auto" data-dja-new onclick="djaGo(\'start\')">New setup</button></div>'
+  return '<div class="dja-hd"><h1>Setups in this survey</h1><span class="dja-pill">Store experience ▾</span><button class="dja-b pri" style="margin-left:auto" data-dja-new onclick="djaGo(\'start\')">New setup</button></div>'
     +'<p class="dja-sub">One survey, one setup per user group. Each group gets its own insight fields, and sees only the responses it already has access to.</p>'
     +'<div class="dja-card"><table class="dja-tbl" data-dja-matrix><thead><tr><th>#</th><th>User group</th><th>People</th><th>Started from</th><th>Updated</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
@@ -248,15 +246,11 @@ function djaOpen(){
 }
 function djaClose(){ var l = document.getElementById('dja-layer'); if(l){ l.classList.remove('show'); l.innerHTML = ''; } document.body.style.overflow = ''; }
 function djaOpenSetups(){ djaOpen(); djaSeedSetups(); djaS.screen = 'matrix'; djaRender(); }
-function djaEntry(){ // entry: survey Settings tab, plus a nudge on the Insights tab while some groups are not live
-  var l = document.getElementById('v12-layer'); if(!l || !l.classList.contains('show')) return;
-  var st = l.querySelector('[data-v12-tab="settings"]'); if(st && !st.dataset.dja){ st.dataset.dja = 1; st.setAttribute('onclick','djaOpenSetups()'); }
-  var h = l.querySelector('.v14-ph'); if(!h || l.querySelector('#dja-entry')) return;
-  var t = h.querySelector('h1'); if(!t || t.textContent.trim()!=='Insights') return;
-  h.insertAdjacentHTML('afterend','<div class="dja-nudge" id="dja-entry" data-dja-nudge><span><b>2 of 4 user groups have insights set up.</b> Admins can set up the rest in Settings › Insights setup.</span><button class="v14-b" onclick="djaOpenSetups()">Open Insights setup</button></div>');
-}
-function djaInit(){
-  new MutationObserver(djaEntry).observe(document.body,{childList:true,subtree:true}); // entry points; the prototype-bar button below is for reviewers
+function djaInit(){ // entry point: "Admin setup" in the Survey Insights left menu, below Configure and My email (admins only in product)
+  var nav = document.getElementById('si-subnav');
+  if(nav && !document.getElementById('dja-nav')){
+    nav.insertAdjacentHTML('beforeend','<hr><button class="sn-i dim" id="dja-nav" onclick="djaOpenSetups()"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4"/></svg><span class="sn-t">Admin setup</span><span class="dja-adm">Admins</span></button>');
+  }
   var ref = document.getElementById('open-in-survey') || document.getElementById('open-card-types');
   if(!ref || document.getElementById('open-admin-setup')) return;
   ref.insertAdjacentHTML('beforebegin', '<button class="journey-btn" id="open-admin-setup" onclick="djaOpen()">⚙ Admin setup</button>');

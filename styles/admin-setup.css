@@ -146,3 +146,8 @@
 .dja-nudge{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 12px;padding:10px 14px;border-radius:var(--r-md);background:var(--accent-wash);color:var(--accent-deep);font-size:13px}
 .dja-b:disabled{opacity:.4;cursor:not-allowed}
 @media (max-width:900px){.dja-snav{display:none}}
+
+.dja-snh{margin:0 0 8px 10px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.dja-snav hr{border:0;border-top:1px solid var(--line-soft);margin:8px 4px;width:100%}
+.dja-snav a{display:flex;align-items:center;justify-content:space-between}
+.dja-snav a small,.dja-adm{font-size:10.5px;font-weight:600;color:var(--ink-3);background:var(--surface-3);border-radius:999px;padding:1px 7px}
