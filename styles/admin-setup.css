@@ -132,3 +132,8 @@
 .dja-car{display:inline-block;width:14px;color:var(--ink-3)}
 .dja-state{display:inline-flex;align-items:center;gap:8px;font-size:12.5px}
 .dja-state b{color:var(--ink-2)}.dja-state b.l{color:var(--pos)}
+
+.dja-hact{margin-left:auto;display:flex;align-items:center;gap:10px}
+.dja-inc{color:var(--warn);font-weight:600;font-size:11.5px}
+.dja-entry{margin-left:auto;display:inline-flex;align-items:center;gap:8px}
+.dja-count{padding:1px 8px;border-radius:999px;background:var(--pos-wash);color:var(--pos);font-size:11.5px;font-weight:600}
