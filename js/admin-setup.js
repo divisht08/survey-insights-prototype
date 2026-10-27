@@ -261,7 +261,7 @@ function djaMode(on){ // journey state "Day 0 · Admin setup": the Configure gea
     if(j) j.classList.remove('active');
   }
 }
-function djaJourney(){ setJourney('returning'); djaMode(true); }
+function djaJourney(){ setJourney('returning'); djaMode(true); djaOpen(); }
 function djaInit(){ // adds the journey state "Day 0 · Admin setup" to the top selectors
   var first = document.querySelector('.journey-btn[data-state="not-setup"]');
   if(first && !document.getElementById('dja-journey')){
