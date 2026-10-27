@@ -51,7 +51,7 @@ function djaFreqText(){
 /* ── shell ── */
 function djaEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function djaShell(inner){
-  var I = V14_I, nav = [['Feed',0],['Followed',0],['Shared',0],['-'],['Configure',0],['My email',0],['Admin setup',1]];
+  var I = V14_I, nav = [['Feed',0],['Followed',0],['Shared',0],['-'],['Admin setup',1],['My email',0]];
   return '<div class="hm-proto"><b>Prototype · Admin setup</b>'
     +'<button data-dja-go="empty" onclick="djaReset(\'empty\')">First visit</button><button data-dja-go="matrix" onclick="djaReset(\'matrix\')">Setups exist</button>'
     +'<button style="margin-left:auto" data-dja-close onclick="djaClose()">✕ Back to Survey Insights</button></div>'
@@ -246,12 +246,26 @@ function djaOpen(){
 }
 function djaClose(){ var l = document.getElementById('dja-layer'); if(l){ l.classList.remove('show'); l.innerHTML = ''; } document.body.style.overflow = ''; }
 function djaOpenSetups(){ djaOpen(); djaSeedSetups(); djaS.screen = 'matrix'; djaRender(); }
-function djaInit(){ // entry point: "Admin setup" in the Survey Insights left menu, below Configure and My email (admins only in product)
-  var nav = document.getElementById('si-subnav');
-  if(nav && !document.getElementById('dja-nav')){
-    nav.insertAdjacentHTML('beforeend','<hr><button class="sn-i dim" id="dja-nav" onclick="djaOpenSetups()"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4"/></svg><span class="sn-t">Admin setup</span><span class="dja-adm">Admins</span></button>');
+var djaCfgHTML = '';
+function djaMode(on){ // journey state "Day 0 · Admin setup": the Configure gear in the Survey Insights menu opens Admin setup
+  var g = document.getElementById('open-configure'), j = document.getElementById('dja-journey'); if(!g) return;
+  if(!djaCfgHTML) djaCfgHTML = g.innerHTML;
+  if(on){
+    g.onclick = function(){ djaOpen(); };
+    var t = g.querySelector('.sn-t'); if(t) t.textContent = 'Admin setup';
+    g.classList.remove('dim'); g.classList.add('active');
+    document.querySelectorAll('.journey-btn').forEach(function(b){ b.classList.toggle('active', b===j); });
+  } else {
+    g.onclick = function(){ openDrawer('configure'); };
+    g.innerHTML = djaCfgHTML; g.classList.add('dim'); g.classList.remove('active');
+    if(j) j.classList.remove('active');
   }
-  var ref = document.getElementById('open-in-survey') || document.getElementById('open-card-types');
-  if(!ref || document.getElementById('open-admin-setup')) return;
-  ref.insertAdjacentHTML('beforebegin', '<button class="journey-btn" id="open-admin-setup" onclick="djaOpen()">⚙ Admin setup</button>');
+}
+function djaJourney(){ setJourney('returning'); djaMode(true); }
+function djaInit(){ // adds the journey state "Day 0 · Admin setup" to the top selectors
+  var first = document.querySelector('.journey-btn[data-state="not-setup"]');
+  if(first && !document.getElementById('dja-journey')){
+    first.insertAdjacentHTML('beforebegin','<button class="journey-btn" id="dja-journey" onclick="djaJourney()">Day 0 · Admin setup</button>');
+    document.addEventListener('click', function(e){ var b = e.target.closest && e.target.closest('.journey-btn[data-state]'); if(b) djaMode(false); }, true);
+  }
 }
