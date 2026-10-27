@@ -155,3 +155,6 @@
 .dja-snav hr{border:0;border-top:1px solid var(--line-soft);margin:8px 4px;width:100%}
 .dja-snav a{display:flex;align-items:center;justify-content:space-between}
 .dja-snav a small,.dja-adm{font-size:10.5px;font-weight:600;color:var(--ink-3);background:var(--surface-3);border-radius:999px;padding:1px 7px}
+
+/* prototype bar: show which of First visit / Setups exist is active */
+.hm-proto button[data-dja-go].on{background:#7a5c00;color:#fff;border-color:#7a5c00}
