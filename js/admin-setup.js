@@ -9,7 +9,7 @@ const DJA_PRESETS = [
   {k:'area', name:'Area Manager, weekly', sub:'Region view · compares stores, flags outliers', p:5, r:1, used:'Used by 1 setup', group:'Area Manager'},
   {k:'cx', name:'Central CX, monthly', sub:'All-store view · themes and trends', p:6, r:0, used:'Used by 1 setup', group:'Central CX team'},
   {k:'cc', name:'Contact-centre lead', sub:'Agent and call fields first', p:4, r:3, used:'Not used yet', group:''}];
-const DJA_Q = [['q1','Overall satisfaction','Rating 1 to 5'],['q2','Likelihood to recommend','NPS 0 to 10'],['q3','What could we improve?','Open text'],['q4','Checkout speed','Rating 1 to 5'],['q5','Staff helpfulness','Rating 1 to 5'],['q6','Store cleanliness','Rating 1 to 5'],['q7','Contact me about my feedback','Yes or no']];
+const DJA_Q = [['q1','Overall satisfaction','Rating 1 to 5'],['q2','Likelihood to recommend','NPS 0 to 10'],['q3','What could we improve?','Open text'],['q4','Checkout speed','Rating 1 to 5'],['q5','Staff helpfulness','Rating 1 to 5'],['q6','Store cleanliness','Rating 1 to 5'],['q7','Contact me about my feedback','Yes or no',1]];
 const DJA_M = [
   ['Case',[['m1','Case status','Open, resolved, escalated',0]]],
   ['Profile',[['m2','Customer tier','Gold, Silver, Standard',1],['m3','Email address','Personal data',0]]],
@@ -20,7 +20,7 @@ const DJA_DAYS = ['M','T','W','T','F','S','S'], DJA_DAYN = ['Monday','Tuesday','
 const DJA_EX = ['Fix issues in my store','Coach my team','Compare stores in my area','Report to the CX head'];
 
 function djaFresh(){
-  return {screen:'empty', tab:'q', preset:null, group:'Store Manager', toast:'', setups:[],
+  return {screen:'empty', tab:'q', preset:null, group:'Store Manager', toast:'', setups:[], collapsed:{}, confirm:false,
     brief:{role:'They run one store day to day and answer to an area manager.',
       resp:'Fixing issues at the till and on the shop floor, scheduling shifts, recognising staff. Anything bigger, like pricing or supplier problems, goes to their area manager.',
       extra:'Keep it short. Weekends are our busiest days, so flag anything that affects Saturday and Sunday trading.'},
@@ -28,10 +28,10 @@ function djaFresh(){
 }
 var djaS = djaFresh();
 function djaSeedSetups(){ djaS.setups = [
-  {g:'Store Manager', sees:'Sees own store', n:214, preset:'Store Manager, weekly', when:'2 days ago'},
-  {g:'Area Manager', sees:'Sees own region', n:38, preset:'Area Manager, weekly', when:'1 week ago'},
-  {g:'Central CX team', sees:'Sees all stores', n:6, preset:'', when:'Today'},
-  {g:'CX head', sees:'Sees all stores', n:4, preset:null, when:''}]; }
+  {g:'Store Manager', sees:'Sees own store', n:214, preset:'Store Manager, weekly', when:'2 days ago', live:true},
+  {g:'Area Manager', sees:'Sees own region', n:38, preset:'Area Manager, weekly', when:'1 week ago', live:true},
+  {g:'Central CX team', sees:'Sees all stores', n:6, preset:'', when:'Today', live:false},
+  {g:'CX head', sees:'Sees all stores', n:4, preset:null, when:'', live:null}]; }
 function djaMarks(k){ return Object.keys(djaS.fields).filter(function(x){return djaS.fields[x]===k;}).length; }
 function djaApplyPreset(p){
   djaS.preset = p;
@@ -78,33 +78,33 @@ function djaEmptyHTML(){
 }
 function djaMatrixHTML(){
   var rows = djaS.setups.map(function(s,i){
-    var pr = s.preset ? djaEsc(s.preset)+'<span class="dja-linked">Linked preset</span>' : (s.preset===''?'No preset<small>Set up from scratch</small>':'<span class="dja-note">None yet</span>');
-    return '<tr><td class="num">'+(i+1)+'</td><td><b>'+djaEsc(s.g)+'</b><small>'+djaEsc(s.sees)+'</small></td><td>'+s.n+'</td><td>'+pr+'</td><td>'+(s.when?djaEsc(s.when):(s.preset===null?'<button class="dja-b dja-sm" onclick="djaStartFor(\''+djaEsc(s.g)+'\')">+ Set up</button>':''))+'</td></tr>';
+    var pr = s.preset ? djaEsc(s.preset)+'<small>Preset used to prefill</small>' : (s.preset===''?'No preset<small>Set up from scratch</small>':'<span class="dja-note">None yet</span>');
+    return '<tr><td class="num">'+(i+1)+'</td><td><b>'+djaEsc(s.g)+'</b><small>'+djaEsc(s.sees)+'</small></td><td>'+s.n+'</td><td>'+pr+'</td><td>'+(s.when?djaEsc(s.when):(s.preset===null?'<button class="dja-b dja-sm" onclick="djaStartFor(\''+djaEsc(s.g)+'\')">+ Set up</button>':''))+'</td><td>'+(s.live===null?'':'<span class="dja-state"><button class="dja-toggle'+(s.live?' on':'')+'" data-dja-live="'+i+'" onclick="djaSetLive('+i+')" aria-label="Live or draft"></button><b class="'+(s.live?'l':'')+'">'+(s.live?'Live':'Draft')+'</b></span>')+'</td></tr>';
   }).join('');
   return '<div class="dja-hd"><h1>Setups in this survey</h1><button class="dja-b pri" style="margin-left:auto" data-dja-new onclick="djaGo(\'start\')">New setup</button></div>'
     +'<p class="dja-sub">One survey, one setup per user group. Each group gets its own insight fields, and sees only the responses it already has access to.</p>'
-    +'<div class="dja-card"><table class="dja-tbl" data-dja-matrix><thead><tr><th>#</th><th>User group</th><th>People</th><th>Preset</th><th>Updated</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    +'<div class="dja-card"><table class="dja-tbl" data-dja-matrix><thead><tr><th>#</th><th>User group</th><th>People</th><th>Started from</th><th>Updated</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function djaStartHTML(){
   return (djaS.setups.length?djaMatrixHTML():djaEmptyHTML())
     +'<div class="dja-scrim" data-dja-start onclick="if(event.target===this)djaGo(\''+(djaS.setups.length?'matrix':'empty')+'\')"><div class="dja-pop"><h3>How do you want to start?</h3><div class="dja-pick">'
-    +'<button data-dja-pick="preset" onclick="djaGo(\'presets\')"><b>Start using a preset</b><span>Begin from a saved setup. It stays linked, so edits to the preset reach every setup using it.</span></button>'
+    +'<button data-dja-pick="preset" onclick="djaGo(\'presets\')"><b>Start using a preset</b><span>Begin from a saved setup. It prefills the objective, metadata fields and frequency, and you can change anything.</span></button>'
     +'<button data-dja-pick="scratch" onclick="djaApplyPreset(null);djaGo(\'target\')"><b>Start from scratch</b><span>Set the brief, fields and delivery yourself, for this survey only.</span></button></div></div></div>';
 }
 function djaPresetsHTML(){
   var rows = DJA_PRESETS.map(function(p){ var on = djaS.preset && djaS.preset.k===p.k;
     return '<div class="dja-prow'+(on?' on':'')+'" data-dja-preset="'+p.k+'" onclick="djaPickPreset(\''+p.k+'\')"><span class="dja-radio"></span><span><b>'+p.name+'</b><small>'+p.sub+'</small>'
       +'<span class="dja-meta"><span class="tag acc">'+p.p+' preferred</span><span class="tag neg">'+p.r+' restricted</span><span>'+p.used+'</span></span></span></div>'; }).join('');
-  return '<div class="dja-hd"><h1>Choose a preset</h1></div><p class="dja-sub">A preset is a saved starting point. The setup stays linked to it, so edits to the preset update every setup that uses it.</p>'
+  return '<div class="dja-hd"><h1>Choose a preset</h1></div><p class="dja-sub">A preset is a saved starting point. It prefills the setup. The setup is then its own copy, so editing either one later does not change the other.</p>'
     +'<div class="dja-cols"><div class="dja-main"><div class="dja-card"><div class="dja-tabs"><div><button class="on">Suggested for '+djaEsc(djaS.group)+'</button><button>All</button><button>Recently used</button></div><input class="dja-search" placeholder="Search presets"></div>'
     +rows+'<div class="dja-prow'+(djaS.preset===null&&djaS.blank?' on':'')+'" data-dja-preset="blank" onclick="djaS.blank=1;djaApplyPreset(null);djaRender()"><span class="dja-radio"></span><span><b>Start blank</b><small>Set the fields yourself, for this survey only</small></span></div></div></div>'
     +'<aside class="dja-aside"><div class="dja-card dja-pad"><h3>What this preset carries</h3><p class="dja-note">Store Manager, weekly · updated 2 days ago</p>'
     +'<p><b>Brief</b> Role and responsibilities for Store Managers</p><p><b>Frequency</b> Weekly</p><p><b>Metadata fields</b> always carried over.</p><p><b>Question choices</b> carried over only when this is the same survey the preset was saved from. Otherwise you pick questions in step 3.</p>'
-    +'<p class="dja-note">Linked: edits to the preset update this setup too. Fields it names that this survey does not have are flagged in step 3.</p></div></aside></div>'
+    +'<p class="dja-note">Prefilled copy: later edits to the preset do not change this setup, and the reverse. Fields it names that this survey does not have are flagged in step 3.</p></div></aside></div>'
     +'<div class="dja-foot"><button class="dja-b" onclick="djaGo(\'start\')">Back</button><button class="dja-b pri" data-dja-use onclick="djaGo(\'target\')" '+(djaS.preset||djaS.blank?'':'disabled')+'>Use this preset</button></div>';
 }
 function djaTargetHTML(){
-  var info = djaS.preset ? '<div class="dja-info" data-dja-onpreset>You are building on top of the preset <b>'+djaEsc(djaS.preset.name)+'</b>. Changes you make stay linked to it.</div>' : '';
+  var info = djaS.preset ? '<div class="dja-info" data-dja-onpreset>This setup is prefilled from the preset <b>'+djaEsc(djaS.preset.name)+'</b>. Adjust anything. Your changes stay in this setup and do not change the preset.</div>' : '';
   return djaStepBar('target')+info+'<div class="dja-cols"><div class="dja-main"><h2 class="dja-h2">Who is this setup for?</h2>'
     +'<p class="dja-sub">You are setting this up inside the Store experience survey, so a setup is for one user group in this survey. Everyone in the group gets the same objective, fields and schedule, each seeing only the rows they already have access to.</p>'
     +'<div class="dja-card dja-pad"><div class="dja-kv"><span>Survey</span><span><b>Store experience</b><br><span class="dja-note">14 questions · 9 metadata fields (6 standard, 3 custom)</span></span>'
@@ -140,15 +140,16 @@ function djaSeg(key, restrictOnly){
 }
 function djaScopeHTML(){
   var q = djaS.tab==='q', rows;
+  var bulk = '<div class="dja-bulk" data-dja-bulk><button class="dja-b dja-sm" onclick="djaRestrictPersonal()">Restrict all personal data</button><button class="dja-b dja-sm" onclick="djaClear()">Clear</button><span class="dja-note">2 personal-data fields found: Email address, Contact me about my feedback</span></div>';
   if(q) rows = DJA_Q.map(function(r){ return '<tr><td><b>'+r[1]+'</b><small>'+r[2]+'</small></td><td>'+djaSeg(r[0])+'</td></tr>'; }).join('');
-  else rows = DJA_M.map(function(g){ return '<tr class="dja-ph"><td colspan="2">'+g[0]+' · '+g[1].length+'</td></tr>'
-      +g[1].map(function(r){ return '<tr><td><b>'+r[1]+(r[3]?'<span class="dja-tag">Custom</span>':'')+'</b><small>'+r[2]+'</small></td><td>'+djaSeg(r[0])+'</td></tr>'; }).join(''); }).join('');
+  else rows = DJA_M.map(function(g){ var cl = djaS.collapsed[g[0]]; return '<tr class="dja-ph dja-click" data-dja-group-row="'+g[0]+'" onclick="djaFold(\''+g[0]+'\')"><td colspan="2"><span class="dja-car">'+(cl?'▸':'▾')+'</span>'+g[0]+' · '+g[1].length+'</td></tr>'
+      +(cl?[]:g[1]).map(function(r){ return '<tr><td><b>'+r[1]+(r[3]?'<span class="dja-tag">Custom</span>':'')+'</b><small>'+r[2]+'</small></td><td>'+djaSeg(r[0])+'</td></tr>'; }).join(''); }).join('');
   var np = djaMarks('p'), nr = djaMarks('r');
   return djaStepBar('scope')+'<div class="dja-cols"><div class="dja-main"><h2 class="dja-h2">Which columns can the AI use?</h2>'
     +'<p class="dja-sub">Prefer the fields that matter most for this group, restrict the ones it must never use. Anything you leave unmarked is allowed by default.</p>'
     +'<div class="dja-legend"><span class="p"><b>Prefer</b> look here first</span><span><b>Unmarked</b> allowed by default</span><span class="r"><b>Restrict</b> never used in insights</span></div>'
     +'<div class="dja-card"><div class="dja-tabs"><div><button data-dja-tab="q" class="'+(q?'on':'')+'" onclick="djaS.tab=\'q\';djaRender()">Questions · 7</button><button data-dja-tab="m" class="'+(q?'':'on')+'" onclick="djaS.tab=\'m\';djaRender()">Metadata · 9</button></div><input class="dja-search" placeholder="Search fields"></div>'
-    +'<table class="dja-tbl"><thead><tr><th>Field</th><th>For insights</th></tr></thead><tbody>'+rows+'</tbody></table>'
+    +bulk+'<table class="dja-tbl"><thead><tr><th>Field</th><th>For insights</th></tr></thead><tbody>'+rows+'</tbody></table>'
     +'<div class="dja-sumbar" data-dja-sum>'+np+' preferred · '+nr+' restricted · the rest allowed by default</div></div>'
     +djaFoot('objective','delivery','Continue to delivery frequency')+'</div>'
     +'<aside class="dja-aside"><div class="dja-card dja-pad"><h3>Suggested for this user group</h3><p>Based on this survey and the Store Manager group.</p>'
@@ -178,18 +179,21 @@ function djaDeliveryHTML(){
     +'<div class="dja-sample"><b>3 things for your store</b><span>1. Saturday evening queues are pulling your checkout score down</span><span>2. Staff helpfulness held steady</span><span>3. Weekend trading: 2 low scores on Sunday</span><span><b>Open your feed</b></span></div><p class="dja-note">Illustrative wording. Real emails use real responses and follow the brief.</p></div>'
     +'<div class="dja-card dja-pad"><h3>Users can adjust</h3><p>Each person can turn their email off or change its day. The feed refresh time stays as you set it.</p></div></aside></div>';
 }
+function djaConfirmHTML(){
+  return '<div class="dja-scrim" data-dja-confirm><div class="dja-pop"><h3>Go live for '+djaGroupN()+' people?</h3><p class="dja-sub">'+djaEsc(djaS.group)+'s will start getting insights from the next refresh, '+DJA_DAYN[djaS.days.slice().sort()[0]||0]+' '+djaS.time+'. You can switch this setup back to Draft from the list at any time.</p><div class="dja-foot" style="justify-content:flex-end"><button class="dja-b" onclick="djaS.confirm=false;djaRender()">Cancel</button><button class="dja-b pri" data-dja-confirm-go onclick="djaPublish()">Publish</button></div></div></div>';
+}
 function djaReviewHTML(){
   var s = djaS, b = s.brief, np = djaMarks('p'), nr = djaMarks('r'), pr = s.preset;
   var edit = function(k){ return '<a onclick="djaGo(\''+k+'\')">Edit</a>'; };
   return djaStepBar('review')+'<div class="dja-cols"><div class="dja-main"><h2 class="dja-h2">Review your setup</h2><p class="dja-sub">Check each part, then see what two different people in this group would get.</p>'
     +'<div class="dja-card"><div class="dja-rv"><div><h4>For</h4><b>Store experience · '+djaEsc(s.group)+'</b> · '+djaGroupN()+' people</div>'+edit('target')+'</div>'
     +'<div class="dja-rv"><div><h4>Brief for the AI</h4><b>Role:</b> '+djaEsc(b.role.toLowerCase())+'<br><b>Responsible for:</b> '+djaEsc(b.resp.charAt(0).toLowerCase()+b.resp.slice(1))+'<br><b>Also:</b> '+djaEsc(b.extra.charAt(0).toLowerCase()+b.extra.slice(1))+'</div>'+edit('objective')+'</div>'
-    +'<div class="dja-rv"><div><h4>Insight fields</h4><span class="tag acc">'+np+' preferred</span> <span class="tag neg">'+nr+' restricted</span></div>'+edit('scope')+'</div>'
+    +'<div class="dja-rv"><div><h4>Insight fields</h4><span class="tag acc">'+np+' preferred</span> <span class="tag neg">'+nr+' restricted</span><br><span class="dja-note">Restrict is a hard wall users cannot override. Prefer is a default users can adjust.</span></div>'+edit('scope')+'</div>'
     +'<div class="dja-rv"><div><h4>Delivery</h4><b>Delivery frequency:</b> '+djaFreqText()+'<br><b>Email digest:</b> '+(s.digest?'on, '+(s.digestOwn?'own schedule':'same schedule')+', to everyone in the group':'off')+'</div>'+edit('delivery')+'</div>'
-    +(pr?'<div class="dja-rv" data-dja-linked><div><h4>Preset: '+djaEsc(pr.name)+'</h4>Linked. The brief, metadata fields and delivery settings update when the preset changes. Editing it also updates 1 other setup.</div></div>':'')+'</div>'
+    +(pr?'<div class="dja-rv" data-dja-linked><div><h4>Started from preset: '+djaEsc(pr.name)+'</h4>Used only to prefill this setup. This setup is its own copy, so editing it does not change the preset.</div></div>':'')+'</div>'
     +'<div class="dja-card dja-pad"><div class="dja-flex"><span><h3>Save as a preset</h3><p>'+(pr?djaEsc(pr.name):djaEsc(s.group)+', '+(s.freq==='custom'?'custom':s.freq))+'</p></span><button class="dja-toggle'+(s.savePreset?' on':'')+'" onclick="djaS.savePreset=!djaS.savePreset;djaRender()" aria-label="Save as a preset"></button></div>'
-    +'<p class="dja-note">Saves the brief, metadata fields and delivery settings. Question choices are saved too and carry over only when a setup uses the same survey. The preset sits outside this setup, so any later edit to it updates every setup that uses it.</p></div>'
-    +'<div class="dja-foot"><button class="dja-b" onclick="djaGo(\'delivery\')">Back</button><span><button class="dja-b" onclick="djaPublish(true)">Save draft</button><button class="dja-b pri" data-dja-publish onclick="djaPublish()">Publish to '+djaGroupN()+' people</button></span></div></div>'
+    +'<p class="dja-note">Saves a copy of the brief, metadata fields and delivery settings. Question choices are saved too and carry over only when a setup uses the same survey. The preset only prefills future setups. Editing it later does not change setups already made.</p></div>'
+    +'<div class="dja-foot"><button class="dja-b" onclick="djaGo(\'delivery\')">Back</button><span><button class="dja-b" data-dja-draft onclick="djaPublish(true)">Save as draft</button><button class="dja-b pri" data-dja-publish onclick="djaS.confirm=true;djaRender()">Publish and start creating insights</button></span></div></div>'
     +'<aside class="dja-aside"><div class="dja-card dja-pad"><h3>Preview as a user</h3><span class="dja-groups"><button class="dja-chip on">Store Manager, Store 14</button><button class="dja-chip">Area Manager, North</button></span>'
     +'<p class="dja-note">Built from Store 14\'s actual responses, last 7 days</p>'
     +'<div class="dja-sample"><span class="dja-note">Insight 1 of 3</span><b>Checkout wait is your biggest drag this week</b><span>Checkout speed fell from 4.1 to 3.6 in your store. Fix it first, then check next week.</span></div>'
@@ -202,12 +206,16 @@ function djaRender(){
   var l = document.getElementById('dja-layer'); if(!l) return;
   var sc = djaS.screen, h = {empty:djaEmptyHTML, matrix:djaMatrixHTML, start:djaStartHTML, presets:djaPresetsHTML, target:djaTargetHTML, objective:djaObjectiveHTML, scope:djaScopeHTML, delivery:djaDeliveryHTML, review:djaReviewHTML}[sc]();
   var keep = (l.querySelector('.dja-page')||{}).scrollTop || 0;
-  l.innerHTML = djaShell(h);
+  l.innerHTML = djaShell(h + (sc==='review' && djaS.confirm ? djaConfirmHTML() : ''));
   var pg = l.querySelector('.dja-page'); if(pg) pg.scrollTop = keep;
   l.querySelectorAll('[data-dja-go]').forEach(function(b){ b.classList.toggle('on', (b.dataset.djaGo==='empty') === (djaS.setups.length===0)); });
 }
 function djaGo(s){ djaS.screen = s; djaS.toast = ''; djaRender(); var p = document.querySelector('#dja-layer .dja-page'); if(p) p.scrollTop = 0; }
 function djaReset(mode){ var keep = djaS.screen; djaS = djaFresh(); if(mode==='matrix') djaSeedSetups(); djaS.screen = mode; djaRender(); }
+function djaSetLive(i){ var r = djaS.setups[i]; if(!r) return; r.live = !r.live; djaToast(r.live ? 'Live for '+r.n+' people' : 'Switched to Draft'); }
+function djaFold(g){ djaS.collapsed[g] = !djaS.collapsed[g]; djaRender(); }
+function djaRestrictPersonal(){ djaS.fields.m3 = 'r'; djaS.fields.q7 = 'r'; djaRender(); }
+function djaClear(){ var m = djaS.tab==='q' ? /^q/ : /^m/; Object.keys(djaS.fields).forEach(function(k){ if(m.test(k)) delete djaS.fields[k]; }); djaRender(); }
 function djaPickPreset(k){ djaS.blank = 0; djaApplyPreset(DJA_PRESETS.filter(function(p){return p.k===k;})[0]); djaRender(); }
 function djaStartFor(g){ djaS.group = g; djaGo('start'); }
 function djaMark(k, v){ if(djaS.fields[k]===v) delete djaS.fields[k]; else djaS.fields[k] = v; djaRender(); }
@@ -218,9 +226,9 @@ function djaSay(){
 }
 function djaToast(t){ djaS.toast = t; djaRender(); setTimeout(function(){ djaS.toast=''; var l=document.getElementById('dja-layer'); if(l&&l.classList.contains('show')) djaRender(); }, 1800); }
 function djaPublish(draft){
-  var g = DJA_GROUPS.filter(function(x){return x[0]===djaS.group;})[0], rec = {g:g[0], sees:g[1], n:g[2], preset:djaS.preset?djaS.preset.name:'', when:draft?'Draft, just now':'Today'};
+  var g = DJA_GROUPS.filter(function(x){return x[0]===djaS.group;})[0], rec = {g:g[0], sees:g[1], n:g[2], preset:djaS.preset?djaS.preset.name:'', when:'Today', live:!draft};
   djaS.setups = djaS.setups.filter(function(x){return x.g!==rec.g;}); djaS.setups.push(rec);
-  djaS.screen = 'matrix'; djaS.toast = draft ? 'Draft saved' : 'Published to '+g[2]+' people'; djaRender();
+  djaS.confirm = false; djaS.screen = 'matrix'; djaS.toast = draft ? 'Draft saved' : 'Published to '+g[2]+' people'; djaRender();
   setTimeout(function(){ djaS.toast=''; var l=document.getElementById('dja-layer'); if(l&&l.classList.contains('show')) djaRender(); }, 1800);
 }
 function djaOpen(){

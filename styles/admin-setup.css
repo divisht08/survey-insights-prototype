@@ -127,3 +127,8 @@
 .dja-rv a{color:var(--accent-deep);cursor:pointer;font-size:13px;white-space:nowrap}
 .dja-ok{display:flex;gap:8px;font-size:13px;color:var(--ink-2)}.dja-ok:before{content:"✓";color:var(--pos);font-weight:700}
 .dja-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:var(--r-md);font-size:13px;z-index:5}
+
+.dja-bulk{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line-soft)}
+.dja-car{display:inline-block;width:14px;color:var(--ink-3)}
+.dja-state{display:inline-flex;align-items:center;gap:8px;font-size:12.5px}
+.dja-state b{color:var(--ink-2)}.dja-state b.l{color:var(--pos)}
