@@ -58,12 +58,13 @@ function djaShell(inner){
     +'<div class="v14-app"><nav class="v14-rail"><span class="v14-logo">✱</span><a class="on">'+I.doc+'</a><a>'+I.people+'</a><a>'+I.cal+'</a><a>'+I.down+'</a><a>'+I.bars+'</a><a>'+I.store+'</a><a>'+I.ticket+'</a><a>'+I.list+'</a>'
     +'<span class="v14-rail-end"><a>'+I.gear+'</a><a>'+I.bell+'</a><span class="v14-me">D</span></span></nav>'
     +'<div class="v14-main"><header class="v14-sbar"><span class="v14-sname">Store experience survey <i class="v14-dot"></i></span><div class="v14-tabs">'
-    +tabs.map(function(t){return '<button class="'+(t[0]==='Insights'?'on':'')+'">'+t[1]+t[0]+'</button>';}).join('')+'</div></header>'
-    +'<div class="dja-page"><div class="dja-wrap">'+inner+'</div></div></div></div>'
+    +tabs.map(function(t){return '<button class="'+(t[0]==='Settings'?'on':'')+'">'+t[1]+t[0]+'</button>';}).join('')+'</div></header>'
+    +'<div class="dja-set"><nav class="dja-snav" data-dja-subnav>'+['General','Distribution','Data governance','Insights setup','Notifications'].map(function(x){return '<a class="'+(x==='Insights setup'?'on':'')+'">'+x+'</a>';}).join('')+'</nav>'
+    +'<div class="dja-page"><div class="dja-wrap">'+inner+'</div></div></div></div></div>'
     +(djaS.toast?'<div class="dja-toast">'+djaEsc(djaS.toast)+'</div>':'');
 }
 function djaStepBar(cur){
-  return '<div class="dja-hd"><h1>Admin setup</h1><span class="dja-pill">Store experience · '+djaEsc(djaS.group)+' ▾</span><span class="dja-hact"><button class="dja-b dja-sm" data-dja-savedraft onclick="djaPublish(true)">Save as draft</button><button class="dja-b pri dja-sm" data-dja-golive onclick="djaAskLive()">Go live</button><button class="dja-link" onclick="djaGo(\'matrix\')">Back to setups</button></span></div>'
+  return '<div class="dja-hd"><h1>Admin setup</h1><span class="dja-pill">Store experience · '+djaEsc(djaS.group)+' ▾</span><span class="dja-hact">'+djaNeed()+'<button class="dja-b dja-sm" data-dja-savedraft onclick="djaPublish(true)">Save as draft</button><button class="dja-b pri dja-sm" data-dja-golive onclick="djaAskLive()" '+(djaMissing().length?'disabled title="Finish the remaining steps first"':'')+'>Go live</button><button class="dja-link" onclick="djaGo(\'matrix\')">Back to setups</button></span></div>'
     +'<div class="dja-steps">'+DJA_STEPS.map(function(s){return '<button class="'+(s[0]===cur?'on':'')+'" data-dja-step="'+s[0]+'" onclick="djaGo(\''+s[0]+'\')">'+s[1]+'</button>';}).join('')+'</div>';
 }
 function djaFoot(back, next, nextLabel, extra){
@@ -79,7 +80,7 @@ function djaEmptyHTML(){
 function djaMatrixHTML(){
   var rows = djaS.setups.map(function(s,i){
     var pr = s.preset ? djaEsc(s.preset)+'<small>Preset used to prefill</small>' : (s.preset===''?'No preset<small>Set up from scratch</small>':'<span class="dja-note">None yet</span>');
-    return '<tr><td class="num">'+(i+1)+'</td><td><b>'+djaEsc(s.g)+'</b><small>'+djaEsc(s.sees)+'</small></td><td>'+s.n+'</td><td>'+pr+'</td><td>'+(s.when?djaEsc(s.when):(s.preset===null?'<button class="dja-b dja-sm" onclick="djaStartFor(\''+djaEsc(s.g)+'\')">+ Set up</button>':''))+'</td><td>'+(s.live===null?'':'<span class="dja-state"><button class="dja-toggle'+(s.live?' on':'')+'" data-dja-live="'+i+'" onclick="djaSetLive('+i+')" aria-label="Live or draft"></button><b class="'+(s.live?'l':'')+'">'+(s.live?'Live':'Draft')+'</b>'+(!s.live&&s.missing&&s.missing.length?'<small class="dja-inc">'+s.missing.length+' step'+(s.missing.length>1?'s':'')+' left</small>':'')+'</span>')+'</td></tr>';
+    return '<tr><td class="num">'+(i+1)+'</td><td><b>'+djaEsc(s.g)+'</b><small>'+djaEsc(s.sees)+'</small></td><td>'+s.n+'</td><td>'+pr+'</td><td>'+(s.when?djaEsc(s.when):(s.preset===null?'<button class="dja-b dja-sm" onclick="djaStartFor(\''+djaEsc(s.g)+'\')">+ Set up</button>':''))+'</td><td>'+(s.live===null?'':'<span class="dja-state"><button class="dja-toggle'+(s.live?' on':'')+'" data-dja-live="'+i+'" onclick="djaSetLive('+i+')" '+(!s.live&&s.missing&&s.missing.length?'style="opacity:.45"':'')+' aria-label="Live or draft"></button><b class="'+(s.live?'l':'')+'">'+(s.live?'Live':'Draft')+'</b>'+(!s.live&&s.missing&&s.missing.length?'<small class="dja-inc">Finish '+s.missing.length+' step'+(s.missing.length>1?'s':'')+' to go live</small>':'')+'</span>')+'</td></tr>';
   }).join('');
   return '<div class="dja-hd"><h1>Setups in this survey</h1><button class="dja-b pri" style="margin-left:auto" data-dja-new onclick="djaGo(\'start\')">New setup</button></div>'
     +'<p class="dja-sub">One survey, one setup per user group. Each group gets its own insight fields, and sees only the responses it already has access to.</p>'
@@ -183,14 +184,11 @@ function djaMissing(){ // steps the admin has not passed yet (user group and rev
   if(djaS.screen==='review') return [];
   return DJA_STEPS.filter(function(x,i){ return i>0 && i<4 && i>=djaS.max; }).map(function(x){ return x[1].replace(/^\d /,''); });
 }
-function djaDefaultsText(m){
-  var d = []; if(m.indexOf('Objective')>-1) d.push('a general brief'); if(m.indexOf('Insight fields')>-1) d.push('every field allowed'); if(m.indexOf('Delivery frequency')>-1) d.push('weekly on Monday 08:00');
-  return d.length>1 ? d.slice(0,-1).join(', ')+' and '+d[d.length-1] : d.join('');
-}
-function djaAskLive(){ djaS.confirm = {row:null, missing:djaMissing()}; djaRender(); }
+function djaAskLive(){ var m = djaMissing(); if(m.length){ djaToast('Finish '+m.join(', ')+' before going live'); return; } djaS.confirm = {row:null, missing:[]}; djaRender(); }
+function djaNeed(){ var m = djaMissing(); return m.length ? '<span class="dja-need" data-dja-need>Finish to go live: '+m.map(djaEsc).join(', ')+'</span>' : ''; }
 function djaConfirmHTML(){
   var c = djaS.confirm, r = c.row!==null ? djaS.setups[c.row] : null, g = r ? r.g : djaS.group, n = r ? r.n : djaGroupN(), m = c.missing||[];
-  var inc = m.length ? '<div class="dja-info" data-dja-incomplete>Not finished yet: '+m.map(djaEsc).join(', ')+'. They will use defaults ('+djaDefaultsText(m)+') until you finish them. You can edit them any time.</div>' : '';
+  var inc = '';
   return '<div class="dja-scrim" data-dja-confirm><div class="dja-pop"><h3>Go live for '+n+' people?</h3>'+inc+'<p class="dja-sub">'+djaEsc(g)+'s will start getting insights from the next refresh, '+DJA_DAYN[djaS.days.slice().sort()[0]||0]+' '+djaS.time+'. You can switch this setup back to Draft from the list at any time.</p><div class="dja-foot" style="justify-content:flex-end"><button class="dja-b" onclick="djaS.confirm=null;djaRender()">Cancel</button><button class="dja-b pri" data-dja-confirm-go onclick="'+(r?'djaLiveRow('+c.row+')':'djaPublish()')+'">Publish</button></div></div></div>';
 }
 function djaReviewHTML(){
@@ -204,7 +202,7 @@ function djaReviewHTML(){
     +(pr?'<div class="dja-rv" data-dja-linked><div><h4>Started from preset: '+djaEsc(pr.name)+'</h4>Used only to prefill this setup. This setup is its own copy, so editing it does not change the preset.</div></div>':'')+'</div>'
     +'<div class="dja-card dja-pad"><div class="dja-flex"><span><h3>Save as a preset</h3><p>'+(pr?djaEsc(pr.name):djaEsc(s.group)+', '+(s.freq==='custom'?'custom':s.freq))+'</p></span><button class="dja-toggle'+(s.savePreset?' on':'')+'" onclick="djaS.savePreset=!djaS.savePreset;djaRender()" aria-label="Save as a preset"></button></div>'
     +'<p class="dja-note">Saves a copy of the brief, metadata fields and delivery settings. Question choices are saved too and carry over only when a setup uses the same survey. The preset only prefills future setups. Editing it later does not change setups already made.</p></div>'
-    +'<div class="dja-foot"><button class="dja-b" onclick="djaGo(\'delivery\')">Back</button><span><button class="dja-b" data-dja-draft onclick="djaPublish(true)">Save as draft</button><button class="dja-b pri" data-dja-publish onclick="djaAskLive()">Publish and start creating insights</button></span></div></div>'
+    +'<div class="dja-foot"><button class="dja-b" onclick="djaGo(\'delivery\')">Back</button><span><button class="dja-b" data-dja-draft onclick="djaPublish(true)">Save as draft</button><button class="dja-b pri" data-dja-publish onclick="djaAskLive()" '+(djaMissing().length?'disabled':'')+'>Publish and start creating insights</button></span></div></div>'
     +'<aside class="dja-aside"><div class="dja-card dja-pad"><h3>Preview as a user</h3><span class="dja-groups"><button class="dja-chip on">Store Manager, Store 14</button><button class="dja-chip">Area Manager, North</button></span>'
     +'<p class="dja-note">Built from Store 14\'s actual responses, last 7 days</p>'
     +'<div class="dja-sample"><span class="dja-note">Insight 1 of 3</span><b>Checkout wait is your biggest drag this week</b><span>Checkout speed fell from 4.1 to 3.6 in your store. Fix it first, then check next week.</span></div>'
@@ -224,7 +222,7 @@ function djaRender(){
 function djaGo(s){ var ix = DJA_STEPS.map(function(x){return x[0];}).indexOf(s); if(ix>djaS.max) djaS.max = ix; djaS.screen = s; djaS.toast = ''; djaRender(); var p = document.querySelector('#dja-layer .dja-page'); if(p) p.scrollTop = 0; }
 function djaReset(mode){ var keep = djaS.screen; djaS = djaFresh(); if(mode==='matrix') djaSeedSetups(); djaS.screen = mode; djaRender(); }
 function djaLiveRow(i){ var r = djaS.setups[i]; r.live = true; djaS.confirm = null; djaToast('Live for '+r.n+' people'); }
-function djaSetLive(i){ var r = djaS.setups[i]; if(!r) return; if(!r.live){ djaS.confirm = {row:i, missing:r.missing||[]}; djaRender(); return; } r.live = false; djaToast(r.live ? 'Live for '+r.n+' people' : 'Switched to Draft'); }
+function djaSetLive(i){ var r = djaS.setups[i]; if(!r) return; if(!r.live){ if(r.missing&&r.missing.length){ djaToast('Finish '+r.missing.join(', ')+' before going live'); return; } djaS.confirm = {row:i, missing:[]}; djaRender(); return; } r.live = false; djaToast(r.live ? 'Live for '+r.n+' people' : 'Switched to Draft'); }
 function djaFold(g){ djaS.collapsed[g] = !djaS.collapsed[g]; djaRender(); }
 function djaRestrictPersonal(){ djaS.fields.m3 = 'r'; djaS.fields.q7 = 'r'; djaRender(); }
 function djaClear(){ var m = djaS.tab==='q' ? /^q/ : /^m/; Object.keys(djaS.fields).forEach(function(k){ if(m.test(k)) delete djaS.fields[k]; }); djaRender(); }
@@ -250,14 +248,15 @@ function djaOpen(){
 }
 function djaClose(){ var l = document.getElementById('dja-layer'); if(l){ l.classList.remove('show'); l.innerHTML = ''; } document.body.style.overflow = ''; }
 function djaOpenSetups(){ djaOpen(); djaSeedSetups(); djaS.screen = 'matrix'; djaRender(); }
-function djaEntry(){ // admin entry inside the survey's Insights tab (header button with live count)
+function djaEntry(){ // entry: survey Settings tab, plus a nudge on the Insights tab while some groups are not live
   var l = document.getElementById('v12-layer'); if(!l || !l.classList.contains('show')) return;
+  var st = l.querySelector('[data-v12-tab="settings"]'); if(st && !st.dataset.dja){ st.dataset.dja = 1; st.setAttribute('onclick','djaOpenSetups()'); }
   var h = l.querySelector('.v14-ph'); if(!h || l.querySelector('#dja-entry')) return;
   var t = h.querySelector('h1'); if(!t || t.textContent.trim()!=='Insights') return;
-  h.insertAdjacentHTML('beforeend','<button class="v14-b dja-entry" id="dja-entry" onclick="djaOpenSetups()" title="Admins: choose what each user group gets">⚙ Insights setup<span class="dja-count">2 of 4 groups live</span></button>');
+  h.insertAdjacentHTML('afterend','<div class="dja-nudge" id="dja-entry" data-dja-nudge><span><b>2 of 4 user groups have insights set up.</b> Admins can set up the rest in Settings › Insights setup.</span><button class="v14-b" onclick="djaOpenSetups()">Open Insights setup</button></div>');
 }
 function djaInit(){
-  new MutationObserver(djaEntry).observe(document.body,{childList:true,subtree:true}); // adds the prototype-bar button; the flow itself opens from it
+  new MutationObserver(djaEntry).observe(document.body,{childList:true,subtree:true}); // entry points; the prototype-bar button below is for reviewers
   var ref = document.getElementById('open-in-survey') || document.getElementById('open-card-types');
   if(!ref || document.getElementById('open-admin-setup')) return;
   ref.insertAdjacentHTML('beforebegin', '<button class="journey-btn" id="open-admin-setup" onclick="djaOpen()">⚙ Admin setup</button>');

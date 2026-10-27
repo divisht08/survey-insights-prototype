@@ -137,3 +137,12 @@
 .dja-inc{color:var(--warn);font-weight:600;font-size:11.5px}
 .dja-entry{margin-left:auto;display:inline-flex;align-items:center;gap:8px}
 .dja-count{padding:1px 8px;border-radius:999px;background:var(--pos-wash);color:var(--pos);font-size:11.5px;font-weight:600}
+
+.dja-set{flex:1;display:flex;min-height:0}
+.dja-snav{width:200px;flex:none;background:var(--surface);border-right:1px solid var(--line);padding:14px 10px;display:flex;flex-direction:column;gap:2px}
+.dja-snav a{padding:8px 12px;border-radius:var(--r-sm);font-size:13px;color:var(--ink-2);cursor:default}
+.dja-snav a.on{background:var(--accent-wash);color:var(--accent-deep);font-weight:600}
+.dja-need{font-size:12px;color:var(--warn);font-weight:600}
+.dja-nudge{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 12px;padding:10px 14px;border-radius:var(--r-md);background:var(--accent-wash);color:var(--accent-deep);font-size:13px}
+.dja-b:disabled{opacity:.4;cursor:not-allowed}
+@media (max-width:900px){.dja-snav{display:none}}
