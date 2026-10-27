@@ -58,7 +58,7 @@ function djaShell(inner){
     +'<div class="v14-app"><nav class="v14-rail"><span class="v14-logo">✱</span><a>'+I.bars+'</a><a>'+I.list+'</a><a>'+I.ticket+'</a><a class="on" title="Survey Insights">'+I.ins+'</a>'
     +'<span class="v14-rail-end"><a>'+I.gear+'</a><a>'+I.bell+'</a><span class="v14-me">D</span></span></nav>'
     +'<div class="dja-set"><nav class="dja-snav" data-dja-subnav><p class="dja-snh">Survey Insights</p>'+nav.map(function(x){return x[0]==='-'?'<hr>':'<a class="'+(x[1]?'on':'')+'">'+x[0]+(x[1]?'<small>Admins</small>':'')+'</a>';}).join('')+'</nav>'
-    +'<div class="dja-page"><div class="dja-wrap">'+inner+'</div></div></div></div>'
+    +'<div class="dja-col"><div class="dja-page"><div class="dja-wrap">'+inner+'</div></div></div></div></div>'
     +(djaS.toast?'<div class="dja-toast">'+djaEsc(djaS.toast)+'</div>':'');
 }
 function djaStepBar(cur){
@@ -66,7 +66,7 @@ function djaStepBar(cur){
     +'<div class="dja-steps">'+DJA_STEPS.map(function(s){return '<button class="'+(s[0]===cur?'on':'')+'" data-dja-step="'+s[0]+'" onclick="djaGo(\''+s[0]+'\')">'+s[1]+'</button>';}).join('')+'</div>';
 }
 function djaFoot(back, next, nextLabel, extra){
-  return '<div class="dja-foot"><button class="dja-b" onclick="djaGo(\''+back+'\')">'+(back==='matrix'?'Cancel':'Back')+'</button><span>'+(extra||'')+'<button class="dja-b pri" onclick="djaGo(\''+next+'\')">'+nextLabel+'</button></span></div>';
+  return '<div class="dja-foot dja-nav"><button class="dja-b" onclick="djaGo(\''+back+'\')">'+(back==='matrix'?'Cancel':'Back')+'</button><span>'+(extra||'')+'<button class="dja-b pri" onclick="djaGo(\''+next+'\')">'+nextLabel+'</button></span></div>';
 }
 
 /* ── screens ── */
@@ -100,7 +100,7 @@ function djaPresetsHTML(){
     +'<aside class="dja-aside"><div class="dja-card dja-pad"><h3>What this preset carries</h3><p class="dja-note">Store Manager, weekly · updated 2 days ago</p>'
     +'<p><b>Brief</b> Role and responsibilities for Store Managers</p><p><b>Frequency</b> Weekly</p><p><b>Metadata fields</b> always carried over.</p><p><b>Question choices</b> carried over only when this is the same survey the preset was saved from. Otherwise you pick questions in step 3.</p>'
     +'<p class="dja-note">Prefilled copy: later edits to the preset do not change this setup, and the reverse. Fields it names that this survey does not have are flagged in step 3.</p></div></aside></div>'
-    +'<div class="dja-foot"><button class="dja-b" onclick="djaGo(\'start\')">Back</button><button class="dja-b pri" data-dja-use onclick="djaGo(\'target\')" '+(djaS.preset||djaS.blank?'':'disabled')+'>Use this preset</button></div>';
+    +'<div class="dja-foot dja-nav"><button class="dja-b" onclick="djaGo(\'start\')">Back</button><span><button class="dja-b pri" data-dja-use onclick="djaGo(\'target\')" '+(djaS.preset||djaS.blank?'':'disabled')+'>Use this preset</button></span></div>';
 }
 function djaTargetHTML(){
   var info = djaS.preset ? '<div class="dja-info" data-dja-onpreset>This setup is prefilled from the preset <b>'+djaEsc(djaS.preset.name)+'</b>. Adjust anything. Your changes stay in this setup and do not change the preset.</div>' : '';
@@ -200,7 +200,7 @@ function djaReviewHTML(){
     +(pr?'<div class="dja-rv" data-dja-linked><div><h4>Started from preset: '+djaEsc(pr.name)+'</h4>Used only to prefill this setup. This setup is its own copy, so editing it does not change the preset.</div></div>':'')+'</div>'
     +'<div class="dja-card dja-pad"><div class="dja-flex"><span><h3>Save as a preset</h3><p>'+(pr?djaEsc(pr.name):djaEsc(s.group)+', '+(s.freq==='custom'?'custom':s.freq))+'</p></span><button class="dja-toggle'+(s.savePreset?' on':'')+'" onclick="djaS.savePreset=!djaS.savePreset;djaRender()" aria-label="Save as a preset"></button></div>'
     +'<p class="dja-note">Saves a copy of the brief, metadata fields and delivery settings. Question choices are saved too and carry over only when a setup uses the same survey. The preset only prefills future setups. Editing it later does not change setups already made.</p></div>'
-    +'<div class="dja-foot"><button class="dja-b" onclick="djaGo(\'delivery\')">Back</button><span><button class="dja-b" data-dja-draft onclick="djaPublish(true)">Save as draft</button><button class="dja-b pri" data-dja-publish onclick="djaAskLive()" '+(djaMissing().length?'disabled':'')+'>Publish and start creating insights</button></span></div></div>'
+    +'<div class="dja-foot dja-nav"><button class="dja-b" onclick="djaGo(\'delivery\')">Back</button><span><button class="dja-b" data-dja-draft onclick="djaPublish(true)">Save as draft</button><button class="dja-b pri" data-dja-publish onclick="djaAskLive()" '+(djaMissing().length?'disabled':'')+'>Publish and start creating insights</button></span></div></div>'
     +'<aside class="dja-aside"><div class="dja-card dja-pad"><h3>Preview as a user</h3><span class="dja-groups"><button class="dja-chip on">Store Manager, Store 14</button><button class="dja-chip">Area Manager, North</button></span>'
     +'<p class="dja-note">Built from Store 14\'s actual responses, last 7 days</p>'
     +'<div class="dja-sample"><span class="dja-note">Insight 1 of 3</span><b>Checkout wait is your biggest drag this week</b><span>Checkout speed fell from 4.1 to 3.6 in your store. Fix it first, then check next week.</span></div>'
@@ -215,6 +215,9 @@ function djaRender(){
   var keep = (l.querySelector('.dja-page')||{}).scrollTop || 0;
   l.innerHTML = djaShell(h + (djaS.confirm ? djaConfirmHTML() : ''));
   var pg = l.querySelector('.dja-page'); if(pg) pg.scrollTop = keep;
+  // Back / Continue live in a fixed bottom bar so they never move between steps
+  var nv = l.querySelector('.dja-wrap .dja-nav'), col = l.querySelector('.dja-col');
+  if(nv && col){ var bar = document.createElement('div'); bar.className = 'dja-bar'; bar.setAttribute('data-dja-bar',''); nv.classList.remove('dja-foot'); bar.appendChild(nv); col.appendChild(bar); }
   l.querySelectorAll('[data-dja-go]').forEach(function(b){ b.classList.toggle('on', (b.dataset.djaGo==='empty') === (djaS.setups.length===0)); });
 }
 function djaGo(s){ var ix = DJA_STEPS.map(function(x){return x[0];}).indexOf(s); if(ix>djaS.max) djaS.max = ix; djaS.screen = s; djaS.toast = ''; djaRender(); var p = document.querySelector('#dja-layer .dja-page'); if(p) p.scrollTop = 0; }
