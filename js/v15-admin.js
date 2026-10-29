@@ -47,7 +47,7 @@ const V15_SAMPLE = {
 var v15S = null;
 function v15Fresh(mode){
   return {screen:'home', tab: mode==='first' ? 'suggest' : 'personas', personas: mode==='first' ? [] : JSON.parse(JSON.stringify(V15_SEED)),
-    edit:null, step:1, toast:'', confirm:false, pii:{}, origin:null};
+    edit:null, step:1, toast:'', confirm:false, page:'si', siOpen:true, q2:''};
 }
 const v15E = s=>v12Esc(s);
 const v15Grp = n=>V15_GROUPS.filter(g=>g[0]===n)[0] || ['', '', 0];
@@ -55,18 +55,48 @@ const v15Srv = k=>V15_SURVEYS.filter(s=>s.k===k)[0];
 function v15ScopeText(p, k){ const v = p.scope[k]; if(!v) return ''; return v==='all' ? 'All questions' : v.length+' question'+(v.length===1?'':'s'); }
 function v15FreqText(p){ return p.freq==='daily' ? 'Daily, 08:00' : p.freq==='monthly' ? 'Monthly, first Monday 08:00' : 'Weekly, Monday 08:00'; }
 
-/* ── shell: global settings ── */
+/* ── shell: Sprinklr global settings — top tab strip, icon rail with the gear, settings open as their own tab ── */
+const V15_GI = {
+  roles:'<svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M3 4h8v7a4 4 0 01-8 0zM13 7h8v7a4 4 0 01-8 0z"/></svg>',
+  acct:'<svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="12" cy="9" r="3" fill="#fff"/><path d="M7 17c1-3 9-3 10 0" stroke="#fff" stroke-width="2" fill="none"/></svg>',
+  hier:'<svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><rect x="9" y="2" width="6" height="5" rx="1"/><path d="M12 7v4M5 11h14v3M5 11v3M12 11v3" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="5" cy="17" r="3"/><circle cx="12" cy="17" r="3"/><circle cx="19" cy="17" r="3"/></svg>',
+  conn:'<svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><circle cx="19" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><path d="M17 7l-3 3M10 14l-3 3" stroke="currentColor" stroke-width="2.4"/></svg>',
+  ins:'<svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M10 2l2 6 6 2-6 2-2 6-2-6-6-2 6-2zM18 14l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/></svg>',
+  bell:'<svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M12 2a6 6 0 016 6v5l2 3H4l2-3V8a6 6 0 016-6zM9.5 18h5a2.5 2.5 0 01-5 0z"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M4 4h9v2H6v12h12v-7h2v9H4z"/><path d="M18 2l4 4-9 9H9v-4z"/></svg>',
+  timer:'<svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><rect x="9" y="1" width="6" height="2"/><circle cx="12" cy="14" r="8"/><path d="M12 9v5" stroke="#fff" stroke-width="2"/></svg>',
+  doc:'<svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M5 2h10l4 4v16H5z"/><path d="M8 11h8M8 15h8" stroke="#fff" stroke-width="2"/></svg>',
+  merge:'<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v7l-6 8M12 10l6 8M8 6l4-4 4 4"/></svg>'
+};
+const V15_GS = [
+  ['Program Settings', [['roles','Roles'],['acct','Accounts'],['hier','Hierarchies'],['conn','Data Connectors'],['ins','Survey Insights','si']]],
+  ['Response Case Settings', [['bell','Response Case Status'],['edit','Response Case Properties Widget'],['timer','Escalation Criteria'],['doc','Canned Responses']]],
+  ['Custom Fields', [['edit','Transaction Fields'],['edit','Response Custom Fields'],['merge','Unified Surveys']]]
+];
+function v15LandingHTML(){
+  const q = (v15S.q2||'').toLowerCase();
+  const secs = V15_GS.map(([h,cs])=>[h, cs.filter(c=>!q || c[1].toLowerCase().indexOf(q)>-1)]).filter(x=>x[1].length);
+  return `<div class="v15-gs"><h1>Global Settings</h1>
+    <label class="v15-gsearch">${V14_I.search}<input data-v15-gsearch placeholder="Search" value="${v15E(v15S.q2||'')}" oninput="v15S.q2=this.value;v15Render();const i=document.querySelector('[data-v15-gsearch]');i.focus();i.setSelectionRange(i.value.length,i.value.length)"></label>
+    ${secs.map(([h,cs])=>`<h2>${h}</h2><div class="v15-gcards">${cs.map(c=>`<button class="v15-gcard" ${c[2]?`data-v15-gcard="${c[2]}" onclick="v15GoSI()"`:`onclick="toast('Not part of this prototype')"`}>${c[2]?'<span class="v15-new">New</span>':''}${V15_GI[c[0]]}<span>${c[1]}</span></button>`).join('')}</div>`).join('') || '<p class="v15-note">No settings match.</p>'}</div>`;
+}
 function v15Shell(inner, bar){
-  const I = V14_I, mode = v15S.personas.length ? 'exist' : 'first';
+  const I = V14_I, mode = v15S.personas.length ? 'exist' : 'first', si = v15S.page==='si';
+  const tab = (ic, l, on, x, click)=>`<span class="v15-ttab${on?' on':''}" ${click?`onclick="${click}"`:''}>${ic}<span>${l}</span>${x?`<b onclick="event.stopPropagation();${x}">×</b>`:''}</span>`;
   return `<div class="hm-proto"><b>Prototype · Admin setup in global settings</b>
       <button class="${mode==='first'?'on':''}" data-v15-mode="first" onclick="v15Reset('first')">First visit</button><button class="${mode==='exist'?'on':''}" data-v15-mode="exist" onclick="v15Reset('exist')">Personas exist</button>
       <button style="margin-left:auto" data-v15-close onclick="v15Close()">✕ Back to Survey Insights</button></div>
-    <div class="v14-app"><nav class="v14-rail"><span class="v14-logo">✱</span><a title="Programs">${I.doc}</a><a title="Reporting">${I.bars}</a><a title="Survey Insights">${I.ins}</a>
-      <span class="v14-rail-end"><a class="on" title="Settings">${I.gear}</a><a title="Notifications">${I.bell}</a><span class="v14-me">D</span></span></nav>
-      <div class="v15-set"><nav class="v15-snav"><p>Settings</p>${['General','Users and groups','Data governance','Survey Insights','Notifications'].map(n=>`<a class="${n==='Survey Insights'?'on':''}" ${n==='Survey Insights'?`onclick="v15Home()"`:`onclick="toast('Not part of this prototype')"`}>${n}</a>`).join('')}</nav>
-        <div class="v15-col"><div class="v15-page"><div class="v15-wrap">${inner}</div></div>${bar||''}</div></div></div>
+    <div class="v15-tbar"><span class="v15-tlogo">✱</span><span class="v15-thome" title="Home">⌂</span>
+      ${tab(I.doc,'Customer Feedback Management',false,'',"v15Close()")}${tab(I.gear,'Global Settings',!si,'',"v15Landing()")}${v15S.siOpen ? tab(I.gear,'Survey Insights (Settings)',si,'v15CloseSI()',"v15GoSI()") : ''}
+      <span class="v15-tplus">+</span><span class="v15-tright">${I.search}${I.bell}<span class="v14-me">D</span></span></div>
+    <div class="v14-app"><nav class="v14-rail v15-rail"><a title="Programs">${I.doc}</a><a title="Audiences">${I.people}</a><a title="Calendar">${I.cal}</a><a title="Imports">${I.down}</a><a title="Reporting">${I.bars}</a><a title="Locations">${I.store}</a><a title="Cases">${I.ticket}</a>
+      <span class="v14-rail-end"><a class="on" title="Settings" data-v15-gear onclick="v15Landing()">${I.gear}</a></span></nav>
+      <div class="v15-col"><div class="v15-page"><div class="v15-wrap${si?'':' gs'}">${si ? inner : v15LandingHTML()}</div></div>${si?(bar||''):''}</div></div>
     ${v15S.toast ? `<div class="v15-toast">${v15E(v15S.toast)}</div>` : ''}`;
 }
+function v15Landing(){ v15S.page = 'landing'; v15S.pick = null; v15S.confirm = false; v15Render(); v15Top(); }
+function v15GoSI(){ v15S.page = 'si'; v15S.siOpen = true; v15Render(); v15Top(); }
+function v15CloseSI(){ v15S.siOpen = false; v15S.screen = 'home'; v15S.edit = null; v15Landing(); }
 
 /* ── home: personas, surveys ── */
 function v15HomeHTML(){
@@ -222,10 +252,11 @@ function v15Save(status){
 }
 function v15Toast(t){ v15S.toast = t; v15Render(); setTimeout(()=>{ if(v15S && v15S.toast===t){ v15S.toast = ''; v15Render(); } }, 2200); }
 function v15Reset(mode){ v15S = v15Fresh(mode); v15Render(); v15Top(); }
-function v15Open(mode, tab){
+function v15Open(mode, tab, landing){
   let l = document.getElementById('v15-layer');
   if(!l){ l = document.createElement('div'); l.id = 'v15-layer'; document.body.appendChild(l); }
   v15S = v15Fresh(mode||'exist'); if(tab) v15S.tab = tab;
+  if(landing){ v15S.page = 'landing'; v15S.siOpen = false; }
   v15Render(); l.classList.add('show'); document.body.style.overflow = 'hidden';
 }
 function v15Close(){ const l = document.getElementById('v15-layer'); if(l){ l.classList.remove('show'); l.innerHTML = ''; } if(!document.querySelector('#v12-layer.show')) document.body.style.overflow = ''; }
@@ -234,14 +265,14 @@ function v15Close(){ const l = document.getElementById('v15-layer'); if(l){ l.cl
 function v15AdminMode(on){
   const rail = document.getElementById('rail-insights'), host = rail && rail.parentElement; if(!host) return;
   let g = document.getElementById('rail-settings');
-  if(on && !g){ host.insertAdjacentHTML('beforeend', `<div class="rail-ico" id="rail-settings" style="margin-top:auto" title="Settings" onclick="v15Open('first')">${V14_I.gear}</div>`); }
+  if(on && !g){ host.insertAdjacentHTML('beforeend', `<div class="rail-ico" id="rail-settings" style="margin-top:auto" title="Settings" onclick="v15Open('first',null,true)">${V14_I.gear}</div>`); }
   if(!on && g) g.remove();
   const j = document.getElementById('v15-journey'); if(j) j.classList.toggle('active', !!on);
 }
 function v15Journey(){
   setJourney('returning');
   document.querySelectorAll('.journey-btn[data-state]').forEach(b=>b.classList.remove('active'));
-  v15AdminMode(true); v15Open('first');
+  v15AdminMode(true); v15Open('first', null, true);
 }
 (function v15Init(){
   const first = document.querySelector('.journey-btn[data-state="not-setup"]');
@@ -250,28 +281,3 @@ function v15Journey(){
     document.addEventListener('click', e=>{ if(e.target.closest && e.target.closest('.journey-btn[data-state]')) v15AdminMode(false); }, true);
   }
 })();
-
-/* ── entry 2: a survey's Settings tab (Option 2 journey) shows the personas that use this survey ── */
-const _v15Tabs = v12TabsHTML;
-v12TabsHTML = function(active){
-  return _v15Tabs.apply(this, arguments).replace(`data-v12-tab="settings" onclick="toast('Not part of this prototype')"`, `data-v12-tab="settings" onclick="v12Go('settings')"`);
-};
-v14SurveyBar = function(){
-  const a = v12Step==='insights' ? 'insights' : v12Step==='settings' ? 'settings' : 'overview';
-  return `<header class="v14-sbar"><span class="v14-sname">Store experience survey <i class="v14-dot" title="Active"></i></span>${v12TabsHTML(a)}</header>`;
-};
-function v15SurveySettingsHTML(){
-  const ps = V15_SEED.filter(p=>p.scope.store);
-  return v12Shell(`<div class="v14-ph"><h1>Settings</h1></div>
-    <div class="v15-ss"><nav class="v15-ssnav">${['General','Notifications','Survey Insights','Data retention'].map(n=>`<a class="${n==='Survey Insights'?'on':''}" ${n==='Survey Insights'?'':`onclick="toast('Not part of this prototype')"`}>${n}</a>`).join('')}</nav>
-      <div class="v15-card v15-pad" data-v15-survey-settings><div class="v15-flex"><span><h3>Who gets insights from this survey</h3><p>Personas are set up in global settings and can cover many surveys. These ${ps.length} use this one.</p></span>
-        <span class="v15-flex" style="gap:8px"><button class="v14-b" data-v15-manage onclick="v15Open('exist','surveys')">Manage in settings</button><button class="v14-b pri" onclick="v15Open('exist','surveys')">Add a persona</button></span></div>
-        <table class="v15-tbl"><thead><tr><th>Persona</th><th>People</th><th>Questions used</th><th>Status</th></tr></thead><tbody>
-        ${ps.map(p=>`<tr><td><b>${v15E(p.name)}</b></td><td>${v15Grp(p.group)[2]}</td><td>${p.scope.store==='all' ? 'All questions' : p.scope.store.map(id=>v15E(V15_SURVEYS[0].qs.filter(q=>q[0]===id)[0][1])).join(', ')}</td><td><span class="v15-st ${p.status}">${p.status==='live'?'Live':'Draft'}</span></td></tr>`).join('')}</tbody></table></div></div>`);
-}
-const _v15Render = v12Render;
-v12Render = function(){
-  const l = document.getElementById('v12-layer');
-  if(l && v12Step==='settings'){ l.innerHTML = v15SurveySettingsHTML(); return; }
-  return _v15Render.apply(this, arguments);
-};
