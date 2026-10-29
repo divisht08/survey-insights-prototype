@@ -11,7 +11,6 @@ const V15_SURVEYS = [
   {k:'care', name:'Customer care survey', resp:0, draft:true, qs:[['c1','Issue resolved','Yes or no'],['c2','Wait time','Rating'],['c3','Agent helpfulness','Rating'],['c4','What could we improve?','Open text']]}
 ];
 const V15_GROUPS = [['Store managers','Sees own store',214],['Area managers','Sees own region',38],['Checkout & payments team','Sees all stores',5],['Central CX team','Sees all stores',6],['CX head','Sees all stores',4]];
-const V15_PII = [['Email address','Online experience survey'],['Phone number','Customer care survey'],['Customer name','Store experience survey'],['Contact me about my feedback','Store experience survey']];
 const V15_SEED = [
   {id:'sm', name:'Store manager', group:'Store managers', role:'Runs one store day to day and reports to an area manager.',
     resp:'Tills and the shop floor, shift schedules, staff coaching and recognition. Pricing and supplier issues go to the area manager.',
@@ -69,11 +68,11 @@ function v15Shell(inner, bar){
     ${v15S.toast ? `<div class="v15-toast">${v15E(v15S.toast)}</div>` : ''}`;
 }
 
-/* ── home: personas, surveys, data rules ── */
+/* ── home: personas, surveys ── */
 function v15HomeHTML(){
   const t = v15S.tab, n = v15S.personas.length;
-  const tabs = (n ? [['personas',`Personas · ${n}`],['surveys',`Surveys · ${V15_SURVEYS.length}`]] : [['suggest','Suggested personas']]).concat([['rules','Data rules']]);
-  const body = t==='surveys' ? v15SurveysHTML() : t==='rules' ? v15RulesHTML() : t==='suggest' ? v15SuggestHTML() : v15PersonasHTML();
+  const tabs = (n ? [['personas',`Personas · ${n}`],['surveys',`Surveys · ${V15_SURVEYS.length}`]] : [['suggest','Suggested personas']]);
+  const body = t==='surveys' ? v15SurveysHTML() : t==='suggest' ? v15SuggestHTML() : v15PersonasHTML();
   return `<div class="v15-hd"><div><h1>Survey Insights</h1><p class="v15-sub">Set up who gets insights, about what, and from which surveys. Each persona is set up once and can cover many surveys.</p></div>
       ${n ? `<button class="v14-b pri" data-v15-new onclick="v15New()">+ New persona</button>` : ''}</div>
     <div class="v15-tabs">${tabs.map(([k,l])=>`<button class="${t===k?'on':''}" data-v15-tab="${k}" onclick="v15Tab('${k}')">${l}</button>`).join('')}</div>${body}`;
@@ -129,12 +128,6 @@ function v15PickHTML(){
 }
 function v15AddPick(k){ v15S.pick = k; v15Render(); }
 function v15AddTo(k, id){ v15S.pick = null; v15Edit(id, false, 2); v15S.edit.scope[k] = 'all'; v15Render(); }
-function v15RulesHTML(){
-  return `<div class="v15-card v15-pad"><h3>Personal data is never used in insights</h3><p>These fields were found in your surveys. They're kept out of every insight, for every persona and survey. Answers stay available in Responses for people allowed to see them.</p>
-    <table class="v15-tbl" data-v15-pii><thead><tr><th>Field</th><th>Found in</th><th>In insights</th></tr></thead><tbody>${V15_PII.map(([f,s],i)=>`<tr><td><b>${v15E(f)}</b></td><td>${v15E(s)}</td><td><span class="v15-st never">Never used</span></td></tr>`).join('')}</tbody></table>
-    <p class="v15-note">New surveys are checked when they're published, and any personal-data fields are added here.</p></div>
-    <div class="v15-card v15-pad"><h3>Which responses each person sees</h3><p>Not set here. Insights only use responses a person can already see, from your data governance. A store manager at Store 14 gets insights from Store 14's responses only.</p></div>`;
-}
 
 /* ── persona editor: 3 steps ── */
 const V15_STEPS = [[1,'Who and what for'],[2,'Surveys and questions'],[3,'Delivery and review']];
@@ -170,7 +163,7 @@ function v15Step2(){
   return `<div class="v15-cols"><div class="v15-main"><div class="v15-card"><div class="v15-ch"><h3>Which surveys should their insights come from?</h3><p>Pick every survey this persona cares about. For each one, use all its questions or only some.</p></div>${rows}
       <div class="v15-sum" data-v15-sum>${n} survey${n===1?'':'s'} selected</div></div></div>
     <aside class="v15-aside"><div class="v15-card v15-pad"><h3>When to use "Only these"</h3><p>When a team owns a few questions in a longer survey, like a checkout team in a store survey. Their insights then come only from those questions, so the rest of the visit isn't in their feed.</p></div>
-      <div class="v15-card v15-pad"><h3>Already handled for you</h3><p><b>Responses:</b> each person only gets insights from responses they can already see.</p><p><b>Personal data:</b> never used, for every persona. <a onclick="v15S.edit=null;v15Tab('rules')">See data rules</a></p></div></aside></div>`;
+      <div class="v15-card v15-pad"><h3>Already handled for you</h3><p><b>Responses:</b> each person only gets insights from responses they can already see.</p><p><b>Personal data:</b> handled by your account's masking rules in <a onclick="toast('Opens Data governance settings')">Data governance</a>.</p></div></aside></div>`;
 }
 function v15Step3(){
   const p = v15S.edit, g = v15Grp(p.group), sm = V15_SAMPLE[p.id], ks = Object.keys(p.scope);
@@ -208,7 +201,7 @@ function v15Render(){
   const np = l.querySelector('.v15-page'); if(np) np.scrollTop = keep;
 }
 function v15Top(){ const p = document.querySelector('#v15-layer .v15-page'); if(p) p.scrollTop = 0; }
-function v15Home(){ v15S.screen = 'home'; v15S.edit = null; v15S.confirm = false; if(!v15S.personas.length && v15S.tab!=='rules') v15S.tab = 'suggest'; v15Render(); v15Top(); }
+function v15Home(){ v15S.screen = 'home'; v15S.edit = null; v15S.confirm = false; if(!v15S.personas.length) v15S.tab = 'suggest'; v15Render(); v15Top(); }
 function v15Tab(t){ v15S.screen = 'home'; v15S.tab = t; v15Render(); v15Top(); }
 function v15Step(n){ v15S.step = n; v15Render(); v15Top(); }
 function v15Edit(id, fromSuggest, step){
