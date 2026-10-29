@@ -69,11 +69,11 @@ function v15Shell(inner, bar){
     ${v15S.toast ? `<div class="v15-toast">${v15E(v15S.toast)}</div>` : ''}`;
 }
 
-/* ── home: personas, coverage, data rules ── */
+/* ── home: personas, surveys, data rules ── */
 function v15HomeHTML(){
   const t = v15S.tab, n = v15S.personas.length;
-  const tabs = (n ? [['personas',`Personas · ${n}`],['coverage','Coverage']] : [['suggest','Suggested personas']]).concat([['rules','Data rules']]);
-  const body = t==='coverage' ? v15CoverageHTML() : t==='rules' ? v15RulesHTML() : t==='suggest' ? v15SuggestHTML() : v15PersonasHTML();
+  const tabs = (n ? [['personas',`Personas · ${n}`],['surveys',`Surveys · ${V15_SURVEYS.length}`]] : [['suggest','Suggested personas']]).concat([['rules','Data rules']]);
+  const body = t==='surveys' ? v15SurveysHTML() : t==='rules' ? v15RulesHTML() : t==='suggest' ? v15SuggestHTML() : v15PersonasHTML();
   return `<div class="v15-hd"><div><h1>Survey Insights</h1><p class="v15-sub">Set up who gets insights, about what, and from which surveys. Each persona is set up once and can cover many surveys.</p></div>
       ${n ? `<button class="v14-b pri" data-v15-new onclick="v15New()">+ New persona</button>` : ''}</div>
     <div class="v15-tabs">${tabs.map(([k,l])=>`<button class="${t===k?'on':''}" data-v15-tab="${k}" onclick="v15Tab('${k}')">${l}</button>`).join('')}</div>${body}`;
@@ -103,15 +103,32 @@ function v15MoreHTML(){
   return `<div class="v15-card" data-v15-more><div class="v15-ch"><h3>Suggested personas not set up yet</h3><p>From the questions in your surveys and your user groups.</p></div>
     ${left.map(p=>`<div class="v15-srow v15-flex"><span><b>${v15E(p.name)}</b> <span class="v15-tag ai">Suggested</span><small>${v15E(p.group)} · ${v15Grp(p.group)[2]} people · ${Object.keys(p.scope).length} surveys</small></span><button class="v14-b" data-v15-more-go="${p.id}" onclick="v15Edit('${p.id}',true)">Review and set up</button></div>`).join('')}</div>`;
 }
-function v15CoverageHTML(){
-  const ps = v15S.personas;
-  const gaps = V15_SURVEYS.filter(s=>!ps.some(p=>p.status==='live' && p.scope[s.k]));
-  return `${gaps.length ? `<div class="v15-callout warn" data-v15-gaps><b>${gaps.map(s=>v15E(s.name)).join(', ')} ${gaps.length===1?'has':'have'} no live persona.</b> Nobody gets insights from ${gaps.length===1?'it':'them'} yet.</div>` : ''}
-    <div class="v15-card v15-cov"><table class="v15-tbl" data-v15-coverage><thead><tr><th>Persona</th>${V15_SURVEYS.map(s=>`<th>${v15E(s.name.replace(' survey',''))}<small>${s.draft ? 'Draft survey' : s.resp+' responses'}</small></th>`).join('')}</tr></thead>
-    <tbody>${ps.map(p=>`<tr><td><b>${v15E(p.name)}</b><small>${v15Grp(p.group)[2]} people</small></td>${V15_SURVEYS.map(s=>{ const v = p.scope[s.k];
-      return `<td><button class="v15-cell ${v?(p.status==='live'?'live':'draft'):'none'}" data-v15-cell="${p.id}-${s.k}" onclick="v15Edit('${p.id}',false,2)">${v ? v15ScopeText(p,s.k)+(p.status==='live'?'':' · Draft') : '+ Add'}</button></td>`; }).join('')}</tr>`).join('')}</tbody></table></div>
-    <p class="v15-note">Each cell is the questions a persona's insights come from in that survey. Which responses each person sees comes from their own access.</p>`;
+// one row per survey: who gets insights from it, and surveys nobody does sort to the top
+function v15SurveysHTML(){
+  const ps = v15S.personas, q = (v15S.q||'').toLowerCase();
+  const live = s=>ps.filter(p=>p.status==='live' && p.scope[s.k]);
+  const rows = V15_SURVEYS.filter(s=>!q || s.name.toLowerCase().indexOf(q)>-1).slice().sort((x,y)=>(live(x).length?1:0)-(live(y).length?1:0));
+  const gaps = V15_SURVEYS.filter(s=>!live(s).length);
+  return `${gaps.length ? `<div class="v15-callout warn" data-v15-gaps><b>${gaps.length} of ${V15_SURVEYS.length} surveys ${gaps.length===1?'has':'have'} no live persona.</b> Nobody gets insights from ${gaps.length===1?'it':'them'} yet.</div>` : ''}
+    <div class="v15-card"><div class="v15-th"><h3>Surveys</h3><input class="v15-search" data-v15-search placeholder="Search surveys" value="${v15E(v15S.q||'')}" oninput="v15S.q=this.value;v15Render();const i=document.querySelector('[data-v15-search]');i.focus();i.setSelectionRange(i.value.length,i.value.length)"></div>
+    <table class="v15-tbl" data-v15-surveys><thead><tr><th>Survey</th><th>Personas using it</th><th>People</th><th></th></tr></thead><tbody>
+    ${rows.map(s=>{ const all = ps.filter(p=>p.scope[s.k]), lv = live(s), ppl = lv.reduce((a,p)=>a+v15Grp(p.group)[2],0);
+      return `<tr data-v15-srv="${s.k}"><td><b>${v15E(s.name)}</b><small>${s.draft ? 'Draft survey · no responses yet' : s.resp+' responses'}</small></td>
+        <td>${all.length ? `<span class="v15-pchips">${all.map(p=>`<button class="v15-pchip ${p.status}" onclick="v15Edit('${p.id}',false,2)">${v15E(p.name)} · ${v15ScopeText(p,s.k).replace('All questions','all questions')}${p.status==='live'?'':' · Draft'}</button>`).join('')}</span>` : '<span class="v15-note">None</span>'}
+          ${lv.length ? '' : '<small class="v15-warn">No live persona</small>'}</td>
+        <td>${ppl ? ppl : '<span class="v15-note">0</span>'}</td>
+        <td class="v15-r"><button class="v14-b" data-v15-addto="${s.k}" onclick="v15AddPick('${s.k}')">Add a persona</button></td></tr>`; }).join('') || '<tr><td colspan="4" class="v15-note">No surveys match.</td></tr>'}</tbody></table></div>
+    <p class="v15-note">People counts include live personas only. Which responses each person sees comes from their own access.</p>`;
 }
+// pick which persona to add a survey to; it opens at step 2 with the survey already ticked
+function v15PickHTML(){
+  const k = v15S.pick, s = v15Srv(k), opts = v15S.personas.filter(p=>!p.scope[k]);
+  return `<div class="v15-scrim" data-v15-pick onclick="if(event.target===this){v15S.pick=null;v15Render()}"><div class="v15-pop"><h3>Add ${v15E(s.name)} to a persona</h3>
+    ${opts.length ? `<div class="v15-plist">${opts.map(p=>`<button data-v15-pick-go="${p.id}" onclick="v15AddTo('${k}','${p.id}')"><b>${v15E(p.name)}</b><small>${v15E(p.group)} · ${v15Grp(p.group)[2]} people</small></button>`).join('')}</div>` : '<p>Every persona already uses this survey.</p>'}
+    <div class="v15-flex"><a onclick="v15S.pick=null;v15New();v15S.edit.scope['${k}']='all';v15Render()">Create a new persona</a><button class="v14-b" onclick="v15S.pick=null;v15Render()">Cancel</button></div></div></div>`;
+}
+function v15AddPick(k){ v15S.pick = k; v15Render(); }
+function v15AddTo(k, id){ v15S.pick = null; v15Edit(id, false, 2); v15S.edit.scope[k] = 'all'; v15Render(); }
 function v15RulesHTML(){
   return `<div class="v15-card v15-pad"><h3>Personal data is never used in insights</h3><p>These fields were found in your surveys. They're kept out of every insight, for every persona and survey. Answers stay available in Responses for people allowed to see them.</p>
     <table class="v15-tbl" data-v15-pii><thead><tr><th>Field</th><th>Found in</th><th>In insights</th></tr></thead><tbody>${V15_PII.map(([f,s],i)=>`<tr><td><b>${v15E(f)}</b></td><td>${v15E(s)}</td><td><span class="v15-st never">Never used</span></td></tr>`).join('')}</tbody></table>
@@ -187,7 +204,7 @@ function v15ConfirmHTML(){
 function v15Render(){
   const l = document.getElementById('v15-layer'); if(!l) return;
   const pg = l.querySelector('.v15-page'), keep = pg ? pg.scrollTop : 0;
-  l.innerHTML = v15S.screen==='edit' ? v15Shell(v15EditHTML(), v15BarHTML()) + (v15S.confirm ? v15ConfirmHTML() : '') : v15Shell(v15HomeHTML());
+  l.innerHTML = v15S.screen==='edit' ? v15Shell(v15EditHTML(), v15BarHTML()) + (v15S.confirm ? v15ConfirmHTML() : '') : v15Shell(v15HomeHTML()) + (v15S.pick ? v15PickHTML() : '');
   const np = l.querySelector('.v15-page'); if(np) np.scrollTop = keep;
 }
 function v15Top(){ const p = document.querySelector('#v15-layer .v15-page'); if(p) p.scrollTop = 0; }
@@ -255,7 +272,7 @@ function v15SurveySettingsHTML(){
   return v12Shell(`<div class="v14-ph"><h1>Settings</h1></div>
     <div class="v15-ss"><nav class="v15-ssnav">${['General','Notifications','Survey Insights','Data retention'].map(n=>`<a class="${n==='Survey Insights'?'on':''}" ${n==='Survey Insights'?'':`onclick="toast('Not part of this prototype')"`}>${n}</a>`).join('')}</nav>
       <div class="v15-card v15-pad" data-v15-survey-settings><div class="v15-flex"><span><h3>Who gets insights from this survey</h3><p>Personas are set up in global settings and can cover many surveys. These ${ps.length} use this one.</p></span>
-        <span class="v15-flex" style="gap:8px"><button class="v14-b" data-v15-manage onclick="v15Open('exist','coverage')">Manage in settings</button><button class="v14-b pri" onclick="v15Open('exist','coverage')">Add a persona</button></span></div>
+        <span class="v15-flex" style="gap:8px"><button class="v14-b" data-v15-manage onclick="v15Open('exist','surveys')">Manage in settings</button><button class="v14-b pri" onclick="v15Open('exist','surveys')">Add a persona</button></span></div>
         <table class="v15-tbl"><thead><tr><th>Persona</th><th>People</th><th>Questions used</th><th>Status</th></tr></thead><tbody>
         ${ps.map(p=>`<tr><td><b>${v15E(p.name)}</b></td><td>${v15Grp(p.group)[2]}</td><td>${p.scope.store==='all' ? 'All questions' : p.scope.store.map(id=>v15E(V15_SURVEYS[0].qs.filter(q=>q[0]===id)[0][1])).join(', ')}</td><td><span class="v15-st ${p.status}">${p.status==='live'?'Live':'Draft'}</span></td></tr>`).join('')}</tbody></table></div></div>`);
 }
