@@ -1,6 +1,6 @@
 /* ═══ v17 (2 Nov) — changes after the ID.me user test (30 Oct) and Pradeep's review:
    1. Slack and Teams: admins can post a persona's insights to a channel; anyone can post an insight to a channel from Share.
-   2. Copilot across all surveys: an "Ask about your surveys" bar on the Feed and an Ask page at the top of the menu.
+   2. Copilot across all surveys: an "Ask about your surveys" bar on the Feed opens the answers (no menu item).
    3. "Where it happened" in the drill-down: change against the usual, impact on the score, and the segments it sits in.
    4. Deleted is now Archived.
    All figures are sample data (see "About the data"). ═══ */
@@ -89,6 +89,7 @@ function v17AskHTML(){
       ${t.r.ins.length ? `<div class="v17-cite"><span>Related insights</span>${t.r.ins.map(id=>`<button onclick="segNav('insights');openInvestigate('${id}')">${v17Esc(v17Title(id))}</button>`).join('')}</div>` : ''}
       <div class="v17-afoot"><small>Based on: ${v17Esc(t.r.src)}</small><span><button class="btn-sec" onclick="toast('Posted to Slack #store-ops')">${V17_ICON.slack} Post to Slack</button><button class="btn-sec" onclick="toast('Copied')">Copy</button></span></div></div>`).join('');
   return `<div class="v17-ask" data-v17-ask>
+    <a class="v17-back" data-v17-back onclick="segNav('insights')">← Back to the feed</a>
     <p class="v17-lede">Ask anything about your surveys. Answers use every response you can see, across all your surveys.</p>
     <div class="v17-scope"><span class="v17-pill">All surveys · ${V17_SURVEYS.split(', ').length} ▾</span><span class="v17-pill">Last 90 days ▾</span></div>
     ${thread ? `<div class="v17-thread">${thread}</div>` : `<div class="v17-starters"><p>Try asking</p>${V17_STARTERS.map(q=>`<button data-v17-starter onclick="v17Ask(this.textContent)">${v17Esc(q)}</button>`).join('')}</div>`}
@@ -108,7 +109,7 @@ segNav = function(v){
     document.getElementById('view-insights').classList.add('hidden');
     if(typeof closeInvestigatePanel==='function') closeInvestigatePanel();
     v17RenderAsk(); view.classList.remove('hidden');
-    document.querySelectorAll('#si-subnav .sn-i').forEach(b=>b.classList.toggle('active', b.id==='v17-nav-ask'));
+    document.querySelectorAll('#si-subnav .sn-i').forEach(b=>b.classList.toggle('active', b.id==='seg-insights'));
     const h1 = document.getElementById('page-h1'); if(h1) h1.textContent = 'Ask';
     if(pill) pill.style.display = 'none';
     return;
@@ -120,7 +121,6 @@ segNav = function(v){
 };
 (function v17AskEntry(){
   const h = document.querySelector('#si-subnav .sn-h');
-  if(h && !document.getElementById('v17-nav-ask')) h.insertAdjacentHTML('afterend', `<button class="sn-i" id="v17-nav-ask" onclick="segNav('ask')">${V17_ICON.spark}<span class="sn-t">Ask</span></button>`);
   const vi = document.getElementById('view-insights');
   if(vi && !document.getElementById('v17-bar')) vi.insertAdjacentHTML('afterbegin', `<div class="v17-bar" id="v17-bar"><span>${V17_ICON.spark}</span>
     <input id="v17-bar-in" placeholder="Ask about your surveys, for example: what are people saying about checkout?" onkeydown="if(event.key==='Enter')v17AskFrom(this.value)">
