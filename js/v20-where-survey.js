@@ -105,8 +105,7 @@ delete V20_WHERE['SHW-01'];
 
 function v20WhereHTML(id){
   const w = V20_WHERE[id]; if(!w) return '';
-  const kpi = w.kpi.map(([k,v,s])=>`<div class="v17-kpi"><span>${k}</span><b>${v17Esc(v)}</b>${s ? `<small>${v17Esc(s)}</small>` : ''}</div>`).join('');
-  const segs = w.segs.map(g=>{
+  const segs = w.segs.slice(0,2).map(g=>{
     const vals = g.rows.map(r=>r[1]), max = Math.max(...vals), tot = vals.reduce((a,b)=>a+b,0);
     if(g.k==='score'){
       const dp = Math.max(...vals.map(v=>(String(v).split('.')[1]||'').length)), fmt = n=>g.suf ? n : n.toFixed(Math.max(1, dp));
@@ -116,7 +115,7 @@ function v20WhereHTML(id){
     return `<div class="v17-seg"><p>${g.t}</p>${g.rows.map(([l,n])=>`<div class="v17-srow"><span>${v17Esc(l)}</span><i><em style="width:${Math.round(n/max*100)}%"></em></i><b>${n}</b><small>${Math.round(n/tot*100)}%</small></div>`).join('')}</div>`;
   }).join('');
   return `<div class="id-sect" data-v11-sect="Where it happened" data-v17-where><div class="v6-sh"><b>Where it happened</b><span>${v17Esc(w.unit)}</span></div>
-    <div class="v17-kpis">${kpi}</div><div class="v17-segs">${segs}</div></div>`;
+    <div class="v17-segs">${segs}</div></div>`;
 }
 v17WhereHTML = v20WhereHTML;
 const _v20Shape = v6Shape;
@@ -169,12 +168,12 @@ const _v20Intent = v19Intent;
 v19Intent = function(id, q){
   const w = V20_WHERE[id], s = String(q).toLowerCase();
   if(w && /where|which store|stores|segment|channel|which day|location|who is|concentrat|break.?down|split/.test(s)){
-    const parts = w.segs.map(g=>{
+    const parts = w.segs.slice(0,2).map(g=>{
       const top = g.rows.slice().sort((x,y)=>y[1]-x[1]);
       if(g.k==='score'){ const lo = top[top.length-1], f = n=>g.suf ? n+g.suf : (Number.isInteger(n) ? n.toFixed(1) : n); return `${g.t}: ${top[0][0]} ${f(top[0][1])}, ${lo[0]} ${f(lo[1])}`; }
       const tot = g.rows.reduce((x,r)=>x+r[1],0); return `${g.t}: ${top[0][0]} (${top[0][1]} of ${tot})`;
     });
-    return [q, `Where it is concentrated. ${parts.join('. ')}. ${w.kpi[0][0]}: ${w.kpi[0][1].replace(/\.$/,'')}.`, 'Where it happened'];
+    return [q, `${parts.join('. ')}.`, 'Where it happened'];
   }
   return _v20Intent.apply(this, arguments);
 };
