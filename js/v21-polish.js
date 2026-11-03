@@ -8,12 +8,12 @@
 
 const V21_HERO = {
   'INS-05': {
-    kpis:[['Change vs usual','▲ 3,700%','11 mentions in 2 days, against ~1 a week','bad'],
+    kpis:[['Change vs a usual week','▲ 12×','12 mentions that week, against ~1 in a usual week','bad'],
           ['Score on 14–15 Sep','▼ 1.7','7.9 out of 10, against ~9.6 on other days','bad'],
           ['Respondents affected','11','They rated the visit 4.2 on average','']],
     what:'On <b>14–15 Sep, 11 respondents</b> said their card or phone payment <b>failed at the till</b>, against ~1 a week normally. Mentions <b>stopped after the 15th</b>, which points to a one-off outage rather than an ongoing problem. Most came from <b>Till 3 (6 of 11)</b>, and most were card payments.',
     card:{sum:'<b>11 respondents</b> in 2 days said card or wallet payments <b>failed at the till</b>, against ~1 a week normally.',
-      stat:'<p class="ic-num" style="color:#c5221f">▲ 3,700%</p><p class="ic-unit">vs a usual week</p><p class="ic-delta down">▼ 1.7<small>score</small></p>'},
+      stat:'<p class="ic-num" style="color:#c5221f">▲ 12×</p><p class="ic-unit">mentions vs a usual week</p><p class="ic-delta down">▼ 1.7<small>score</small></p>'},
     where:{unit:'Count of mentions, 14–15 Sep', segs:[{t:'Till',rows:[['Till 3',6],['Till 1',3],['Self-checkout',2]]},{t:'Payment method',rows:[['Card',8],['Phone wallet',3]]}]},
     qa:[['Which till was it?','Mostly Till 3, with 6 of the 11 mentions. Till 1 had 3 and self-checkout 2. A problem on one till plus a few elsewhere fits a provider outage that hit Till 3 hardest.','Where it happened'],
         ['How much did it pull the score down?','On 14–15 Sep the store scored 7.9 out of 10, against ~9.6 on other days, a drop of 1.7. Over the whole period it lowers the score by 0.24: 9.63, against 9.87 without these 11 shoppers.','What happened · Evidence']]
