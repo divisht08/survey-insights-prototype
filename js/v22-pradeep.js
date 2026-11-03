@@ -91,46 +91,48 @@ function v22SeedFollowed(){
 }
 
 /* ── 1. full-page drill-down in two columns ── */
-const V22_PANELS = [['investigate-panel','Feed'],['followed-panel','Followed'],['shared-panel','Shared']];
+const V22_PANELS = ['investigate-panel','followed-panel','shared-panel'];
+// The drill-down opens beside the list, so moving to the next insight is one click.
+// "Open full page" shows the same drill-down in two columns: story 2/3, Copilot and details 1/3.
 function v22Layout(){
-  V22_PANELS.forEach(([pid,label])=>{
+  V22_PANELS.forEach(pid=>{
     const p = document.getElementById(pid); if(!p) return;
     const split = p.parentElement; if(!split) return;
     const open = !p.closest('.hidden') && !p.classList.contains('hidden') && p.getClientRects().length>0 && p.innerHTML.trim() && p.querySelector('.v10-cols');
-    if(!open){ if(split.classList.contains('v3-fullpage') && split.dataset.v22) { split.classList.remove('v3-fullpage'); delete split.dataset.v22; } return; }
-    if(!split.classList.contains('v3-fullpage')){ split.classList.add('v3-fullpage'); split.dataset.v22 = '1'; }
-    // back link
-    const head = p.querySelector('[data-v6-head]');
-    if(head && !head.querySelector('.v22-back')){
-      const close = head.querySelector('[data-close-panel]');
-      head.insertAdjacentHTML('afterbegin', `<button class="v22-back" type="button">← Back to ${label}</button>`);
-      head.querySelector('.v22-back').onclick = ()=>{ if(close) close.click(); };
-    }
+    if(!open){ split.classList.remove('v3-fullpage'); return; }   // closing the drill-down always brings the list back
+    const full = split.classList.contains('v3-fullpage');
     // a followed insight opens on its latest state, so it carries its latest title
-    const pid2 = (p.querySelector('[data-v3-id]')||{dataset:{}}).dataset.v3Id, h3 = p.querySelector('[data-v6-head] h3');
-    if(pid2 && followed[pid2] && INSIGHT_META[pid2] && h3 && h3.textContent.trim()!==INSIGHT_META[pid2].title) h3.textContent = INSIGHT_META[pid2].title;
+    const id = (p.querySelector('[data-v3-id]')||{dataset:{}}).dataset.v3Id, h3 = p.querySelector('[data-v6-head] h3');
+    if(id && followed[id] && INSIGHT_META[id] && h3 && h3.textContent.trim()!==INSIGHT_META[id].title) h3.textContent = INSIGHT_META[id].title;
     // Nadav: "~" instead of "about"
-    const c0 = p.querySelector('.v10-cols'); if(c0 && !c0.dataset.v22Tilde){ c0.dataset.v22Tilde = '1';
+    const cols = p.querySelector('.v10-cols');
+    if(cols && !cols.dataset.v22Tilde){ cols.dataset.v22Tilde = '1';
       const w = document.createTreeWalker(p, NodeFilter.SHOW_TEXT); let n;
       while((n = w.nextNode())){ if(/\b[Aa]bout (?=[~\d])/.test(n.nodeValue)) n.nodeValue = n.nodeValue.replace(/\b[Aa]bout (?=[~\d])/g, '~'); }
     }
-    // right column: Copilot, then the details
-    const cols = p.querySelector('.v10-cols');
+    // right column (full page only): Copilot, then the details; the facts line stays for the side panel
     if(cols && !cols.querySelector('.v22-side')){
-      const main = cols.querySelector('.v10-main'), id = (p.querySelector('[data-v3-id]')||{}).dataset ? p.querySelector('[data-v3-id]').dataset.v3Id : null;
+      const main = cols.querySelector('.v10-main'), meta = main && main.querySelector('.v21-meta');
       const side = document.createElement('aside'); side.className = 'v22-side';
-      const dock = p.querySelector('[data-v3-dock]'); if(dock) side.appendChild(dock);
-      const meta = main && main.querySelector('.v21-meta');
       if(meta){
         const rows = [...meta.querySelectorAll('span')].map(s=>{ const k = s.querySelector('i'); const key = k ? k.textContent : ''; const val = s.innerHTML.replace(/<i>[^<]*<\/i>\s*/,''); return `<div><dt>${key}</dt><dd>${val}</dd></div>`; }).join('');
         side.insertAdjacentHTML('beforeend', `<div class="v22-det"><p>Details</p><dl>${rows}</dl></div>`);
-        meta.remove();
       }
       cols.appendChild(side);
     }
+    const side = cols && cols.querySelector('.v22-side'), dock = p.querySelector('[data-v3-dock]');
+    if(side && dock){
+      if(full && dock.parentElement!==side) side.insertBefore(dock, side.firstChild);
+      if(!full && dock.parentElement===side) p.appendChild(dock);
+    }
+    // in full page, a way back to the list with the insight still open
+    const head = p.querySelector('[data-v6-head]');
+    let back = head && head.querySelector('.v22-back');
+    if(head && !back){ head.insertAdjacentHTML('afterbegin', `<button class="v22-back" type="button">← Back to the list</button>`); back = head.querySelector('.v22-back');
+      back.onclick = ()=>{ split.classList.remove('v3-fullpage'); const t = p.querySelector('[data-v3-full]'); if(t) t.title = 'Open full page'; }; }
+    if(back) back.style.display = full ? '' : 'none';
   });
 }
-// the full-page toggle is no longer needed: the drill-down is always a page
 const _v22Place = v9Place;
 v9Place = function(){ v22Layout(); v22Cards(); return _v22Place.apply(this, arguments); };
 
