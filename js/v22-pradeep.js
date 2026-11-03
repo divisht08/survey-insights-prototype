@@ -1,9 +1,9 @@
 /* ═══ v22 (3 Nov) — Pradeep's review, the parts we are sure of:
    1. The drill-down opens as a full page in two columns: the story on the left (2/3), Copilot and the
       details on the right (1/3).
-   2. Five cards finished end to end, card and drill-down: Feed — payment spike (INS-05), cleanliness
-      (INS-04), late deliveries (AL-03); Followed — overall satisfaction (INS-01), weekend checkout (FOL-01).
-      Each card: scope line, the number with its comparison and a small trend line, one customer comment.
+   2. Five insights finished end to end: Feed — payment spike (INS-05), cleanliness (INS-04), late
+      deliveries (AL-03); Followed — overall satisfaction (INS-01), weekend checkout (FOL-01). Cards keep
+      the feed's design with Nadav's asks only: % change up front and key points in bold.
    3. A "This period" summary above the feed.
    4. How long insights stay in the feed.
    Left out on purpose (conflict with earlier decisions or not agreed): ranking, "Recurring" labels,
@@ -26,59 +26,15 @@ Object.assign(V21_HERO, {
 ['INS-01','FOL-01'].forEach(id=>{ if(V10_DRILL[id]) V10_DRILL[id].what = V21_HERO[id].what.replace(/<[^>]+>/g,''); });
 
 /* ── 2. the cards ── */
-const V22_CARDS = {
-  'INS-05': {tone:'bad', scope:['RT ATYAF MALL','14–15 Sep','Compared with the previous 89 days'],
-    num:'▲ 3,700%', unit:'payment-failure mentions vs a usual week', cmp:'11 in 2 days, against ~1 a week',
-    spark:[1,0,1,1,12,0], sparkLabel:'per week, last 6 weeks',
-    quote:['My card was declined twice at the till but the bank says the payment never reached them.','Store experience survey · 14 Sep']},
-  'INS-04': {tone:'bad', scope:['RT ATYAF MALL','01 Jun – 23 Sep','Compared with 14 Feb – 31 May'],
-    num:'▼ 7.5%', unit:'cleanliness score, now 7.4 out of 10', cmp:'The factor most linked with satisfaction (31%)',
-    spark:[8.0,7.8,7.6,7.4], sparkLabel:'cleanliness score, last 4 updates',
-    quote:['Fitting rooms were messy with clothes left everywhere.','Store experience survey · Fitting-room cleanliness']},
-  'AL-03': {tone:'bad', scope:['Online survey','01 Jul – 23 Sep','Compared with the 12 weeks before'],
-    num:'▲ 17%', unit:'detractor comments about late deliveries', cmp:'173, against 148 · 34% of detractor comments',
-    spark:[11,12,13,12,14,14,15,14,16,15,18,19], sparkLabel:'per week, last 12 weeks',
-    quote:['My order arrived two days after the delivery window.','Online survey · Late delivery']},
-  'INS-01': {tone:'good', scope:['RT ATYAF MALL','01 Jun – 23 Sep','Compared with 14 Feb – 31 May'],
-    num:'9.63', unit:'overall satisfaction, out of 10', cmp:'▲ 0.40 against 9.23 · no change since you followed',
-    spark:[9.23,9.41,9.55,9.63], sparkLabel:'last 4 updates',
-    quote:['Cooperative, smooth, smiling, welcoming.','Store experience survey · translated from Arabic']},
-  'FOL-01': {tone:'good', scope:['RT ATYAF MALL','Weekend visits','Compared with the previous period'],
-    num:'8.0', unit:'weekend checkout score, out of 10', cmp:'▲ 0.6 since you followed (7.4 on 9 Sep)',
-    spark:[7.4,7.6,7.8,8.0], sparkLabel:'since you followed',
-    quote:['Much quicker at the till this weekend.','Store experience survey · Weekend checkout']}
+// Cards keep the feed's own design; only Nadav's asks apply (% change up front, key points in bold).
+// The three Feed cards get these in v21; the two Followed cards get them here.
+const V22_FOL_SUM = {
+  'INS-01':'<b>Overall satisfaction rose to 9.63</b>, up 4.3%. Comments in both periods praise <b>staff warmth and smooth assistance</b>.',
+  'FOL-01':'Weekend checkout rose <b>from 7.4 to 8.0</b> since you followed, up 8.1%, and is <b>now within normal variation</b>.'
 };
-const V22_IC = {
-  store:'<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M3 9l1.5-5h15L21 9M4 9v11h16V9M3 9h18M9 20v-6h6v6"/></svg>',
-  cal:'<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>'
-};
-function v22Spark(vals, tone){
-  const w = 132, h = 36, lo = Math.min(...vals), hi = Math.max(...vals), r = hi - lo || 1;
-  const pts = vals.map((v,i)=>[Math.round(i/(vals.length-1)*(w-6))+3, Math.round(h-4-(v-lo)/r*(h-10))]);
-  const line = pts.map(p=>p.join(',')).join(' '), last = pts[pts.length-1];
-  const c = tone==='good' ? '#1e8e5a' : '#c5221f';
-  return `<svg class="v22-spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polygon points="3,${h} ${line} ${w-3},${h}" fill="${c}" opacity=".1"/><polyline points="${line}" fill="none" stroke="${c}" stroke-width="1.8" stroke-linejoin="round"/><circle cx="${last[0]}" cy="${last[1]}" r="3" fill="${c}"/></svg>`;
-}
-function v22CardHTML(id){
-  const c = V22_CARDS[id];
-  return `<div class="v22-c" data-v22-card="${id}">
-    <p class="v22-scope"><span>${V22_IC.store}${c.scope[0]}</span><span>${V22_IC.cal}${c.scope[1]}</span><span>${c.scope[2]}</span></p>
-    <div class="v22-row">
-      <div class="v22-met ${c.tone}"><b>${c.num}</b><span>${c.unit}</span><em>${c.cmp}</em>
-        <div class="v22-sp">${v22Spark(c.spark, c.tone)}<small>${c.sparkLabel}</small></div></div>
-      <blockquote class="v22-q">“${c.quote[0]}”<small>${c.quote[1]}</small></blockquote>
-    </div></div>`;
-}
 function v22Cards(){
-  Object.keys(V22_CARDS).forEach(id=>{
-    const sel = id==='FOL-01' ? `.fol-card[data-fol-id="${id}"]` : `.insight-card[data-id="${id}"], .fol-card[data-fol-id="${id}"]`;
-    document.querySelectorAll(sel).forEach(card=>{
-      card.classList.remove('v7-nostat');
-      if(card.querySelector('[data-v22-card]')) return;
-      const title = card.querySelector('.ic-title'); if(!title) return;
-      title.insertAdjacentHTML('afterend', v22CardHTML(id));
-      card.classList.add('v22-hero');
-    });
+  Object.entries(V22_FOL_SUM).forEach(([id,html])=>{
+    document.querySelectorAll(`.fol-card[data-fol-id="${id}"] .ic-sum`).forEach(sum=>{ if(sum.innerHTML!==html){ sum.innerHTML = html; sum.closest('.fol-card').classList.add('v21-hero'); } });
   });
 }
 

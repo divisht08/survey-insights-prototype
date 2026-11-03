@@ -21,24 +21,6 @@
 .v22-det dd{font-size:12.5px;color:#1f2329;margin:0;line-height:1.4}
 .v21-kpi.good b{color:#1e8e5a}
 
-/* 2. finished cards */
-.v22-hero .ic-sum,.v22-hero .ic-next,.v22-hero .ic-stat{display:none!important}
-.v22-c{margin-top:6px}
-.v22-scope{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:#5f6672;margin:0 0 12px}
-.v22-scope span{display:inline-flex;align-items:center;gap:5px}
-.v22-scope svg{color:#8a9099}
-.v22-row{display:grid;grid-template-columns:minmax(200px,250px) minmax(0,1fr);gap:22px;align-items:start}
-.v22-met b{display:block;font-size:30px;font-weight:700;line-height:1.1;color:#1f2329;font-variant-numeric:tabular-nums}
-.v22-met.bad b{color:#c5221f}
-.v22-met.good b{color:#1e8e5a}
-.v22-met > span{display:block;font-size:12.5px;color:#42474f;margin-top:3px;line-height:1.4}
-.v22-met em{display:block;font-style:normal;font-size:12.5px;font-weight:600;color:#42474f;margin-top:6px;line-height:1.4}
-.v22-sp{display:flex;align-items:flex-end;gap:8px;margin-top:8px}
-.v22-sp small{font-size:11px;color:#8a9099;padding-bottom:2px}
-.v22-q{margin:0;border-left:2px solid #e4e7ee;padding:2px 0 2px 16px;font-size:13.5px;color:#1f2329;line-height:1.5}
-.v22-q small{display:block;margin-top:8px;font-size:11.5px;color:#6b7280}
-@media (max-width:900px){.v22-row{grid-template-columns:1fr}}
-
 /* 3. This period */
 .v22-sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 14px}
 .v22-st{background:#fff;border:1px solid #e4e7ee;border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:2px}
@@ -52,4 +34,4 @@
 .v22-side .v3-dock{font-weight:400!important}
 .v22-side .v3-dock .dh b{font-weight:650}
 /* while a drill-down is open beside the list, cards stay compact (as all other cards do) */
-#insights-split.has-panel #feed-col .v22-c,.tab-split.has-panel > div:first-child .v22-c,#insights-split.has-panel #v22-sum,#insights-split.has-panel #v22-ret{display:none!important}
+#insights-split.has-panel #v22-sum,#insights-split.has-panel #v22-ret{display:none!important}
