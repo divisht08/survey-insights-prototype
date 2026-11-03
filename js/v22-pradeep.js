@@ -92,23 +92,9 @@ function v22Layout(){
 const _v22Place = v9Place;
 v9Place = function(){ v22Layout(); v22Cards(); return _v22Place.apply(this, arguments); };
 
-/* ── 3. This period, above the feed ── */
-function v22Summary(){
-  const col = document.getElementById('feed-col'); if(!col) return;
-  let s = document.getElementById('v22-sum');
-  const active = typeof feedView==='undefined' || feedView==='active';
-  const grid = document.getElementById('card-grid');
-  const cards = grid ? [...grid.querySelectorAll('.insight-card')].filter(c=>c.dataset.state==='active' && c.style.display!=='none') : [];
-  if(!active || !cards.length){ if(s) s.style.display = 'none'; return; }
-  const high = cards.filter(c=>c.dataset.priority==='high').length;
-  const html = `<div class="v22-st"><span>Overall satisfaction</span><b>9.63</b><em class="good">▲ 0.40 vs previous period</em></div>
-    <div class="v22-st"><span>Responses this period</span><b>261</b><em>Store experience survey</em></div>
-    <div class="v22-st"><span>Needs attention</span><b>${high} of ${cards.length}</b><em>insights in your feed</em></div>`;
-  if(!s){ col.insertAdjacentHTML('afterbegin', `<div id="v22-sum" class="v22-sum"></div>`); s = document.getElementById('v22-sum'); }
-  if(s.innerHTML!==html) s.innerHTML = html;
-  s.style.display = '';
-  const bar = document.getElementById('edition-bar'); if(bar && s.nextElementSibling!==bar && bar.parentElement===col) col.insertBefore(s, bar.nextSibling);
-}
+/* ── 3. (removed 3 Nov) the "This period" boxes: Nadav asked for written key takeaways, not number boxes.
+   Open question for Pradeep; see claude/pradeep-alignment.md in the project. ── */
+function v22Summary(){ const s = document.getElementById('v22-sum'); if(s) s.remove(); }
 
 /* ── 4. how long insights stay ── */
 function v22Retention(){
