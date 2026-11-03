@@ -35,3 +35,18 @@
 .v22-side .v3-dock .dh b{font-weight:650}
 /* while a drill-down is open beside the list, cards stay compact (as all other cards do) */
 #insights-split.has-panel #v22-sum,#insights-split.has-panel #v22-ret{display:none!important}
+
+/* compact cards (feed, Followed, Shared): less padding, slimmer footer, stat on fewer lines */
+.insight-card .ic-body,.fol-card .ic-body,.shr-card .ic-body{padding:10px 18px 10px 22px}
+.insight-card .ic-head,.fol-card .ic-head,.shr-card .ic-head{min-height:22px;margin-bottom:2px}
+.insight-card .ic-title,.fol-card .ic-title,.shr-card .ic-title{margin-bottom:2px}
+.insight-card .ic-main,.fol-card .ic-main,.shr-card .ic-main{gap:20px}
+.insight-card .ic-foot,.fol-card .ic-foot,.shr-card .ic-foot{padding:4px 12px 4px 22px}
+.insight-card .ic-foot .btn-pri,.insight-card .ic-foot .btn-sec,.fol-card .ic-foot .btn-pri,.fol-card .ic-foot .btn-sec,.shr-card .ic-foot .btn-pri,.shr-card .ic-foot .btn-sec{height:28px;font-size:12.5px}
+#card-grid > .insight-card{margin-top:10px}
+.v21-stat{max-width:none!important}
+.v21-stat .ic-num{font-size:24px}
+.v21-stat .ic-unit,.v21-stat .ic-delta{white-space:nowrap!important}
+.ic-stat .ic-delta{margin-top:3px}
+.insight-card .ic-sum,.fol-card .ic-sum,.shr-card .ic-sum{max-width:660px}
+.insight-card .ic-stat,.fol-card .ic-stat{flex-shrink:0;text-align:right}
