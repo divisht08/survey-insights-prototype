@@ -1,0 +1,40 @@
+/* ═══ v23 — Customise my feed (user's 3 steps on top of the admin's setup) ═══ */
+#v23-layer{display:none;position:fixed;inset:0;z-index:80;background:#f4f5f7;flex-direction:column}
+#v23-layer.show{display:flex}
+.v23-page{flex:1;overflow:auto;padding:24px 24px 90px}
+.v23-page .v15-wrap{max-width:1080px;margin:0 auto}
+.v23-x{font-size:16px;color:#5f6672;background:none;border:0;padding:6px 8px;border-radius:6px;cursor:pointer}
+.v23-x:hover{background:#e9ebef}
+.v23-bar{position:fixed;left:0;right:0;bottom:0}
+.v23-chat{display:flex;flex-direction:column;gap:10px;max-height:340px;overflow:auto;margin:12px 0}
+.v23-m{display:flex;gap:8px;align-items:flex-start}
+.v23-m p{margin:0;font-size:13.5px;line-height:1.5;padding:9px 12px;border-radius:10px;max-width:85%}
+.v23-m.ai p{background:#f5f6f8;color:#1f2329}
+.v23-m.me{justify-content:flex-end}
+.v23-m.me p{background:#eef4ff;color:#1f2329}
+.v23-ai{color:#5b3fd1;font-size:13px;line-height:30px}
+.v23-starters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.v23-starters button{font-size:12.5px;border:1px solid #d7dae0;background:#fff;border-radius:999px;padding:5px 11px;color:#1f2329}
+.v23-starters button:hover{border-color:#7ea4f3;background:#f5f8ff}
+.v23-in{display:flex;gap:8px}
+.v23-in input{flex:1;font:inherit;font-size:13.5px;border:1px solid #d7dae0;border-radius:6px;padding:0 10px;height:34px}
+.v23-got{font-size:12.5px;color:#42474f;margin:12px 0 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.v23-tag{font-size:12px;background:#eef4ff;color:#1a56db;border-radius:999px;padding:2px 9px}
+.v23-lock{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#6b7280}
+.v15-card h3 svg{vertical-align:-1px;margin-right:4px;color:#6b7280}
+.v23-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid #f0f1f4;font-size:13.5px}
+.v23-row small{font-size:12px;color:#6b7280}
+.v23-row.v23-lk span{color:#42474f}
+.v23-chk{display:flex;align-items:center;gap:9px;padding:6px 0;font-size:13.5px}
+.v23-chk small{margin-left:auto;display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#6b7280}
+.v23-chk.v23-lk span{color:#6b7280}
+.v23-when{display:flex;gap:14px;margin-top:12px}
+.v23-when label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:#5f6672}
+.v23-when select{font:inherit;font-size:13px;border:1px solid #d7dae0;border-radius:6px;padding:5px 8px;background:#fff;color:#1f2329}
+.v23-ch{padding:10px 0;border-top:1px solid #f0f1f4}
+.v23-ch small{display:block;font-size:12px;color:#6b7280}
+.v23-sl{font:inherit;font-size:13px;border:1px solid #d7dae0;border-radius:6px;padding:6px 9px;margin:0 0 8px;width:240px}
+.v23-line{font-size:12.5px;color:#42474f;margin:-4px 0 10px;background:#f5f2ff;border:1px solid #e6defd;border-radius:8px;padding:6px 10px;display:inline-block}
+.v23-line a{color:#1a56db;margin-left:6px;cursor:pointer}
+
+.v23-lk{border:0!important;border-top:1px solid #f0f1f4!important;border-radius:0!important;background:none!important}
