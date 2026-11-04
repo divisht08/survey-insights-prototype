@@ -174,11 +174,10 @@ function v24Welcome(){
   let m = document.getElementById('v24-welcome');
   if(!m){ m = document.createElement('div'); m.id = 'v24-welcome'; document.body.appendChild(m); }
   window.v24Pick = pick;
-  m.innerHTML = `<div class="v24-pop"><h2>Your insights are ready</h2>
-    <p class="v15-note">Set up by your admin for store managers · ${v23Surveys().length} surveys · weekly</p>
-    <p class="v24-lbl">Anything you want to see first?</p>
-    <div class="v15-chips">${V23_TOPICS.slice(0,5).map(t=>`<button class="v15-chip" onclick="this.classList.toggle('on');const i=v24Pick.indexOf('${t}');i<0?v24Pick.push('${t}'):v24Pick.splice(i,1)">${t}</button>`).join('')}</div>
-    <div class="v24-acts"><button class="v24-skip" onclick="v24WelcomeDone(true)">More options</button><button class="v14-b pri" onclick="v24WelcomeDone(false)">Go to my feed</button></div></div>`;
+  m.innerHTML = `<div class="v24-pop"><h2>Welcome to your insights feed</h2>
+    <p>Each week, Copilot reads your customers’ survey responses and shows you what changed and what needs your attention.</p>
+    <p>Open any insight to see why it happened, and ask Copilot about anything you see.</p>
+    <div class="v24-acts"><button class="v14-b" onclick="v24WelcomeDone(true)">Customise my feed</button><button class="v14-b pri" onclick="v24WelcomeDone(false)">Show my feed</button></div></div>`;
   m.classList.add('show');
 }
 function v24WelcomeDone(more){
