@@ -174,12 +174,11 @@ function v24Welcome(){
   let m = document.getElementById('v24-welcome');
   if(!m){ m = document.createElement('div'); m.id = 'v24-welcome'; document.body.appendChild(m); }
   window.v24Pick = pick;
-  m.innerHTML = `<div class="v24-pop"><p class="v24-k">Welcome to Survey Insights</p><h2>Your first insights are ready</h2>
-    <p>Your admin set you up as <b>${v23E(a.name)}</b>: ${v23E(a.resp)}</p>
-    <p class="v15-note">From ${v23Surveys().map(v23E).join(', ')} · weekly, on Sunday</p>
-    <p class="v24-lbl">What matters most to you right now? <span>(optional)</span></p>
-    <div class="v15-chips">${V23_TOPICS.slice(0,7).map(t=>`<button class="v15-chip" onclick="this.classList.toggle('on');const i=v24Pick.indexOf('${t}');i<0?v24Pick.push('${t}'):v24Pick.splice(i,1)">${t}</button>`).join('')}</div>
-    <div class="v24-acts"><button class="v14-b" onclick="v24WelcomeDone(true)">Customise further</button><button class="v14-b pri" onclick="v24WelcomeDone(false)">Show me my feed</button></div></div>`;
+  m.innerHTML = `<div class="v24-pop"><h2>Your insights are ready</h2>
+    <p class="v15-note">Set up by your admin for store managers · ${v23Surveys().length} surveys · weekly</p>
+    <p class="v24-lbl">Anything you want to see first?</p>
+    <div class="v15-chips">${V23_TOPICS.slice(0,5).map(t=>`<button class="v15-chip" onclick="this.classList.toggle('on');const i=v24Pick.indexOf('${t}');i<0?v24Pick.push('${t}'):v24Pick.splice(i,1)">${t}</button>`).join('')}</div>
+    <div class="v24-acts"><button class="v24-skip" onclick="v24WelcomeDone(true)">More options</button><button class="v14-b pri" onclick="v24WelcomeDone(false)">Go to my feed</button></div></div>`;
   m.classList.add('show');
 }
 function v24WelcomeDone(more){
