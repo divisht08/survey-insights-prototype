@@ -1,0 +1,17 @@
+/* ═══ v27 — platform icon rail with labels on hover ═══ */
+#v27-rail{width:56px;flex-shrink:0;position:sticky;top:0;align-self:flex-start;z-index:40}
+#v27-rail .v27-in{position:absolute;inset:0 auto 0 0;width:56px;background:#fff;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;padding:10px 8px;gap:4px;transition:width .15s ease,box-shadow .15s ease;overflow:hidden}
+#v27-rail.open .v27-in{width:220px;box-shadow:6px 0 24px rgba(17,20,24,.12);border-right-color:transparent}
+.v27-i{display:flex;align-items:center;gap:12px;height:40px;width:100%;padding:0 8px;border:0;background:none;border-radius:8px;color:#1f2329;cursor:pointer;white-space:nowrap;text-align:left}
+.v27-i:hover{background:#f3f4f6}
+.v27-i.active{background:#e8eefc;color:#1a56db}
+.v27-ic{position:relative;width:24px;height:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#1f2329}
+.v27-i.active .v27-ic{color:#1a56db}
+.v27-logo svg{width:22px;height:22px}
+.v27-l{font-size:14px;font-weight:500;opacity:0;transition:opacity .1s}
+#v27-rail.open .v27-l{opacity:1}
+.v27-i.active .v27-l{font-weight:600}
+.v27-home{margin-bottom:6px}
+.v27-foot{margin-top:auto;display:flex;flex-direction:column;gap:4px}
+.v27-ic em{position:absolute;top:-4px;right:-6px;font-style:normal;font-size:9.5px;font-weight:700;color:#fff;background:#e53935;border-radius:999px;padding:0 4px;line-height:14px}
+.v27-av{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#e2508f,#c2185b);color:#fff;font-style:normal;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center}
