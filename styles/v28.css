@@ -1,0 +1,11 @@
+/* ═══ v28 — one feed: shared cards carry who shared it; share pop-up sections ═══ */
+.insight-card.v28-sh > .ic-from{border-radius:14px 14px 0 0}
+.v28-sh-secs .v26-sh-lbl:first-child{margin-top:4px}
+.v28-dd-g .v26-dd,.v28-dd-u .v26-dd{width:100%}
+.v28-quick{margin-top:8px}
+/* Followed and Shared with me cards: the feed's footer */
+.fol-card .ic-foot .v7-act,.shr-card .ic-foot .v7-act{margin-left:0!important;margin-right:auto!important}
+.fol-card .ic-foot,.shr-card .ic-foot{display:flex;align-items:center}
+.shr-card .ic-acts .btn-sec[data-share-follow]:not(.on){display:none!important}
+.fol-card .ic-acts .btn-sec.on,.shr-card .ic-acts .btn-sec.on{font-size:12px;font-weight:600;color:#1967d2;background:#eef4ff;border:0;border-radius:999px;padding:3px 10px;box-shadow:none}
+.insight-card.v28-sh > .ic-from,.shr-card > .ic-from{padding-left:22px}
