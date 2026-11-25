@@ -265,7 +265,23 @@ const SZ = {
     quotes:[Q('neg','Checkout','The app crashed at payment twice, I had to order on the website.')],
     actions:[{who:'Web team', t:'Check the app release around 18 Nov', d:'Most errors are at payment on iOS.', cta:'share'}],
     qa:[['Is it the app or the website?','The app: 27 of 31 mentions, mostly on iOS.','Where it happened'],['Which step?','Payment, in 19 of 31 mentions.','Where it happened'],['When did it start?','18 Nov. Before that, about 1.5 mentions a day.','Evidence']],
-    method:'Anomaly detection on daily counts of checkout-error comments.', data:'Octobre Customer Experience Survey, 4–23 Nov.', not:'The technical cause.'}
+    method:'Anomaly detection on daily counts of checkout-error comments.', data:'Octobre Customer Experience Survey, 4–23 Nov.', not:'The technical cause.'},
+
+  /* sample insight shown only on Day 0 · First insights ready, last in the feed (see szOctCard) */
+  'OCT-01': {prio:'low', type:'Key driver', topic:'Delivery', survey:'online',
+    title:'Octobre: late delivery is the top reason for low scores',
+    sum:'<b>Late delivery</b> comes up in <b>38%</b> of comments from Octobre customers who gave a low score, more than any other reason.',
+    num:'38%', numColor:'#c5221f', unit:'of low-score comments',
+    reason:'Octobre is another survey in your feed, shown for awareness.',
+    compares:'low-score comments about each theme', responses:'Sample data',
+    kpis:[['Low-score comments about delivery','38%','the most common reason','bad'],['Next most common','Packaging','19% of low-score comments',''],['Orders on standard delivery','61%','of the delivery comments','']],
+    what:'Among Octobre customers who gave a low score, <b>38%</b> mention <b>late delivery</b> in their comment. It is the most common reason, ahead of packaging (19%) and product quality (16%). Most of the comments are about <b>standard delivery</b>.',
+    evidence: rows('Reasons in low-score comments, Octobre', [['Late delivery',38,'38%'],['Packaging',19,'19%'],['Product quality',16,'16%'],['Price',11,'11%'],['Checkout',8,'8%']]),
+    where:{unit:'Low-score delivery comments', segs:[{t:'Delivery option', rows:[['Standard',61],['Express',22],['Pick-up point',17]]},{t:'Country', rows:[['France',54],['Germany',21],['Other',25]]}]},
+    quotes:[Q('neg','Delivery','My order arrived a week after the date I was given.')],
+    actions:[{who:'Logistics', t:'Check late orders on standard delivery', d:'Most of the delivery comments are about standard delivery.', cta:'share'}],
+    qa:[['What is the main reason for low scores?','Late delivery, in 38% of low-score comments.','What customers say'],['Which delivery option?','Standard delivery, in 61% of the delivery comments.','Where it happened'],['What can we do?','Ask logistics to check late orders on standard delivery.','Recommended actions']],
+    method:'Share of low-score comments tagged with each theme.', data:'Octobre Customer Experience Survey. Sample figures to show the Day 0 view.', not:'Why the orders were late.'}
 };
 window.SZ_DATA = SZ;
 
@@ -319,6 +335,7 @@ function szData(){
     resp:'What advisors control: helpfulness and speed of replies, follow-up, advisor training and quality reviews. Delivery, product, price and stock go into the monthly voice-of-customer report for other teams.'}); }
   if(typeof V3_SCOPES!=='undefined'){ V3_SCOPES.store.label = SURVEY; V3_SCOPES.store.sub = 'After a customer service contact';
     V3_SCOPES.online.label = 'Octobre Customer Experience Survey'; V3_SCOPES.online.sub = 'Octobre customers'; }
+  window.SZ_LISTED_SURVEYS = ['online']; // Octobre is always listed in the Survey filter, even where it has no cards; the cards and data are unchanged
   V26_GROUPS.length = 0; V26_GROUPS.push(['Customer service team leads','8 people'],['Product team','6 people'],['Logistics','4 people'],['Operations','5 people'],['Marketing','5 people']);
   V26_PEOPLE.length = 0; V26_PEOPLE.push(['Sophie Laurent','Head of Customer Experience'],['Léa Martin','Customer Service Team Lead'],['Camille Bernard','Head of Operations'],['Julien Moreau','Product team']);
   if(typeof V28_QUICK!=='undefined'){ V28_QUICK.length = 0; V28_QUICK.push('Sophie Laurent','Léa Martin','Camille Bernard'); }
@@ -400,13 +417,27 @@ function szNotes(){
   const b = document.getElementById('proto-notes-btn'); if(b) b.textContent = 'ⓘ About the data · Sézane version';
 }
 
+/* ── Day 0 sample: one Octobre insight as the last card, only on Day 0 · First insights ready ── */
+function szOctCard(state){
+  const id = 'OCT-01', s = SZ[id], grid = document.getElementById('card-grid'); if(!s || !grid || typeof V9_AM_BY==='undefined') return;
+  if(!V9_AM_BY[id]) V9_AM_BY[id] = {id, ed:EDITIONS[0].id, prio:s.prio, type:'recurring', kind:s.type+' · '+s.topic, title:s.title, sum:s.sum.replace(/<[^>]+>/g,''), num:s.num, unit:s.unit,
+    basis:s.compares, sig:true, unread:true, th:['Reason','Share'], rows:[['Late delivery','38%'],['Packaging','19%'],['Product quality','16%']], steps:s.actions.map(a=>[a.t, a.d, 'plan'])};
+  if(!grid.querySelector(`.insight-card[data-id="${id}"]`)){
+    const t = document.createElement('template'); t.innerHTML = v9AMCardHTML(V9_AM_BY[id]).trim();
+    const el = t.content.firstElementChild; el.classList.remove('v9-am'); el.dataset.survey = 'online';
+    const il = el.querySelector('.illus'); if(il) il.remove();
+    grid.appendChild(el);
+  }
+  if(state==='first-ready') retiredFeed.delete(id); else retiredFeed.add(id);
+}
+
 /* ── 7. wiring ── */
 let raf = 0;
 function szAll(){ szCards(); szText(document.body); }
 const _szVis = applyFeedVisibility;
 applyFeedVisibility = function(){ szCards(); const r = _szVis.apply(this, arguments); szCards(); return r; };
 const _szJourney = setJourney;
-setJourney = function(){ const r = _szJourney.apply(this, arguments); szData(); applyFeedVisibility(); szAll(); return r; };
+setJourney = function(state){ const r = _szJourney.apply(this, arguments); szData(); szOctCard(state); applyFeedVisibility(); szAll(); return r; };
 new MutationObserver(()=>{ if(raf) return; raf = requestAnimationFrame(()=>{ raf = 0; szAll(); }); }).observe(document.body, {childList:true, subtree:true, characterData:true});
 
 szData(); szNotes();
