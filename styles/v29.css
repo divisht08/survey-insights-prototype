@@ -1,0 +1,4 @@
+/* ═══ v29 — the feed stays centred whenever no drill-down is open, even if the page's
+   "no pane" flag is left off after moving between screens ═══ */
+#insights-split:not(.has-panel) #feed-col{margin-left:auto;margin-right:auto;width:100%}
+body:not(:has(#insights-split.has-panel)):not(:has(#v3-scope-panel:not(.hidden))) #page-head.cx{max-width:1008px;margin-left:auto;margin-right:auto;width:100%}
