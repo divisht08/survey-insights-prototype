@@ -133,7 +133,7 @@ document.head.insertAdjacentHTML('beforeend', '<style>.v17-srow.v20-score{grid-t
 /* ── 2. Survey filter: every survey ticked by default; untick to hide ── */
 v9F.surveyOff = new Set();
 const v20Surveys = ()=>{ const cards = v9Cards().filter(c=>c.dataset.state==='active');
-  return Object.entries(V3_SCOPES).map(([k,s])=>[k, s.label, cards.filter(c=>v18SurveyOf(c)===k).length]).filter(o=>o[2]); };
+  return Object.entries(V3_SCOPES).map(([k,s])=>[k, s.label, cards.filter(c=>v18SurveyOf(c)===k).length]).filter(o=>o[2] || (window.SZ_LISTED_SURVEYS||[]).includes(o[0])); };
 v9Match = (function(prev){ return function(c){ if(v9F.surveyOff.has(v18SurveyOf(c))) return false; return prev.apply(this, arguments); }; })(_v18Match);
 v9FilterCount = function(){ return _v18Count() + (v9F.surveyOff.size ? 1 : 0); };
 v9ClearFilters = (function(prev){ return function(){ v9F.surveyOff.clear(); v9F.survey.clear(); return prev.apply(this, arguments); }; })(v9ClearFilters);
