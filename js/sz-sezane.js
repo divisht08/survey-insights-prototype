@@ -313,10 +313,58 @@ function szData(){
     const sh = sharedWithMe.find(x=>x.insightId===id);
     a.events.forEach(ev=>{ if(ev.by!=='You'){ ev.by = p ? p[0] : 'Sophie Laurent'; if(sh) ev.date = sh.date; if(ev.type==='comment') ev.text = p ? p[2] : 'Worth a look before the monthly report.'; }
       else if(ev.type==='comment') ev.text = YOU[id] || 'Added to the monthly report.'; }); });
-  // the persona the admin set up
-  if(typeof V15_SEED!=='undefined'){ const sm = V15_SEED.find(x=>x.id==='sm'); if(sm) Object.assign(sm, {name:'CX manager', group:'Customer service managers',
-    role:'Runs customer service day to day and reports to the Head of Customer Experience.',
-    resp:'What advisors control: helpfulness and speed of replies, follow-up, advisor training and quality reviews. Delivery, product, price and stock go into the monthly voice-of-customer report for other teams.'}); }
+  // ── admin setup (Global Settings → Survey Insights): Sézane surveys, groups, personas and fields
+  if(typeof V15_SURVEYS!=='undefined' && !V15_SURVEYS.sz){ V15_SURVEYS.sz = 1;
+    const SV = {
+      store:{name:SURVEY, resp:59800, qs:[['s1','Was your question answered quickly enough?','Rating'],['s2','Was the response helpful?','Rating'],['s3','Would you recommend Sézane to your friends and family?','NPS'],['s4','Tell us about your Sézane experience','Open text']]},
+      online:{name:'Octobre Customer Experience Survey', resp:4100, qs:[['o1','Was your question answered quickly enough?','Rating'],['o2','Was the response helpful?','Rating'],['o3','Would you recommend Octobre to your friends and family?','NPS'],['o4','Tell us about your Octobre experience','Open text']]},
+      returns:{name:'Sézane After-sales Survey', resp:2300, qs:[['r1','How easy was your return or exchange?','Rating'],['r2','How satisfied are you with the refund time?','Rating'],['r3','Would you recommend Sézane to your friends and family?','NPS'],['r4','What could we do better?','Open text']]},
+      care:{name:'Sézane Post-delivery Survey', resp:0, draft:true, qs:[['c1','Did your order arrive on time?','Yes or no'],['c2','How was the packaging?','Rating'],['c3','What could we do better?','Open text']]}};
+    V15_SURVEYS.forEach(s=>{ if(SV[s.k]) Object.assign(s, SV[s.k]); });
+    V15_GROUPS.length = 0; V15_GROUPS.push(['Customer service managers','Sees all contacts',8],['Customer service team leads','Sees their team',14],['Product team','Sees all surveys',6],['Logistics','Sees delivery feedback',4],['Head of Customer Experience','Sees everything',2]);
+    const P = {
+      sm:{name:'CX manager', group:'Customer service managers', role:'Runs customer service day to day and reports to the Head of Customer Experience.',
+        resp:'What advisors control: helpfulness and speed of replies, follow-up, advisor training and quality reviews. Delivery, product, price and stock go into the monthly voice-of-customer report for other teams.',
+        extra:'The monthly report goes to leadership on the first Monday, so flag what belongs in it. Keep what advisors control apart from what goes to other teams.',
+        scope:{store:'all', online:'all'}, freq:'weekly', email:true, status:'live'},
+      am:{name:'Customer service team lead', group:'Customer service team leads', role:'Leads a team of 10 to 15 advisors across email, chat and phone.',
+        resp:'Reply quality, speed and follow-up for their team, and coaching advisors.',
+        extra:'Compare their team with the others. Never rank advisors by name.',
+        scope:{store:'all', returns:'all'}, freq:'weekly', email:true, status:'live'},
+      cp:{name:'Product team', group:'Product team', role:'Owns the collections, sizing and stock decisions.',
+        resp:'Product quality, sizing, stock and price feedback from customers.',
+        extra:'Only comments about products. Customer service topics are not theirs to fix.',
+        scope:{store:['s3','s4'], online:['o3','o4']}, freq:'weekly', email:true, status:'live'},
+      cx:{name:'Head of Customer Experience', group:'Head of Customer Experience', role:'Owns customer experience across Sézane and Octobre.',
+        resp:'The monthly picture across brands, hubs and countries, and what to raise with other teams.',
+        extra:'', scope:{store:'all', online:'all', returns:'all', care:'all'}, freq:'monthly', email:true, status:'draft'}};
+    V15_SEED.forEach(p=>{ if(P[p.id]) Object.assign(p, P[p.id]); });
+    if(typeof V15_SUGGEST!=='undefined'){ for(const k in V15_SUGGEST) delete V15_SUGGEST[k]; V15_SUGGEST.cp = {store:['s3','s4'], online:['o3','o4']}; }
+    if(typeof V15_DIRS!=='undefined') Object.assign(V15_DIRS, {
+      sm:['Speak to someone who runs customer service and reports to the Head of Customer Experience','Lead with what advisors control: helpfulness, speed, follow-up, training','Put delivery, product, price and stock in the voice-of-customer report, as things to raise, not to fix','Flag what belongs in the monthly report'],
+      am:['Compare their team with the other teams','Lead with reply quality and follow-up','Never name or rank individual advisors'],
+      cp:['Only use comments about products: quality, sizing, stock, price','Lead with what is new or growing since the last collection','Leave customer service topics out'],
+      cx:['Look across Sézane and Octobre, hubs and countries','Lead with the monthly change in NPS and why','Point out what other teams should hear about']});
+    if(typeof V15_SAMPLE!=='undefined') Object.assign(V15_SAMPLE, {
+      sm:['Fix this first','Helpfulness slipped to 3.52 out of 4 this month','It drives 61% of NPS. The drop is largest on email (3.41) and for English-speaking customers.','Sézane CX survey · November'],
+      am:['Needs attention','Email replies get the most 1-out-of-4 ratings','12% of email replies were rated 1 out of 4 for helpfulness, against 6% in chat. Most are about exchanges.','Your team · last 4 weeks'],
+      cp:['Needs attention','Sizing complaints on winter knitwear are up 22%','96 comments this month say knitwear runs smaller than usual, mostly in S and M.','Sézane and Octobre · November'],
+      cx:['Monthly','NPS rose to 64.1 in November, from 61.0','HUB EU drove the rise. HUB US fell to 53.8 after delivery problems with one carrier.','All surveys · November']});
+    if(typeof V25_FIELDS!=='undefined'){ V25_FIELDS.length = 0; V25_FIELDS.push(
+      ['Hub', true, 'Used to compare HUB EU and HUB US', ''],
+      ['Country', true, 'Used to compare countries', ''],
+      ['Contact channel', true, 'Email, chat, phone or Instagram', ''],
+      ['Contact reason', true, 'Used to find which requests get the lowest scores', ''],
+      ['Customer type', true, 'VIP customers often score differently', 'VIP = more than 5 orders a year'],
+      ['Language', true, 'Used to read comments in French, English and other languages', ''],
+      ['Fraud scoring', true, 'Useful once you say what the grades mean', 'NS = not scored; A and B are flagged orders'],
+      ['Order ID', false, 'Not useful: a different value for every respondent', '']); }
+    if(window.djcPrefill && window.djcPrefill.sm) Object.assign(window.djcPrefill.sm, {
+      role:P.sm.role, resp:P.sm.resp, extra:P.sm.extra,
+      a1:'Our CX managers run customer service day to day and report to the Head of Customer Experience. Each week they decide what to fix with the advisors: replies that weren’t helpful, slow answers, customers who had to chase. Delivery, product, price and stock problems they can’t fix themselves, so those go into the monthly voice-of-customer report for other teams.',
+      a2:'The monthly report goes to leadership on the first Monday, so flag what belongs in it. Here is last month’s report so you can see what we track.',
+      file:'Monthly CX report – October.pptx'});
+  }
   if(typeof V3_SCOPES!=='undefined'){ V3_SCOPES.store.label = SURVEY; V3_SCOPES.store.sub = 'After a customer service contact';
     V3_SCOPES.online.label = 'Octobre Customer Experience Survey'; V3_SCOPES.online.sub = 'Octobre customers'; }
   V26_GROUPS.length = 0; V26_GROUPS.push(['Customer service team leads','8 people'],['Product team','6 people'],['Logistics','4 people'],['Operations','5 people'],['Marketing','5 people']);
@@ -365,7 +413,7 @@ const SZ_TEXT = [[/Store experience survey/g,SURVEY],[/Online experience survey/
   [/Store managers?/g,'CX manager'],[/store managers?/g,'CX manager'],[/Store Managers/g,'CX team'],[/Area Managers?/g,'Head of Customer Service'],[/Central Operations/g,'Operations'],
   [/next store review/g,'monthly report'],[/your store’s/g,'your'],[/your store's/g,'your'],[/your store/g,'your customers'],[/this store/g,'Sézane'],[/other stores/g,'other teams'],[/the store/g,'Sézane'],
   [/shoppers/g,'customers'],[/Shoppers/g,'Customers'],[/shopper/g,'customer'],[/#rt-atyaf-store/g,'#cx-sezane'],[/#store-ops/g,'#cx-sezane'],
-  [/Sun 27 Sep/g,'Sun 22 Nov'],[/Sun 20 Sep/g,'Sun 15 Nov'],[/Sun 13 Sep/g,'Sun 8 Nov'],[/Sun 6 Sep/g,'Sun 1 Nov'],[/Sun 30 Aug/g,'Sun 25 Oct'],[/Sun 4 Oct/g,'Sun 29 Nov'],[/\b27 Sep\b/g,'22 Nov'],[/\b20 Sep\b/g,'15 Nov'],[/\b13 Sep\b/g,'8 Nov'],[/\b1 surveys\b/g,'1 survey'],[/weekends are my busiest days/g,'follow-up is what I’m working on this month']];
+  [/Sun 27 Sep/g,'Sun 22 Nov'],[/Sun 20 Sep/g,'Sun 15 Nov'],[/Sun 13 Sep/g,'Sun 8 Nov'],[/Sun 6 Sep/g,'Sun 1 Nov'],[/Sun 30 Aug/g,'Sun 25 Oct'],[/Sun 4 Oct/g,'Sun 29 Nov'],[/\b27 Sep\b/g,'22 Nov'],[/\b20 Sep\b/g,'15 Nov'],[/\b13 Sep\b/g,'8 Nov'],[/\b1 surveys\b/g,'1 survey'],[/Store managers › Weekly insights/g,'Customer service › Weekly insights'],[/like a checkout team in a store survey/g,'like a product team in the customer experience survey'],[/the rest of the visit isn['’]t in their feed/g,'customer service topics aren’t in their feed'],[/\b59800 responses/g,'59.8K responses'],[/\b4100 responses/g,'4.1K responses'],[/\b2300 responses/g,'2.3K responses'],[/weekends are my busiest days/g,'follow-up is what I’m working on this month'],[/4 surveys and your user groups/g,'4 surveys and your user groups']];
 function szText(root){
   const w = document.createTreeWalker(root||document.body, NodeFilter.SHOW_TEXT, {acceptNode:n=>{ const p = n.parentElement; return p && !p.closest('script,style,textarea,input,#proto-notes') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; }});
   let n; while((n = w.nextNode())){ let t = n.nodeValue, o = t; if(!/[A-Za-z#]/.test(t)) continue; SZ_TEXT.forEach(([re,to])=>{ t = t.replace(re,to); }); if(t!==o) n.nodeValue = t; }

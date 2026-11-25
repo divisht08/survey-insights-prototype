@@ -30,6 +30,7 @@ var PREFILL = {sm:{
   a2:'Saturdays and the week before a sale are our busiest times, so flag anything that affects those. New season drops land every other Thursday, so stock and display comments right after matter. Please do not tell them to change prices or promotions.',
   file:'Weekly store report.xlsx'
 }};
+window.djcPrefill = PREFILL;   // customer versions (js/sz-sezane.js) swap in their own example
 function opening(p){ return 'I will set this up for ' + p.group.toLowerCase() + ', using what I read in your surveys. ' + ASK; }
 function init(p){
   var s = {pid:p.id, phase:'chat', stage:'ask', msgs:[], draft:'', chg:'', tgt:null, enough:false, scratch:false, src:{}};

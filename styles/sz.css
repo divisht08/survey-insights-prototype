@@ -1,6 +1,6 @@
 /* ═══ Sézane version (only with ?customer=sezane) ═══ */
 .sz .journey-btn[data-state]:not([data-state="first-ready"]):not([data-state="day50"]):not([data-state="returning"]){display:none!important}
-.sz .journey-btn:not([data-state]):not(#v24-tour-btn):not(#proto-notes-btn){display:none!important}
+.sz .journey-btn:not([data-state]):not(#v24-tour-btn):not(#proto-notes-btn):not(#v15-journey){display:none!important}
 .sz .sz-ev{padding:4px 16px 14px}
 .sz .sz-ev .v17-segs{margin:0 0 10px}
 .sz .sz-cap{margin:2px 0 10px}
