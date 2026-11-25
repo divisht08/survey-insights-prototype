@@ -41,221 +41,241 @@ function stack(parts, note){
 }
 const ev = h=>`<div class="sz-ev">${h}</div>`;
 
-/* ── the insights ── */
+/* bar chart over days or weeks; red bars mark the change */
+function bars(title, labels, vals, o){
+  o = o||{}; const max = o.max || Math.max(...vals)*1.15, f = o.fmt || (v=>String(v));
+  return `<div class="v21-wk"><p class="v10-cap">${E(title)}</p>
+    <div class="v21-wchart" style="grid-template-columns:repeat(${vals.length},1fr)">${vals.map((v,i)=>
+      `<div class="v21-wb"><b>${f(v)}</b><i style="height:${Math.round(v/max*100)}%;background:${(o.hi||[]).includes(i)?(o.good?'#2e9d6a':'#d9534f'):'#9fb7e8'}"></i><span>${(o.show?o.show.includes(i):true)?E(labels[i]):''}</span></div>`).join('')}</div>
+    ${o.note?`<p class="v10-cap" style="margin-top:6px">${E(o.note)}</p>`:''}</div>`;
+}
+const range = (a,b)=>{ const r=[]; for(let i=a;i<=b;i++) r.push(i); return r; };
+const DAYS = (from, n, mon)=>range(0,n-1).map(i=>`${from+i} ${mon}`);
+const WEEKS8 = ['5 Oct','12 Oct','19 Oct','26 Oct','2 Nov','9 Nov','16 Nov','23 Nov'];
+const Q = (tone, theme, text, en)=>[tone, theme, text, en];
+
+/* ── the insights (Sézane's survey, themes and fields; changes over time and segments are sample) ── */
 const SZ = {
-  'INS-05': {prio:'high', type:'Anomaly', topic:'NPS', ed:'e27',
-    title:'NPS fell to 37 in the week of 21 Apr',
-    sum:'<b>NPS dropped to 37.2</b> in the week of 21 Apr, from 65.6 the week before. <b>Responsiveness CSAT</b> fell the same week, to 8.55.',
-    num:'▼ 28 pts', numColor:'#c5221f', unit:'NPS vs the week before',
-    reason:'A sharp break from the usual weekly range, and the speed-of-reply score fell the same week.',
-    compares:'the week of 21 Apr with the 8 weeks before', responses:'weekly NPS and Responsiveness CSAT',
-    kpis:[['NPS, week of 21 Apr','▼ 28 pts','37.2, against 65.6 the week before','bad'],['Responsiveness CSAT','▼ 0.65','8.55 out of 10, against 9.2 the week before','bad'],['Week of 28 Apr','44.3','Partly recovered, still below the usual range','']],
-    what:'NPS fell to <b>37.2 in the week of 21 Apr</b>, from 65.6 the week before and well below its usual range of <b>57.6–70.1</b>. <b>Responsiveness CSAT fell the same week</b>, from 9.2 to 8.55 out of 10, so the speed of replies is the first place to look. NPS <b>partly recovered to 44.3</b> the week after.',
-    evidence: weeksChart(),
-    where:{unit:'NPS, week of 21 Apr', segs:[{t:'Hub', k:'score', rows:[['HUB EU',35.8,''],['HUB US',43.9,'']]},{t:'Customer type', k:'score', rows:[['VIP',48.2,''],['Non-VIP',34.6,'']]}]},
-    quotes:[['neg','Delivery','I’m extremely disappointed with how this situation has been…']],
-    actions:[{who:'', t:'Check the customer service queue in the week of 21 Apr', d:'Volumes, response times and staffing that week. Responsiveness CSAT fell at the same time.', cta:'plan'},
-      {who:'Operations', t:'Ask whether anything happened outside customer service that week', d:'A delivery delay, a stock problem or a site issue would pull NPS down more than CSAT.', cta:'share'}],
-    qa:[['Has NPS recovered?','Partly. It rose to 44.3 in the week of 28 Apr, from 37.2, but it is still below the 57.6–70.1 range of the weeks before. Watch the next update.','Evidence'],
-      ['Was it customer service?','Responsiveness CSAT fell the same week, from 9.2 to 8.55, so slower replies are probably part of it. NPS fell further than CSAT, so something else may have contributed too.','What happened'],
-      ['Which customers were most affected?','The breakdown by hub and customer type is in Where it happened. Open the comments from that week to see what customers mention most.','Where it happened']],
-    method:'Anomaly detection on weekly NPS and Responsiveness CSAT, against the previous 8 weeks.', data:SURVEY+', weekly figures to 28 Apr.', not:'The cause of the drop.'},
+  'INS-05': {prio:'high', type:'Anomaly', topic:'Delivery', ed:'e27',
+    title:'Delivery complaints from HUB US tripled since 16 Nov',
+    sum:'<b>94 US customers</b> complained about late or lost deliveries since 16 Nov, about <b>3× the usual rate</b>. Most name the same carrier.',
+    num:'▲ 3.2×', numColor:'#c5221f', unit:'daily mentions vs usual',
+    reason:'A sharp break from the usual rate, with a clear pattern behind it, and NPS in HUB US is falling.',
+    compares:'16–23 Nov with the 4 weeks before', responses:'94 customers mentioned it',
+    kpis:[['Mentions per day','▲ 3.2×','~12 a day since 16 Nov, against ~4 before','bad'],['NPS, HUB US','▼ 17 pts','41.0 since 16 Nov, against 58.2 before','bad'],['Customers affected','94','71 of them scored 6 or below','']],
+    what:'Since <b>16 Nov, 94 customers in HUB US</b> complained about late or lost deliveries, about <b>3× the usual rate</b>. <b>58 of the 94 name Carrier A</b>, and most say the <b>tracking stopped updating</b> after the parcel left France. NPS in HUB US fell to <b>41.0</b>, from 58.2. Mentions peaked on 18 Nov and are easing, but are still well above normal.',
+    evidence: bars('Delivery complaints per day, HUB US', DAYS(10,14,'Nov'), [3,4,3,4,5,3,9,14,16,13,12,10,11,9], {hi:range(6,13), show:[0,6,13], note:'Red: since 16 Nov. Before that, about 4 a day.'}),
+    where:{unit:'Mentions, 16–23 Nov', segs:[{t:'Carrier', rows:[['Carrier A',58],['Carrier B',24],['Other',12]]},{t:'Delivery type', rows:[['Standard',71],['Express',23]]}]},
+    quotes:[Q('neg','Delivery','My parcel has said “in transit” for nine days and nobody can tell me where it is.'),Q('neg','Tracking','The tracking link hasn’t updated since it left France.'),Q('neg','Delivery','I’m extremely disappointed with how this situation has been…')],
+    actions:[{who:'Logistics', t:'Check Carrier A’s US deliveries since 16 Nov', d:'58 of the 94 complaints name Carrier A, mostly about tracking that stopped updating.', cta:'share'},
+      {who:'', t:'Give US advisors one answer for delayed parcels', d:'What to tell customers and when to offer a reshipment, until the carrier confirms the cause.', cta:'plan'},
+      {who:'Customer service team leads', t:'Contact the 71 detractors who agreed to be contacted', d:'A proactive message before they write in again.', cta:'share'}],
+    qa:[['Is it one carrier?','Mostly. 58 of the 94 complaints name Carrier A, 24 Carrier B, and 12 don’t say. Most mention tracking that stopped updating after the parcel left France.','Where it happened'],
+      ['Is it still going on?','Mentions peaked at 16 on 18 Nov and have eased to 9 a day, still more than twice the usual 4.','Evidence'],
+      ['How much has it hurt NPS?','NPS in HUB US fell to 41.0 since 16 Nov, from 58.2. HUB EU is unchanged, so this is a US delivery problem.','What happened']],
+    method:'Anomaly detection on daily delivery-complaint counts by hub, against the previous 4 weeks.', data:SURVEY+', HUB US, 19 Oct – 23 Nov.', not:'What went wrong at the carrier.'},
 
-  'INS-04': {prio:'med', type:'Key driver', topic:'Customer service', ed:'e27',
-    title:'A helpful reply drives NPS more than a fast one',
-    sum:'<b>‘Was the response helpful?’</b> explains <b>61%</b> of what drives NPS, and speed of reply 39%. No comment theme had a comparable effect.',
-    num:'61%', unit:'of NPS explained by helpfulness',
-    reason:'The strongest driver of NPS, and within customer service’s control.',
-    compares:'NPS with the two reply ratings', responses:'59.8K responses',
-    kpis:[['Helpfulness','61%','of what drives NPS, of the two reply ratings',''],['Speed of reply','39%','‘Was your question answered quickly enough?’',''],['Rate the reply 1 or 2 out of 4','15%','about 8.9K responses','bad']],
-    what:'Of the two customer service ratings, <b>helpfulness of the reply moves most with NPS (61%)</b>; speed accounts for the other <b>39%</b>. No comment theme had a comparable effect. <b>77%</b> rate the reply fully helpful, but <b>15%</b> give it 1 or 2 out of 4. This shows a link, not proof that a more helpful reply will raise NPS.',
+  'INS-04': {prio:'high', type:'Key driver', topic:'Customer service', ed:'e27',
+    title:'Helpfulness drives 61% of NPS, and it slipped this month',
+    sum:'<b>‘Was the response helpful?’</b> drives <b>61%</b> of NPS. It fell to <b>3.52 out of 4</b> in November, from 3.61, with more replies rated 1 out of 4.',
+    num:'▼ 2.5%', numColor:'#c5221f', unit:'helpfulness, now 3.52 out of 4',
+    reason:'The biggest driver of NPS, within customer service’s control, and moving the wrong way.',
+    compares:'November with October', responses:'6.2K responses this month',
+    kpis:[['Helpfulness','▼ 2.5%','3.52 out of 4, against 3.61 in October','bad'],['Share of NPS it explains','61%','speed of reply explains the other 39%',''],['Replies rated 1 out of 4','12%','up from 9% in October','bad']],
+    what:'Helpfulness of the reply explains <b>61% of what drives NPS</b>, more than speed (39%). It <b>fell to 3.52 out of 4</b> this month, from 3.61, and replies rated 1 out of 4 rose to <b>12%</b>, from 9%. The drop is largest for <b>email (3.41)</b> and for <b>English-speaking customers (3.44)</b>. This is a link, not proof that a more helpful reply will raise NPS.',
     evidence: rows('What drives NPS', [['Was the response helpful?',61,'61%'],['Was your question answered quickly enough?',39,'39%']]) +
-      rows('‘Was the response helpful?’ · all responses', [['4 out of 4',76.6,'76.6%'],['3',8.5,'8.5%'],['2',5.5,'5.5%'],['1',9.4,'9.4%']], '45.8K responses gave 4 out of 4; 5.6K gave 1.'),
-    quotes:[['pos','Response time','Réponse rapide et quasiment immédiate. Solutions apportées suite à ma demande, service client très réactif, merci !','Fast, almost immediate reply. Solutions provided after my request, very responsive customer service, thank you!'],
-      ['pos','Response time','La question a été très vite prise en compte et j’ai obtenu satisfaction…','My question was dealt with very quickly and I got what I needed…'],
-      ['pos','Customer service','Customer service was incredibly helpful and would absolutely…']],
-    actions:[{who:'', t:'Review conversations rated 1 out of 4 for helpfulness with team leads', d:'Look for issues left unsolved rather than slow replies.', cta:'plan'},
-      {who:'Customer service team leads', t:'Add “was the issue solved?” to quality reviews', d:'Helpfulness matters more than speed, so check resolution, not only response time.', cta:'share'}],
-    qa:[['Should we focus on speed or helpfulness?','Helpfulness. It explains 61% of what drives NPS, against 39% for speed. Both matter, but solving the issue counts for more.','What happened'],
-      ['How many rate the reply as unhelpful?','15%: 9.4% gave 1 out of 4 and 5.5% gave 2. That is about 8.9K responses.','Evidence'],
-      ['Does this prove cause?','No. It shows which rating moves most with NPS, not that improving it will raise NPS.','Evidence limitations']],
-    method:'Regression of NPS on the two customer service ratings; the explained variation is split between them.', data:SURVEY+', all responses.', not:'Cause. It shows which rating moves most with NPS.'},
+      bars('Helpfulness per week, out of 4', WEEKS8, [3.63,3.62,3.60,3.61,3.58,3.55,3.51,3.49], {hi:[5,6,7], max:4, fmt:v=>v.toFixed(2), note:'Red: the last 3 weeks, each lower than the one before.'}),
+    where:{unit:'Helpfulness out of 4, November', segs:[{t:'Contact channel', k:'score', rows:[['Chat',3.66,''],['Phone',3.58,''],['Instagram',3.47,''],['Email',3.41,'']]},{t:'Language', k:'score', rows:[['French',3.57,''],['English',3.44,''],['Other',3.39,'']]}]},
+    quotes:[Q('neg','Helpfulness','I got three different answers from three advisors about my exchange.'),
+      Q('pos','Response time','Réponse rapide et quasiment immédiate. Solutions apportées suite à ma demande, service client très réactif, merci !','Fast, almost immediate reply. Solutions provided after my request, very responsive customer service, thank you!'),
+      Q('pos','Customer service','Customer service was incredibly helpful and would absolutely…')],
+    actions:[{who:'', t:'Review email replies rated 1 out of 4 with team leads', d:'Email has the lowest helpfulness. Look for issues left unsolved and inconsistent answers.', cta:'plan'},
+      {who:'Customer service team leads', t:'Check the English email macros for exchanges and refunds', d:'English-speaking customers rate replies lowest, and exchanges come up most in their comments.', cta:'share'}],
+    qa:[['Where did it drop most?','Email, at 3.41 out of 4, and English-speaking customers, at 3.44. Chat is still high at 3.66.','Where it happened'],
+      ['Should we focus on speed or helpfulness?','Helpfulness. It explains 61% of what drives NPS, against 39% for speed.','What happened'],
+      ['Since when?','The last 3 weeks, each lower than the one before: 3.58, 3.55, 3.51 and 3.49 in the week of 23 Nov.','Evidence']],
+    method:'Regression of NPS on the two reply ratings, plus the change in helpfulness between months.', data:SURVEY+', October and November.', not:'Cause. It shows which rating moves most with NPS.'},
 
-  'AL-03': {prio:'high', type:'Recurring theme', topic:'Delivery', ed:'e27',
-    title:'Delivery comments have an NPS of 28',
-    sum:'Customers who mention <b>delivery</b> give an NPS of <b>28</b>, against 62.6 overall, across <b>6.4K responses</b>.',
-    num:'▼ 35 pts', numColor:'#c5221f', unit:'below overall NPS',
-    reason:'A large theme with an NPS far below the overall score.',
-    compares:'responses that mention delivery with all responses', responses:'6.4K mention delivery',
-    kpis:[['NPS when delivery is mentioned','28.0','against 62.6 overall','bad'],['Responses that mention it','6.4K','11% of all responses',''],['Rank among 12 themes','6th lowest','Stock, after sales, checkout, order, price and gifts score lower','']],
-    what:'Customers who mention <b>delivery</b> give an NPS of <b>28.0</b>, against <b>62.6</b> overall, across <b>6.4K responses</b>. Comments describe <b>delays, tracking problems</b> and <b>damaged or incomplete orders</b>, especially for time-sensitive purchases. Delivery is outside customer service’s control, so this is one for the logistics team.',
-    evidence: themeChart('Delivery'),
-    where:{unit:'Responses that mention delivery', segs:[{t:'Hub', rows:[['HUB EU',5210],['HUB US',1150]]},{t:'Customer type', rows:[['Non-VIP',4980],['VIP',1380]]}]},
-    quotes:[['neg','Packaging','Lors de ma dernière commande la pochette en carton n’était pas assez solide','On my last order the cardboard pouch wasn’t sturdy enough'],
-      ['neg','Delivery','I’m extremely disappointed with how this situation has been…']],
-    actions:[{who:'', t:'Add delivery to the voice-of-customer report for logistics', d:'Share the NPS gap and the comments with the logistics team.', cta:'plan'},
-      {who:'Logistics', t:'Check delays and tracking problems by carrier', d:'Comments mention delays and tracking. Compare with carrier performance for the same weeks.', cta:'share'}],
-    qa:[['Is this getting worse?','This insight covers all responses, not a change over time. Follow it to see how the delivery NPS moves in each update.','Evidence limitations'],
-      ['What do customers complain about?','Delays, tracking problems and damaged or incomplete orders, and packaging that is not sturdy enough.','What customers say'],
-      ['Can customer service fix this?','Mostly not. It is a logistics issue, so the useful step is to pass the comments to the logistics team.','Recommended actions']],
-    method:'Text analytics tags each comment with themes; NPS is compared between responses with and without the theme.', data:SURVEY+', all responses with a comment.', not:'Whether delivery problems caused the low scores.'},
+  'AL-03': {prio:'high', type:'Recurring theme', topic:'Refunds', ed:'e27',
+    title:'Refund delays are the top detractor complaint, 8 weeks running',
+    sum:'Refund delays came up in detractor comments <b>every week for 8 weeks</b>, <b>24% more</b> than the 8 weeks before. After-sales NPS is <b>22.8</b>.',
+    num:'▲ 24%', numColor:'#c5221f', unit:'more refund complaints than the 8 weeks before',
+    reason:'A standing problem that is growing, and customers chase advisors about it.',
+    compares:'the last 8 weeks with the 8 weeks before', responses:'354 detractor comments',
+    kpis:[['Refund complaints','▲ 24%','354 in 8 weeks, against 285 before','bad'],['After-sales NPS','22.8','across 5.7K responses','bad'],['Detractor pain points','9%','second only to product quality','']],
+    what:'Refund delays came up in detractor comments <b>every week for the last 8 weeks</b>, <b>354 times</b>, against 285 in the 8 weeks before. Customers say refunds take <b>longer than the 5 days they were promised</b>, and many contact customer service again to chase. Most are refunds to the <b>original payment method</b>.',
+    evidence: bars('Detractor comments about refund delays, per week', WEEKS8, [38,41,40,44,43,47,49,52], {hi:range(0,7), note:'Every week is above the ~36 a week of the 8 weeks before, and the last 3 are the highest.'}),
+    where:{unit:'Comments, last 8 weeks', segs:[{t:'Refund method', rows:[['Original payment',212],['Store credit',98],['Gift card',44]]},{t:'Hub', rows:[['HUB EU',281],['HUB US',73]]}]},
+    quotes:[Q('neg','Refund','On m’a dit 5 jours, cela fait trois semaines.','I was told 5 days, it has been three weeks.'),Q('neg','Refund','Two weeks after my return arrived and still no refund.'),Q('pos','After sales','I truly have had nothing but amazing service from Sezane. Easy returns make it even better.')],
+    actions:[{who:'Finance', t:'Check refund processing times against the 5 days promised', d:'Most complaints are refunds to the original payment method.', cta:'share'},
+      {who:'', t:'Update the refund reply with a realistic date', d:'Customers who are told 5 days and wait 3 weeks write in again.', cta:'plan'}],
+    qa:[['Is it getting worse?','Yes. Every one of the last 8 weeks is above the level of the 8 weeks before, and the last 3 weeks are the highest: 47, 49 and 52.','Evidence'],
+      ['Which refunds?','Mostly refunds to the original payment method (212 of 354). Store credit and gift card refunds come up less.','Where it happened'],
+      ['Can customer service fix it?','Not the delay itself, which is with finance. Advisors can give a realistic date, which cuts repeat contacts.','Recommended actions']],
+    method:'Text analytics on detractor comments, counted weekly and compared with the 8 weeks before.', data:SURVEY+', detractor comments, 28 Jul – 23 Nov.', not:'Actual refund processing times.'},
 
-  'INS-02': {prio:'med', type:'Recurring theme', topic:'Price', ed:'e27',
-    title:'Price comments have an NPS of 9',
-    sum:'Customers who mention <b>price</b> give an NPS of <b>9.4</b> across 1.4K responses. Comments link it to <b>recent price increases</b>.',
-    num:'9.4', unit:'NPS, 1.4K responses',
-    reason:'One of the lowest-scoring themes, and outside customer service’s control.',
-    compares:'responses that mention price with all responses', responses:'1.4K mention price',
-    kpis:[['NPS when price is mentioned','9.4','against 62.6 overall','bad'],['Responses that mention it','1.4K','2% of all responses',''],['Rank among 12 themes','2nd lowest','only gifts scores lower','']],
-    what:'Customers who mention <b>price</b> give an NPS of <b>9.4</b>, against 62.6 overall, across 1.4K responses. Comments say <b>recent price increases</b> are not always matched by quality, and some long-standing customers compare Sézane with brands they see as better value. Price is outside customer service’s control, so this belongs in the voice-of-customer report.',
-    evidence: themeChart('Price'),
-    where:{unit:'Responses that mention price', segs:[{t:'Hub', rows:[['HUB EU',1180],['HUB US',260]]},{t:'Customer type', rows:[['Non-VIP',1010],['VIP',430]]}]},
-    quotes:[['neg','Price increase','J’adore votre marque et son sac mais les nouveaux prix sont trop hauts malheureusement','I love your brand and its bag, but the new prices are unfortunately too high'],
-      ['neg','Price','Wouldn’t want anyone else in the family to become trapped in the model that I am. They could not afford it.']],
-    actions:[{who:'', t:'Include price in the monthly voice-of-customer report', d:'Share the NPS gap and examples with the product and pricing teams.', cta:'plan'},
-      {who:'Product team', t:'Check which products the price comments name', d:'To see whether it is the new collection or prices overall.', cta:'share'}],
-    qa:[['Is this new?','Comments mention recent price increases, but this insight covers all responses. Follow it to see whether price comments grow.','Evidence limitations'],
-      ['How many customers mention price?','About 1.4K responses, or 2% of all responses.','Evidence'],
-      ['What do they compare it with?','Some long-standing customers say quality has not kept up with price, and compare Sézane with brands they see as better value.','What customers say']],
-    method:'Text analytics tags each comment with themes; NPS is compared between responses with and without the theme.', data:SURVEY+', all responses with a comment.', not:'Whether price caused the low scores.'},
+  'INS-02': {prio:'med', type:'Emerging theme', topic:'Price', ed:'e27',
+    title:'Price complaints doubled since the winter collection launch',
+    sum:'Price comments rose to <b>2.1×</b> their usual weekly level after the collection launched on 5 Nov. Long-standing <b>VIP customers</b> mention it most.',
+    num:'▲ 2.1×', numColor:'#c5221f', unit:'price comments vs a usual week',
+    reason:'New since the launch, and concentrated among VIP customers.',
+    compares:'the 3 weeks since 5 Nov with the 4 weeks before', responses:'207 price comments since 5 Nov',
+    kpis:[['Price comments per week','▲ 2.1×','~52 a week since 5 Nov, against ~25 before','bad'],['NPS when price is mentioned','9.4','against 62.6 overall','bad'],['From VIP customers','41%','VIPs are 22% of responses','']],
+    what:'Price comments rose to <b>~52 a week</b> after the winter collection launched on <b>5 Nov</b>, from ~25. <b>41% come from VIP customers</b>, who are only 22% of responses, and they compare the new prices with what they paid before. Most name <b>knitwear and coats</b>. Price is outside customer service’s control, so this belongs in the voice-of-customer report.',
+    evidence: bars('Price comments per week', WEEKS8, [24,26,23,25,51,55,49,52], {hi:[4,5,6,7], note:'Red: since the collection launched on 5 Nov.'}),
+    where:{unit:'Price comments since 5 Nov', segs:[{t:'Customer type', rows:[['Non-VIP',122],['VIP',85]]},{t:'Product line', rows:[['Knitwear',74],['Coats',61],['Bags',38],['Other',34]]}]},
+    quotes:[Q('neg','Price increase','J’adore votre marque et son sac mais les nouveaux prix sont trop hauts malheureusement','I love your brand and its bag, but the new prices are unfortunately too high'),
+      Q('neg','Price','Wouldn’t want anyone else in the family to become trapped in the model that I am. They could not afford it.')],
+    actions:[{who:'', t:'Add price to the monthly voice-of-customer report', d:'With the VIP share and the product lines customers name.', cta:'plan'},
+      {who:'Product team', t:'Share the knitwear and coat comments', d:'To see whether it is specific pieces or the new prices overall.', cta:'share'}],
+    qa:[['Is it the launch?','The rise starts the week of 2 Nov, when the collection launched on 5 Nov, and has held since. Most comments name knitwear and coats.','Evidence'],
+      ['Who is complaining?','VIP customers write 41% of price comments, though they are only 22% of responses.','Where it happened'],
+      ['Is it hurting NPS?','Customers who mention price give an NPS of 9.4, against 62.6 overall.','What happened']],
+    method:'Weekly count of price comments, compared with the 4 weeks before the launch.', data:SURVEY+', 5 Oct – 23 Nov.', not:'Whether customers bought less.'},
 
-  'AL-04': {prio:'med', type:'Recurring theme', topic:'Gifts', ed:'e27',
-    title:'Gifts have the lowest NPS of any theme: 2',
-    sum:'Customers who mention <b>gifts</b> give an NPS of <b>2.0</b> across 2.1K responses. <b>Gift conditions</b> also lower the helpfulness rating.',
-    num:'2.0', unit:'NPS, lowest of 12 themes',
-    reason:'The lowest-scoring theme, and partly within customer service’s control.',
-    compares:'responses that mention gifts with all responses', responses:'2.1K mention gifts',
-    kpis:[['NPS when gifts are mentioned','2.0','lowest of 12 themes','bad'],['Responses that mention it','2.1K','3% of all responses',''],['Helpfulness when gift conditions come up','▼ 0.9','lower than for other customers','bad']],
-    what:'Customers who mention <b>gifts</b> give an NPS of <b>2.0</b>, the lowest of 12 themes, across 2.1K responses. Comments mention <b>missing promotional gifts</b> and <b>gift card conditions</b>. When gift conditions come up, customers also rate the reply <b>0.9 points less helpful</b>, so part of this is in customer service’s hands: explaining the conditions clearly.',
-    evidence: themeChart('Gifts'),
-    where:{unit:'Responses that mention gifts', segs:[{t:'Hub', rows:[['HUB EU',1760],['HUB US',310]]},{t:'Customer type', rows:[['Non-VIP',1590],['VIP',480]]}]},
-    quotes:[['neg','Gift card','J’ai reçu une carte cadeau pour mon anniversaire et…','I received a gift card for my birthday and…']],
-    actions:[{who:'', t:'Give advisors one clear answer on gift and gift card conditions', d:'Gift conditions lower the helpfulness rating by 0.9. A standard reply would help.', cta:'plan'},
-      {who:'Marketing', t:'Check how promotional gift conditions are explained', d:'Missing promotional gifts come up often. Clearer conditions at checkout may prevent contacts.', cta:'share'}],
-    qa:[['Why is it so low?','Comments mention promotional gifts that did not arrive and confusion about gift card conditions.','What happened'],
-      ['Can customer service do anything?','Yes. When gift conditions come up, the reply is rated 0.9 points less helpful, so a clearer standard answer would help.','Recommended actions'],
-      ['How many responses mention gifts?','About 2.1K, or 3% of all responses.','Evidence']],
-    method:'Text analytics tags each comment with themes; NPS and the helpfulness rating are compared with and without the theme.', data:SURVEY+', all responses with a comment.', not:'How many orders were missing a gift.'},
+  'AL-04': {prio:'med', type:'Key driver', topic:'Gift cards', ed:'e27',
+    title:'Gift card questions get the least helpful replies',
+    sum:'Customers asking about <b>gift cards</b> rate the reply <b>2.7 out of 4</b> for helpfulness, against 3.5 for others. Gift card contacts are <b>up 40%</b> ahead of the holidays.',
+    num:'2.7', numColor:'#c5221f', unit:'helpfulness out of 4, vs 3.5',
+    reason:'Within customer service’s control, and volume is about to rise for the holidays.',
+    compares:'gift card contacts with other contact reasons', responses:'312 gift card contacts in November',
+    kpis:[['Helpfulness for gift card questions','2.7','out of 4, against 3.5 for others','bad'],['Gift card contacts','▲ 40%','312 in November, against 223 in October',''],['Gifts theme NPS','2.0','the lowest of 12 themes','bad']],
+    what:'Customers who contact customer service about <b>gift cards</b> rate the reply <b>2.7 out of 4</b> for helpfulness, the lowest of any contact reason, against 3.5 for others. Their comments say advisors <b>gave different answers</b> on where and how gift cards can be used. Gift card contacts are <b>up 40%</b> this month, and will rise further before the holidays.',
+    evidence: rows('Helpfulness by contact reason, out of 4', [['Gift cards',2.7,'2.7'],['Refunds',3.2,'3.2'],['Exchanges',3.3,'3.3'],['Order status',3.6,'3.6'],['Product questions',3.7,'3.7']]),
+    where:{unit:'Gift card contacts, November', segs:[{t:'Contact channel', rows:[['Email',148],['Chat',97],['Phone',51],['Instagram',16]]},{t:'Hub', rows:[['HUB EU',238],['HUB US',74]]}]},
+    quotes:[Q('neg','Gift card','J’ai reçu une carte cadeau pour mon anniversaire et…','I received a gift card for my birthday and…'),Q('neg','Gift card','Nobody could tell me whether my gift card works in the US stores.')],
+    actions:[{who:'', t:'Write one clear gift card answer before the holidays', d:'Where cards can be used, online and in store, in each hub. Add it to the macros.', cta:'plan'},
+      {who:'Marketing', t:'Make the gift card conditions clearer on the site', d:'Fewer customers would need to ask.', cta:'share'}],
+    qa:[['Why are gift card replies rated so low?','Customers say advisors gave different answers on where and how gift cards can be used.','What customers say'],
+      ['How many contacts is it?','312 in November, up 40% on October, mostly by email.','Where it happened'],
+      ['What can we do before the holidays?','Agree one answer on gift card conditions for each hub and add it to the macros.','Recommended actions']],
+    method:'Helpfulness compared across contact reasons; monthly contact counts.', data:SURVEY+', October and November.', not:'How many gift cards failed to work.'},
 
   'INS-06': {prio:'pos', type:'Segment comparison', topic:'Customer service', ed:'e27',
-    title:'Advisor attitude lifts NPS by 42 points',
-    sum:'Customers who mention <b>advisor attitude</b> give an NPS of <b>72</b>, against 30 for other comments. Mentions of <b>response time</b> show a similar lift.',
+    title:'Advisor attitude lifts NPS by 42 points, most of all in chat',
+    sum:'Customers who mention <b>advisor attitude</b> give an NPS of <b>72</b>, against 30 for other comments. In <b>chat</b> it reaches <b>79</b>.',
     num:'▲ 42 pts', numColor:'#0e8a5f', unit:'NPS vs other comments',
     reason:'A strength worth keeping: what customers praise most.',
     compares:'comments that mention advisor attitude with other comments', responses:'26.2K mention customer service',
-    kpis:[['NPS when advisor attitude is mentioned','72','against 30 for other comments',''],['NPS when response time is mentioned','70','a 40-point lift',''],['Customer service theme','65.5','NPS across 26.2K responses, the largest theme','']],
-    what:'Customers who mention <b>advisor attitude</b> give an NPS of <b>72</b>, against <b>30</b> for other comments, a <b>42-point lift</b>. Mentions of <b>response time</b> show a similar lift (70 against 30). Customers praise advisors who are <b>fast, kind and professional</b> and who solve the issue, often by name.',
+    kpis:[['NPS when advisor attitude is mentioned','72','against 30 for other comments',''],['In chat','79','the highest of any channel',''],['NPS when response time is mentioned','70','a 40-point lift','']],
+    what:'Customers who mention <b>advisor attitude</b> give an NPS of <b>72</b>, against <b>30</b> for other comments, a <b>42-point lift</b>. It is highest in <b>chat (79)</b> and lowest in <b>email (68)</b>. Customers praise advisors who are <b>fast, kind and professional</b> and who solve the issue, often by name.',
     evidence: rows('NPS, comments that mention each theme vs other comments', [['Advisor attitude',72,'72'],['Response time',70,'70'],['Other comments',30,'30']]),
-    where:{unit:'NPS, comments that mention advisor attitude', segs:[{t:'Hub', k:'score', rows:[['HUB EU',73.1,''],['HUB US',67.4,'']]},{t:'Customer type', k:'score', rows:[['VIP',78.0,''],['Non-VIP',70.2,'']]}]},
-    quotes:[['pos','Response time','Réponse rapide et quasiment immédiate. Solutions apportées suite à ma demande, service client très réactif, merci !','Fast, almost immediate reply. Solutions provided after my request, very responsive customer service, thank you!'],
-      ['pos','Customer service','Originele producten, goede snelle klantenservice','Original products, good fast customer service'],
-      ['pos','After sales','I truly have had nothing but amazing service from Sezane. Easy returns make it even better.']],
+    where:{unit:'NPS, comments that mention advisor attitude', segs:[{t:'Contact channel', k:'score', rows:[['Chat',79,''],['Phone',74,''],['Instagram',70,''],['Email',68,'']]},{t:'Customer type', k:'score', rows:[['VIP',78,''],['Non-VIP',70,'']]}]},
+    quotes:[Q('pos','Response time','Réponse rapide et quasiment immédiate. Solutions apportées suite à ma demande, service client très réactif, merci !','Fast, almost immediate reply. Solutions provided after my request, very responsive customer service, thank you!'),
+      Q('pos','Customer service','Originele producten, goede snelle klantenservice','Original products, good fast customer service'),
+      Q('pos','After sales','I truly have had nothing but amazing service from Sezane. Easy returns make it even better.')],
     actions:[{who:'', t:'Share what customers praise at the next team meeting', d:'Fast, kind replies that solve the issue. Recognise the advisors behind them.', cta:'plan'},
-      {who:'Head of Customer Service', t:'Use these comments in advisor training', d:'Real examples of what customers value most.', cta:'share'}],
+      {who:'Head of Customer Service', t:'Use chat replies as examples in email training', d:'Chat scores 79 and email 68 on the same theme.', cta:'share'}],
     qa:[['What do customers praise?','Advisors who reply quickly, are kind and professional, and solve the issue.','What customers say'],
-      ['Is it the same for response time?','Yes. Comments that mention response time have an NPS of 70, against 30 for other comments.','Evidence'],
-      ['Is it the same in both hubs?','The split by hub is in Where it happened.','Where it happened']],
-    method:'Text analytics tags each comment with themes; NPS is compared between comments with and without the theme.', data:SURVEY+', all responses with a comment.', not:'Whether the advisor’s attitude caused the higher score.'},
+      ['Why is chat higher?','Chat customers mention speed and a personal tone more often. Email comments mention waiting for a reply.','Where it happened'],
+      ['Is it the same for response time?','Yes. Comments that mention response time have an NPS of 70, against 30 for other comments.','Evidence']],
+    method:'Text analytics tags each comment with themes; NPS is compared with and without the theme, by channel.', data:SURVEY+', all responses with a comment.', not:'Whether the advisor’s attitude caused the higher score.'},
 
-  'INS-01': {prio:'low', type:'Overview', topic:'NPS', ed:'e27',
-    title:'NPS is 62.6 across 59.8K responses',
-    sum:'<b>44.1K promoters</b>, 9K passives and <b>6.7K detractors</b> since the survey started, from 145.8K invitations.',
-    num:'62.6', unit:'NPS, all responses',
-    reason:'The baseline for everything else in the feed.',
-    compares:'promoters, passives and detractors across all responses', responses:'59.8K responses',
-    kpis:[['NPS','62.6','all 59.8K responses',''],['Promoters','74%','44.1K responses',''],['Detractors','11%','6.7K responses','bad']],
-    what:'Sézane’s NPS is <b>62.6</b> across <b>59.8K responses</b>: <b>74% promoters</b>, 15% passives and <b>11% detractors</b>. That is a <b>41% response rate</b> from 145.8K invitations. <b>Brand (72.3)</b> and <b>customer experience (71.1)</b> are the best-rated themes; <b>gifts (2.0)</b> and <b>price (9.4)</b> the lowest.',
-    evidence: stack([['Promoters',74,'#2e9d6a','44.1K'],['Passives',15,'#e2a93b','9K'],['Detractors',11,'#d9534f','6.7K']]) + themeChart(''),
-    where:{unit:'Responses, in thousands', segs:[{t:'Hub', rows:[['HUB EU',49.9],['HUB US',9.9]]}]},
-    quotes:[['pos','Product','Nice clothes, free ship and returns when needed.'],['pos','Customer service','Well u guys are fantastic love your clothes and customer service']],
-    actions:[{who:'', t:'Use this as the baseline in the monthly report', d:'NPS by theme and by hub, as in the current report.', cta:'plan'}],
-    qa:[['Which themes pull NPS down?','Gifts (2.0), price (9.4), order (13.5), checkout (20.1) and after sales (22.8).','Evidence'],
-      ['How big is HUB US?','17% of responses: 9.9K, against 49.9K for HUB EU.','Where it happened'],
-      ['What is the response rate?','41%: 59.8K responses from 145.8K invitations.','What happened']],
-    method:'Descriptive analysis of all NPS responses, with NPS by comment theme.', data:SURVEY+', all responses to date.', not:'How NPS has changed over time; see the weekly NPS insight.'},
+  'INS-01': {prio:'pos', type:'Period comparison', topic:'NPS', ed:'e27',
+    title:'NPS rose to 64.1 in November, from 61.0',
+    sum:'NPS rose <b>3.1 points</b> to <b>64.1</b> this month, with <b>more promoters (75%)</b>. HUB EU drove the rise; HUB US fell.',
+    num:'▲ 3.1', numColor:'#0e8a5f', unit:'NPS, now 64.1',
+    reason:'The headline for the monthly report.',
+    compares:'November with October', responses:'6.2K responses this month, 5.9K in October',
+    kpis:[['NPS','▲ 3.1','64.1, against 61.0 in October',''],['Promoters','75%','up from 73%',''],['HUB US','▼ 4.6','53.8, the only hub that fell','bad']],
+    what:'NPS rose to <b>64.1</b> in November, from <b>61.0</b>, the highest in 6 months, with promoters up to <b>75%</b>. The rise comes from <b>HUB EU (66.3)</b>, led by France. <b>HUB US fell to 53.8</b>, which matches the delivery problems there since 16 Nov.',
+    evidence: bars('NPS per month', ['Jun','Jul','Aug','Sep','Oct','Nov'], [60.2,61.5,59.8,60.9,61.0,64.1], {hi:[5], good:true, max:80, fmt:v=>v.toFixed(1), note:'All-time NPS across 59.8K responses is 62.6.'}),
+    where:{unit:'NPS, November', segs:[{t:'Hub', k:'score', rows:[['HUB EU',66.3,''],['HUB US',53.8,'']]},{t:'Country', k:'score', rows:[['France',67.2,''],['Germany',64.0,''],['UK',60.5,''],['US',53.8,'']]}]},
+    quotes:[Q('pos','Product','Nice clothes, free ship and returns when needed.'),Q('pos','Customer service','Well u guys are fantastic love your clothes and customer service')],
+    actions:[{who:'', t:'Lead the monthly report with the rise and the US exception', d:'NPS by hub and country, with the US delivery issue as the reason.', cta:'plan'}],
+    qa:[['What drove the rise?','HUB EU, especially France (67.2). Comments there praise customer service and the new collection.','Where it happened'],
+      ['Why did the US fall?','HUB US fell to 53.8. Delivery complaints there tripled since 16 Nov, which explains most of it.','What happened'],
+      ['Is the rise significant?','Yes. 6.2K responses this month is enough for a 3.1-point change to be meaningful.','Evidence limitations']],
+    method:'Monthly NPS compared with the month before, by hub and country.', data:SURVEY+', June – November.', not:'Why France rose.'},
 
   'INS-03': {prio:'med', type:'Key driver', topic:'Follow-up', ed:'e27',
-    title:'Follow-up issues cut the speed rating to 2.5 out of 4',
-    sum:'Customers who mention <b>follow-up</b> rate ‘answered quickly enough’ <b>2.53 out of 4</b>, against 3.52 for others.',
-    num:'▼ 1.0', numColor:'#c5221f', unit:'out of 4, vs other customers',
-    reason:'Fully within customer service’s control, and the largest gap on speed.',
-    compares:'responses that mention follow-up with other responses', responses:'all responses with a comment',
-    kpis:[['Speed rating when follow-up is mentioned','2.53','out of 4','bad'],['Other customers','3.52','out of 4',''],['Helpfulness when follow-up is mentioned','▼ 0.9','lower than for others','bad']],
-    what:'Customers who mention <b>follow-up</b> rate ‘Was your question answered quickly enough?’ <b>2.53 out of 4</b>, against <b>3.52</b> for others, and rate the reply <b>0.9 points less helpful</b>. This is within customer service’s control: customers who had to <b>chase an answer</b> are the least satisfied with speed.',
+    title:'Customers who had to chase a reply rate speed 2.5 out of 4',
+    sum:'Customers who mention <b>follow-up</b> rate speed <b>2.53 out of 4</b>, against 3.52. Repeat contacts are <b>up 18%</b> this month, mostly about refunds.',
+    num:'▼ 1.0', numColor:'#c5221f', unit:'speed out of 4, vs other customers',
+    reason:'Within customer service’s control, and repeat contacts are rising.',
+    compares:'responses that mention follow-up with other responses', responses:'321 repeat contacts in November',
+    kpis:[['Speed when follow-up is mentioned','2.53','out of 4, against 3.52','bad'],['Repeat contacts','▲ 18%','321 in November, against 272 in October','bad'],['Helpfulness when follow-up is mentioned','▼ 0.9','lower than for others','bad']],
+    what:'Customers who mention <b>follow-up</b> rate ‘Was your question answered quickly enough?’ <b>2.53 out of 4</b>, against <b>3.52</b> for others, and the reply <b>0.9 points less helpful</b>. Repeat contacts rose <b>18%</b> this month, and <b>44% of them are about refunds</b>, which links to the refund delays.',
     evidence: rows('‘Answered quickly enough?’ · average out of 4', [['Mention follow-up',2.53,'2.53'],['Other customers',3.52,'3.52'],['Mention advisor attitude',3.75,'3.75']]),
-    quotes:[['neg','Delivery','I’m extremely disappointed with how this situation has been…']],
-    actions:[{who:'', t:'Review cases that needed more than one contact', d:'Find where customers had to chase: refunds, exchanges or order problems.', cta:'plan'},
-      {who:'Customer service team leads', t:'Tell customers when they will hear back', d:'And check the promise is kept.', cta:'share'}],
-    qa:[['What does follow-up mean here?','Comments where customers say they had to chase an answer or did not hear back.','What happened'],
+    where:{unit:'Repeat contacts, November', segs:[{t:'Contact reason', rows:[['Refund',142],['Exchange',88],['Order status',61],['Other',30]]},{t:'Contact channel', rows:[['Email',201],['Chat',79],['Phone',41]]}]},
+    quotes:[Q('neg','Follow-up','I had to email four times before anyone answered.'),Q('neg','Delivery','I’m extremely disappointed with how this situation has been…')],
+    actions:[{who:'', t:'Review cases that needed more than one contact', d:'Start with refunds, 44% of repeat contacts.', cta:'plan'},
+      {who:'Customer service team leads', t:'Tell customers when they will hear back', d:'And check the promise is kept, especially by email.', cta:'share'}],
+    qa:[['What are repeat contacts about?','Refunds most of all (142 of 321), then exchanges (88) and order status (61).','Where it happened'],
       ['How much lower is the rating?','2.53 out of 4, against 3.52 for others: about 1 point lower on speed, and 0.9 lower on helpfulness.','Evidence'],
-      ['Can we act on it?','Yes. It is about how customer service follows up, so it can be acted on directly.','Recommended actions']],
-    method:'Text analytics tags each comment with themes; the two reply ratings are compared with and without the theme.', data:SURVEY+', all responses with a comment.', not:'How many cases needed a follow-up.'},
+      ['Is this linked to refunds?','Yes. 44% of repeat contacts are about refunds, which have been the top detractor complaint for 8 weeks.','What happened']],
+    method:'Text analytics on comments; the two reply ratings compared with and without follow-up; monthly repeat-contact counts.', data:SURVEY+', October and November.', not:'How long customers waited between contacts.'},
 
-  'FOL-01': {prio:'med', type:'Recurring theme', topic:'After sales', ed:'e13',
-    title:'After-sales comments have an NPS of 23',
-    sum:'Customers who mention <b>after sales</b> give an NPS of <b>22.8</b> across 5.7K responses. <b>Refunds</b> are 9% of what detractors complain about.',
-    num:'22.8', unit:'NPS, 5.7K responses',
-    reason:'A large theme with a low score, partly within customer service’s control.',
-    compares:'responses that mention after sales with all responses', responses:'5.7K mention after sales',
-    kpis:[['NPS when after sales is mentioned','22.8','against 62.6 overall','bad'],['Responses that mention it','5.7K','9% of all responses',''],['Refunds','9%','of detractor pain points, second after product quality','']],
-    what:'Customers who mention <b>after sales</b> give an NPS of <b>22.8</b>, against 62.6 overall, across 5.7K responses. Among detractors, <b>refunds</b> are 9% of pain points, second only to product quality. Comments also mention <b>returns and exchanges</b> that were not handled well.',
-    evidence: themeChart('After sales'),
-    quotes:[['pos','After sales','I truly have had nothing but amazing service from Sezane. Easy returns make it even better.']],
-    actions:[{who:'', t:'Check refund handling times', d:'Refunds are the second-biggest detractor pain point.', cta:'plan'}],
-    qa:[['What do customers mention?','Refunds most of all, then returns and exchanges.','What happened'],['Is it all negative?','No. Easy returns are also praised; the NPS is low overall.','What customers say'],['How big is it?','5.7K responses, or 9% of all responses.','Evidence']],
-    method:'Text analytics tags each comment with themes; NPS is compared with and without the theme.', data:SURVEY+', all responses with a comment.', not:'Refund processing times.'},
+  'FOL-01': {prio:'pos', type:'Period comparison', topic:'Packaging', ed:'e13',
+    title:'Packaging complaints halved since the sturdier pouch',
+    sum:'Comments about <b>damaged packaging</b> fell to <b>2.0%</b> of comments in the 3 weeks since the new pouch, from <b>4.1%</b>.',
+    num:'▼ 51%', numColor:'#0e8a5f', unit:'packaging complaints',
+    reason:'A fix that worked; worth confirming before you stop following it.',
+    compares:'the 3 weeks since the new pouch with the 5 weeks before', responses:'All comments',
+    kpis:[['Packaging complaints','▼ 51%','2.0% of comments, against 4.1% before',''],['Since the change','3 weeks','new pouch from 26 Oct',''],['Delivery NPS','▲ 2.4','30.4, against 28.0 before','']],
+    what:'Since the <b>sturdier pouch</b> came in on 26 Oct, comments about <b>damaged packaging</b> fell to <b>2.0%</b> of all comments, from <b>4.1%</b>. Each of the last 3 weeks is lower than any week before the change. The data doesn’t prove the pouch caused it, but the timing matches.',
+    evidence: bars('Packaging complaints, share of comments per week', ['21 Sep','28 Sep','5 Oct','12 Oct','19 Oct','26 Oct','2 Nov','9 Nov'], [4.3,4.0,4.2,3.9,4.1,2.6,2.1,2.0], {hi:[5,6,7], good:true, max:5, fmt:v=>v.toFixed(1)+'%', note:'Green: since the new pouch on 26 Oct.'}),
+    quotes:[Q('neg','Packaging','Lors de ma dernière commande la pochette en carton n’était pas assez solide','On my last order the cardboard pouch wasn’t sturdy enough'),Q('pos','Packaging','Lovely packaging, everything arrived perfectly.')],
+    actions:[{who:'Logistics', t:'Share the result with logistics', d:'Packaging complaints halved after the change.', cta:'share'}],
+    qa:[['Did the pouch fix it?','The timing matches: complaints fell from 4.1% to 2.0% of comments from the week the pouch changed. It shows a change at that time, not proof of the cause.','What happened'],
+      ['Should I keep following it?','One or two more weeks. If it stays near 2%, there is nothing more to do.','Recommended actions'],
+      ['Has it helped NPS?','Delivery NPS rose to 30.4, from 28.0, over the same weeks.','Evidence']],
+    method:'Weekly share of comments about damaged packaging, before and after 26 Oct.', data:SURVEY+', 21 Sep – 15 Nov.', not:'Whether the pouch alone caused the drop.'},
 
-  'FOL-02': {prio:'med', type:'Key driver', topic:'Product', ed:'e20',
-    title:'Product quality is the top reason detractors give',
-    sum:'<b>11%</b> of customers are detractors. Their top pain points are <b>product quality (15%)</b>, refunds (9%) and restock (8%).',
-    num:'15%', unit:'of detractor pain points',
-    reason:'The biggest detractor pain point, for the product team.',
-    compares:'detractor comments by pain point', responses:'6.7K detractors',
-    kpis:[['Detractors','11%','of all responses','bad'],['Product quality','15%','of detractor pain points','bad'],['Product theme','50.0','NPS across 12.6K responses','']],
-    what:'<b>11%</b> of customers are detractors. In their comments, <b>product quality</b> is the top pain point at <b>15%</b>, ahead of <b>refunds (9%)</b> and <b>product availability and restock (8%)</b>. Comments mention <b>fabric quality, sizing</b> and <b>damaged or incomplete orders</b>.',
+  'FOL-02': {prio:'med', type:'Emerging theme', topic:'Product quality', ed:'e20',
+    title:'Sizing complaints on winter knitwear are up 22%',
+    sum:'<b>Product quality</b> is the top detractor pain point (15%). Within it, <b>sizing on winter knitwear</b> is up <b>22%</b> on last month.',
+    num:'▲ 22%', numColor:'#c5221f', unit:'knitwear sizing comments',
+    reason:'A growing product issue for the product team.',
+    compares:'November with October', responses:'96 knitwear sizing comments',
+    kpis:[['Knitwear sizing comments','▲ 22%','96 in November, against 79 in October','bad'],['Product quality','15%','of detractor pain points, the largest',''],['Product theme NPS','50.0','across 12.6K responses','']],
+    what:'<b>Product quality</b> is the top detractor pain point, at <b>15%</b>. Within it, comments about <b>sizing on winter knitwear</b> rose to <b>96</b> this month, from 79. Customers say pieces <b>run smaller than usual</b>, mostly in <b>S and M</b>.',
     evidence: rows('Detractor pain points · share of comments', [['Product quality',15,'15%'],['After sales: refunds',9,'9%'],['Product availability & restock',8,'8%']]),
-    quotes:[],
-    actions:[{who:'Product team', t:'Share the product-quality comments with the product team', d:'Fabric, sizing and damaged items, with examples.', cta:'share'}],
-    qa:[['What about product quality?','Fabric quality, sizing and items that arrive damaged or incomplete.','What happened'],['How many detractors are there?','11% of responses, about 6.7K.','Evidence'],['Is this controllable?','Not by customer service. It belongs in the voice-of-customer report for the product team.','Recommended actions']],
-    method:'Text analytics on detractor comments (bottom-2-box NPS), ranked by share of comments.', data:SURVEY+', detractor comments.', not:'Which products are affected.'},
+    where:{unit:'Sizing comments, November', segs:[{t:'Product line', rows:[['Knitwear',96],['Dresses',41],['Trousers',33],['Coats',28]]},{t:'Size', rows:[['M',38],['S',31],['L',25],['XS',18]]}]},
+    quotes:[Q('neg','Sizing','Le pull taille beaucoup plus petit que d’habitude.','The jumper is much smaller than usual.')],
+    actions:[{who:'Product team', t:'Share the knitwear sizing comments', d:'With the sizes customers mention most.', cta:'share'}],
+    qa:[['Which sizes?','M and S most often (38 and 31 comments), then L and XS.','Where it happened'],['Is it only knitwear?','Mostly. Knitwear has 96 sizing comments, dresses 41 and trousers 33.','Where it happened'],['Can customer service help?','Advisors can suggest sizing up for these pieces until the product team responds.','Recommended actions']],
+    method:'Text analytics on detractor comments, ranked by share; monthly counts by product line.', data:SURVEY+', October and November.', not:'Whether the pieces were made smaller.'},
 
-  'CTY-01': {prio:'high', type:'Recurring theme', topic:'Stock', ext:true,
-    title:'Stock comments have an NPS of 25',
-    sum:'Customers who mention <b>stock</b> give an NPS of <b>24.7</b> across 2.9K responses. They ask for <b>more sizes</b> and <b>more reliable restocks</b>.',
-    num:'24.7', unit:'NPS, 2.9K responses',
-    reason:'A low-scoring theme for operations and product.',
-    compares:'responses that mention stock with all responses', responses:'2.9K mention stock',
-    kpis:[['NPS when stock is mentioned','24.7','against 62.6 overall','bad'],['Responses that mention it','2.9K','5% of all responses',''],['Restock','8%','of detractor pain points','']],
-    what:'Customers who mention <b>stock</b> give an NPS of <b>24.7</b>, against 62.6 overall, across 2.9K responses. They ask for <b>more size options</b> and <b>more reliable restocks</b>; product availability and restock is <b>8%</b> of detractor pain points.',
+  'CTY-01': {prio:'high', type:'Emerging theme', topic:'Stock', ext:true,
+    title:'Out-of-stock complaints on winter coats rose 35%',
+    sum:'Customers asking for <b>coats back in stock</b> rose <b>35%</b> in November. Stock NPS is <b>24.7</b>.',
+    num:'▲ 35%', numColor:'#c5221f', unit:'coat stock comments vs October',
+    reason:'A growing gap during peak season, for operations.',
+    compares:'November with October', responses:'117 stock comments',
+    kpis:[['Coat stock comments','▲ 35%','64 in November, against 47 in October','bad'],['Stock theme NPS','24.7','against 62.6 overall','bad'],['Restock','8%','of detractor pain points','']],
+    what:'Customers asking for <b>coats back in stock</b> rose to <b>64</b> this month, from 47. Most ask for <b>sizes S and M</b> and say they have <b>waited weeks</b> for a restock. Customers who mention stock give an NPS of <b>24.7</b>.',
     evidence: themeChart('Stock'),
-    quotes:[],
-    actions:[{who:'Operations', t:'Add stock to the monthly voice-of-customer report', d:'With the sizes and products customers ask for.', cta:'share'}],
-    qa:[['What do customers ask for?','More size options and more reliable restocks.','What happened'],['How big is it?','2.9K responses, 5% of all responses.','Evidence'],['Who should own it?','Operations and product. It is outside customer service’s control.','Recommended actions']],
-    method:'Text analytics tags each comment with themes; NPS is compared with and without the theme.', data:SURVEY+', all responses with a comment.', not:'Which products were out of stock.'},
+    where:{unit:'Stock comments, November', segs:[{t:'Product line', rows:[['Coats',64],['Knitwear',31],['Bags',22]]},{t:'Size', rows:[['S',38],['M',35],['XS',22],['L',22]]}]},
+    quotes:[Q('neg','Stock','J’attends le retour du manteau en taille S depuis un mois.','I’ve been waiting a month for the coat to come back in size S.')],
+    actions:[{who:'Operations', t:'Check coat restock dates for S and M', d:'Most requests are for those sizes.', cta:'share'}],
+    qa:[['Which products?','Coats most of all (64 comments), then knitwear (31) and bags (22).','Where it happened'],['Which sizes?','S and M, with 38 and 35 comments.','Where it happened'],['Who should own it?','Operations. Advisors can offer a restock alert in the meantime.','Recommended actions']],
+    method:'Monthly count of stock comments by product line.', data:SURVEY+', October and November.', not:'Actual stock levels.'},
 
-  'SHW-01': {prio:'med', type:'Recurring theme', topic:'Checkout', ext:true,
-    title:'Checkout comments have an NPS of 20',
-    sum:'Customers who mention <b>checkout</b> give an NPS of <b>20.1</b> across 1.3K responses.',
-    num:'20.1', unit:'NPS, 1.3K responses',
-    reason:'A low-scoring theme for the web team.',
-    compares:'responses that mention checkout with all responses', responses:'1.3K mention checkout',
-    kpis:[['NPS when checkout is mentioned','20.1','against 62.6 overall','bad'],['Responses that mention it','1.3K','2% of all responses',''],['Rank among 12 themes','4th lowest','','']],
-    what:'Customers who mention <b>checkout</b> give an NPS of <b>20.1</b>, against 62.6 overall, across 1.3K responses. It is one of the smaller themes but among the lowest-scoring.',
-    evidence: themeChart('Checkout'),
-    quotes:[],
-    actions:[{who:'Web team', t:'Share the checkout comments with the web team', d:'To see which step customers mention.', cta:'share'}],
-    qa:[['How big is it?','1.3K responses, 2% of all responses.','Evidence'],['How does it compare?','Its NPS of 20.1 is the 4th lowest of 12 themes.','Evidence'],['Who should own it?','The web team.','Recommended actions']],
-    method:'Text analytics tags each comment with themes; NPS is compared with and without the theme.', data:SURVEY+', all responses with a comment.', not:'Which checkout step is the problem.'}
+  'SHW-01': {prio:'med', type:'Anomaly', topic:'Checkout', ext:true, survey:'online',
+    title:'Octobre: mobile checkout errors mentioned 3× more since 18 Nov',
+    sum:'<b>Checkout errors on the mobile app</b> came up <b>3× more</b> in Octobre comments since 18 Nov, mostly at the payment step.',
+    num:'▲ 3×', numColor:'#c5221f', unit:'mentions vs a usual day',
+    reason:'A sudden change after a date, likely a technical issue.',
+    compares:'18–23 Nov with the 2 weeks before', responses:'31 mentions since 18 Nov',
+    kpis:[['Mentions per day','▲ 3×','~5 a day since 18 Nov, against ~1.5 before','bad'],['On the app','87%','27 of 31 mentions',''],['Checkout theme NPS','20.1','across 1.3K responses','bad']],
+    what:'Since <b>18 Nov</b>, Octobre customers mentioned <b>checkout errors on the mobile app</b> about <b>3× more</b> than before, <b>31 times</b>. Most happen at the <b>payment step</b> and on <b>iOS</b>. The timing suggests a technical change around 18 Nov.',
+    evidence: bars('Mobile checkout error mentions per day, Octobre', DAYS(12,12,'Nov'), [1,2,1,1,2,1,5,6,4,5,4,3], {hi:range(6,11), show:[0,6,11], note:'Red: since 18 Nov.'}),
+    where:{unit:'Mentions since 18 Nov', segs:[{t:'Device', rows:[['iOS',21],['Android',6],['Web',4]]},{t:'Checkout step', rows:[['Payment',19],['Address',8],['Promo code',4]]}]},
+    quotes:[Q('neg','Checkout','The app crashed at payment twice, I had to order on the website.')],
+    actions:[{who:'Web team', t:'Check the app release around 18 Nov', d:'Most errors are at payment on iOS.', cta:'share'}],
+    qa:[['Is it the app or the website?','The app: 27 of 31 mentions, mostly on iOS.','Where it happened'],['Which step?','Payment, in 19 of 31 mentions.','Where it happened'],['When did it start?','18 Nov. Before that, about 1.5 mentions a day.','Evidence']],
+    method:'Anomaly detection on daily counts of checkout-error comments.', data:'Octobre Customer Experience Survey, 4–23 Nov.', not:'The technical cause.'}
 };
 window.SZ_DATA = SZ;
 
 /* colleagues and shares (sample people) */
 const PEOPLE = {
   'INS-06':['Léa Martin','Customer Service Team Lead','Lovely to see. Can we share these comments with the team on Friday?'],
-  'CTY-01':['Camille Bernard','Head of Operations','Stock keeps coming up in our reviews too. Can we size it for the monthly report?'],
+  'CTY-01':['Camille Bernard','Head of Operations','Coats keep coming up in our reviews too. Can we size this for the monthly report?'],
   'INS-02':['Julien Moreau','Product team','Price came up in our collection review too. Worth a closer look?'],
-  'SHW-01':['Julien Moreau','Product team','Checkout feedback for the web team. Seen anything similar in customer service?'],
-  'INS-01':['Sophie Laurent','Head of Customer Experience','Good baseline for the monthly report.']
+  'SHW-01':['Julien Moreau','Product team','Seeing this on the Octobre app. Is customer service hearing it too?'],
+  'INS-01':['Sophie Laurent','Head of Customer Experience','Nice rise. Can you add the country split to the monthly report?']
 };
 
 /* ── 1. data the prototype reads ── */
@@ -269,7 +289,7 @@ function szData(){
     if(typeof V22_FOL_SUM!=='undefined') delete V22_FOL_SUM[id];
     if(typeof V26_EVID!=='undefined') delete V26_EVID[id];
     if(typeof V19_QA!=='undefined') delete V19_QA[id];
-    if(typeof V18_SURVEY_OF!=='undefined') V18_SURVEY_OF[id] = 'store';
+    if(typeof V18_SURVEY_OF!=='undefined') V18_SURVEY_OF[id] = s.survey||'store';
     V10_DRILL[id] = {what:s.what.replace(/<[^>]+>/g,''), compares:s.compares, responses:s.responses, evidenceHTML:ev(s.evidence),
       voiceHTML: s.quotes.length ? `<div class="space-y-2">${s.quotes.map(szQuote).join('')}</div><button class="v3-seeall" data-v3-see-all onclick="toast('In the product this lists every comment behind the insight')">See all comments</button>`
         : `<p class="v10-note" style="margin:0 16px 14px">This insight is built from the comment themes. Open the comments in Responses to read examples.</p>`,
@@ -288,7 +308,7 @@ function szData(){
     Object.assign(x, {from:p[0], fromRole:p[1], note:p[2], date: x.insightId==='INS-01' ? '2 days ago' : x.date, insightTitle:s.title, insightTag:s.topic, scope:'Sézane', access:'full'});
     if(typeof SHARED_VIEWS!=='undefined') delete SHARED_VIEWS[x.id]; });
   // activity on insights: Sézane colleagues and notes
-  const YOU = {'INS-04':'Shared the conversations rated 1 out of 4 with team leads for review.','INS-02':'Agreed. I’ll add it to the monthly voice-of-customer report.','INS-05':'Checking queue volumes for that week with the team leads.'};
+  const YOU = {'INS-04':'Shared the email replies rated 1 out of 4 with team leads for review.','INS-02':'Agreed. I’ll add it to the monthly voice-of-customer report.','INS-05':'Asked logistics to check Carrier A.','FOL-01':'Great result. Following for two more weeks.'};
   if(typeof insightActivity!=='undefined') Object.entries(insightActivity).forEach(([id,a])=>{ if(!SZ[id] || !a || !a.events) return; const p = PEOPLE[id];
     const sh = sharedWithMe.find(x=>x.insightId===id);
     a.events.forEach(ev=>{ if(ev.by!=='You'){ ev.by = p ? p[0] : 'Sophie Laurent'; if(sh) ev.date = sh.date; if(ev.type==='comment') ev.text = p ? p[2] : 'Worth a look before the monthly report.'; }
@@ -304,18 +324,18 @@ function szData(){
   if(typeof V28_QUICK!=='undefined'){ V28_QUICK.length = 0; V28_QUICK.push('Sophie Laurent','Léa Martin','Camille Bernard'); }
   if(typeof V26_CH!=='undefined'){ V26_CH.length = 0; V26_CH.push(['slack','Slack','#cx-sezane'],['teams','Teams','Customer service › General']); }
   // Customise my feed
-  if(typeof V23_TOPICS!=='undefined'){ V23_TOPICS.length = 0; V23_TOPICS.push('Customer service','Follow-up','Delivery','Product quality','Price','Gifts','Stock & sizes','After sales & refunds','Checkout','Brand'); }
-  if(typeof V23_FIELDS!=='undefined'){ V23_FIELDS.length = 0; V23_FIELDS.push(['Hub',true],['Customer type (VIP)',true],['Language',false],['Fraud scoring',false]); }
+  if(typeof V23_TOPICS!=='undefined'){ V23_TOPICS.length = 0; V23_TOPICS.push('Customer service','Follow-up','Delivery','Refunds','Product quality','Price','Gift cards','Stock & sizes','Packaging','Checkout'); }
+  if(typeof V23_FIELDS!=='undefined'){ V23_FIELDS.length = 0; V23_FIELDS.push(['Hub',true],['Country',true],['Contact channel',true],['Contact reason',false],['Customer type (VIP)',false],['Language',false]); }
   if(typeof V23_HINTS!=='undefined'){ V23_HINTS.length = 0; V23_HINTS.push([/service|advisor|agent|reply|response/i,'Customer service'],[/follow/i,'Follow-up'],[/deliver|shipping|carrier|tracking/i,'Delivery'],
-    [/quality|fabric|product/i,'Product quality'],[/pric|expensive|cost/i,'Price'],[/gift/i,'Gifts'],[/size|stock|restock/i,'Stock & sizes'],[/refund|return|exchange|after.?sales/i,'After sales & refunds'],
+    [/quality|fabric|product/i,'Product quality'],[/pric|expensive|cost/i,'Price'],[/gift/i,'Gift cards'],[/size|stock|restock/i,'Stock & sizes'],[/refund|return|exchange|after.?sales/i,'Refunds'],[/packag|pouch|box/i,'Packaging'],
     [/checkout|payment|basket/i,'Checkout'],[/brand/i,'Brand'],[/new|first|emerging/i,'New issues first']); }
   if(typeof V23_STARTERS!=='undefined'){ V23_STARTERS.length = 0; V23_STARTERS.push('What our advisors control matters most to me','I don’t want price insights','Tell me about anything new first'); }
   if(typeof V3_STARTERS!=='undefined') V3_STARTERS.insights = ['Summarise this week’s insights','What needs my action today?','What are customers saying about delivery?'];
-  // dates: Sézane's data runs to the week of 28 Apr, so the feed's updates are in late April and May
-  const D = [['Sun 3 May 2026','Sun 3 May','28 Apr 2026'],['Sun 26 Apr 2026','Sun 26 Apr','21 Apr 2026'],['Sun 19 Apr 2026','Sun 19 Apr','14 Apr 2026'],['Sun 12 Apr 2026','Sun 12 Apr','7 Apr 2026'],['Sun 5 Apr 2026','Sun 5 Apr','31 Mar 2026']];
+  // dates: the feed is current, with weekly updates on Sundays
+  const D = [['Sun 22 Nov 2026','Sun 22 Nov','18 Nov 2026'],['Sun 15 Nov 2026','Sun 15 Nov','11 Nov 2026'],['Sun 8 Nov 2026','Sun 8 Nov','4 Nov 2026'],['Sun 1 Nov 2026','Sun 1 Nov','28 Oct 2026'],['Sun 25 Oct 2026','Sun 25 Oct','21 Oct 2026']];
   EDITIONS.forEach((e,i)=>{ if(D[i]){ e.date = D[i][0]; e.short = D[i][1]; e.cut = D[i][2]; } });
   const e27 = EDITIONS[0]; ['AL-03','AL-04'].forEach(id=>{ if(e27.ids.indexOf(id)<0) e27.ids.push(id); });
-  if(typeof V28_TODAY!=='undefined') V28_TODAY.setFullYear(2026, 4, 5);
+  if(typeof V28_TODAY!=='undefined') V28_TODAY.setFullYear(2026, 10, 24);
 }
 function szQuote(q){
   const [tone, theme, text, en] = q;
@@ -328,7 +348,7 @@ function szCards(){
   document.querySelectorAll('.insight-card[data-id], .fol-card, .shr-card').forEach(c=>{
     const id = c.dataset.id || c.dataset.folId || ((sharedWithMe.find(x=>x.id===c.dataset.shareCard)||{}).insightId); const s = SZ[id]; if(!s) return;
     if(c.dataset.priority!==s.prio) c.dataset.priority = s.prio;
-    if(c.dataset.survey && c.dataset.survey!=='store') c.dataset.survey = 'store';
+    if(c.dataset.survey!==(s.survey||'store')) c.dataset.survey = s.survey||'store';
     const set = (sel, v, html)=>{ c.querySelectorAll(sel).forEach(el=>{ if(html){ if(el.innerHTML!==v) el.innerHTML = v; } else if(el.textContent!==v) el.textContent = v; }); };
     set('[data-el="kind-text"]', s.type+' · '+s.topic);
     set('[data-el="title"], .ic-title', s.title);
@@ -345,7 +365,7 @@ const SZ_TEXT = [[/Store experience survey/g,SURVEY],[/Online experience survey/
   [/Store managers?/g,'CX manager'],[/store managers?/g,'CX manager'],[/Store Managers/g,'CX team'],[/Area Managers?/g,'Head of Customer Service'],[/Central Operations/g,'Operations'],
   [/next store review/g,'monthly report'],[/your store’s/g,'your'],[/your store's/g,'your'],[/your store/g,'your customers'],[/this store/g,'Sézane'],[/other stores/g,'other teams'],[/the store/g,'Sézane'],
   [/shoppers/g,'customers'],[/Shoppers/g,'Customers'],[/shopper/g,'customer'],[/#rt-atyaf-store/g,'#cx-sezane'],[/#store-ops/g,'#cx-sezane'],
-  [/Sun 27 Sep/g,'Sun 3 May'],[/Sun 20 Sep/g,'Sun 26 Apr'],[/Sun 13 Sep/g,'Sun 19 Apr'],[/Sun 6 Sep/g,'Sun 12 Apr'],[/Sun 30 Aug/g,'Sun 5 Apr'],[/Sun 4 Oct/g,'Sun 10 May'],[/\b27 Sep\b/g,'3 May'],[/\b20 Sep\b/g,'26 Apr'],[/\b13 Sep\b/g,'19 Apr'],[/\b1 surveys\b/g,'1 survey'],[/weekends are my busiest days/g,'follow-up is what I’m working on this month']];
+  [/Sun 27 Sep/g,'Sun 22 Nov'],[/Sun 20 Sep/g,'Sun 15 Nov'],[/Sun 13 Sep/g,'Sun 8 Nov'],[/Sun 6 Sep/g,'Sun 1 Nov'],[/Sun 30 Aug/g,'Sun 25 Oct'],[/Sun 4 Oct/g,'Sun 29 Nov'],[/\b27 Sep\b/g,'22 Nov'],[/\b20 Sep\b/g,'15 Nov'],[/\b13 Sep\b/g,'8 Nov'],[/\b1 surveys\b/g,'1 survey'],[/weekends are my busiest days/g,'follow-up is what I’m working on this month']];
 function szText(root){
   const w = document.createTreeWalker(root||document.body, NodeFilter.SHOW_TEXT, {acceptNode:n=>{ const p = n.parentElement; return p && !p.closest('script,style,textarea,input,#proto-notes') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; }});
   let n; while((n = w.nextNode())){ let t = n.nodeValue, o = t; if(!/[A-Za-z#]/.test(t)) continue; SZ_TEXT.forEach(([re,to])=>{ t = t.replace(re,to); }); if(t!==o) n.nodeValue = t; }
@@ -366,17 +386,17 @@ v6Shape = function(html, id){
 const _szPage = v3PageAnswer;
 v3PageAnswer = function(q){
   const s = String(q||'').toLowerCase();
-  if(/summar/.test(s)) return `<p>This week’s main points from the ${SURVEY}:</p><ul><li><b>NPS fell to 37.2 in the week of 21 Apr</b>, from 65.6, and partly recovered to 44.3. Responsiveness CSAT fell the same week.</li><li><b>A helpful reply drives NPS more than a fast one</b>: 61% against 39%.</li><li><b>Delivery (28), price (9.4) and gifts (2.0)</b> are the lowest-scoring themes.</li><li>Good news: <b>advisor attitude lifts NPS by 42 points</b>.</li></ul>`;
-  if(/action|today|need/.test(s)) return `<p>Two insights are within customer service’s control:</p><ul><li><b>Check the queue in the week of 21 Apr</b>, when NPS and Responsiveness CSAT both fell.</li><li><b>Review cases that needed a follow-up</b>: these customers rate speed 2.53 out of 4, against 3.52.</li></ul><p>Delivery, price and stock are for the voice-of-customer report.</p>`;
-  if(/deliver/.test(s)) return `<p>Customers who mention <b>delivery</b> give an NPS of <b>28</b>, against 62.6 overall, across 6.4K responses. They describe <b>delays, tracking problems</b> and <b>damaged or incomplete orders</b>. It is mostly outside customer service’s control, so the next step is to share it with logistics.</p>`;
+  if(/summar/.test(s)) return `<p>This week’s main points:</p><ul><li><b>NPS rose to 64.1</b> in November, from 61.0, led by HUB EU. <b>HUB US fell</b> to 53.8.</li><li><b>Delivery complaints from HUB US tripled</b> since 16 Nov, mostly naming Carrier A.</li><li><b>Helpfulness slipped</b> to 3.52 out of 4, lowest on email. It drives 61% of NPS.</li><li><b>Refund delays</b> are the top detractor complaint for the 8th week running.</li><li>Good news: <b>packaging complaints halved</b> since the new pouch.</li></ul>`;
+  if(/action|today|need/.test(s)) return `<p>Three things are in customer service’s hands:</p><ul><li><b>Give US advisors one answer for delayed parcels</b> while logistics checks Carrier A.</li><li><b>Review email replies rated 1 out of 4</b>: helpfulness is falling and drives 61% of NPS.</li><li><b>Write one gift card answer</b> before the holidays: those replies score 2.7 out of 4.</li></ul><p>Refunds, price, sizing and stock are for the voice-of-customer report.</p>`;
+  if(/deliver/.test(s)) return `<p>Delivery complaints from <b>HUB US tripled since 16 Nov</b>: 94 customers, 58 of them naming <b>Carrier A</b>, mostly about tracking that stopped updating. NPS in HUB US fell to 41.0 over the same days. In HUB EU, packaging complaints <b>halved</b> after the new pouch.</p>`;
   return _szPage.apply(this, arguments);
 };
 
 /* ── 6. About the data ── */
 function szNotes(){
   const n = document.getElementById('proto-notes'); if(!n || n.dataset.sz) return; n.dataset.sz = '1'; n.dataset.v10 = '1';
-  n.innerHTML = `<p><b>Sézane version.</b> Insight figures come from Sézane’s Sprinklr account: the ${SURVEY} (59.8K responses), the Overview and Metadata dashboards (NPS, weekly NPS and Responsiveness CSAT, NPS by comment theme, hub split) and the current AI insights on each question (drivers of NPS, advisor attitude, follow-up, detractor pain points). Quotes are real comments, shown without names.</p>
-    <p><b>Sample:</b> colleague names and share notes, the “Where it happened” breakdowns by hub and customer type (except the hub split on the NPS overview, which is real), and activity on insights. Weekly updates are dated to match the data, which runs to the week of 28 Apr.</p>`;
+  n.innerHTML = `<p><b>Sézane version.</b> Built on Sézane’s ${SURVEY}: its questions (NPS, helpfulness, speed of reply), comment themes, hubs and custom fields. Some figures are real: all-time NPS 62.6 across 59.8K responses, NPS by comment theme, the hub split, and the drivers of NPS (helpfulness 61%, speed 39%, advisor attitude 72 vs 30, follow-up 2.53 vs 3.52). Quotes in French and Dutch, and some English ones, are real comments without names.</p>
+    <p><b>Sample, to show the full experience:</b> changes over time and the dates they happened, segment breakdowns, carriers, product lines, colleagues, share notes and activity. React to the kind of insight, not the exact numbers.</p>`;
   const b = document.getElementById('proto-notes-btn'); if(b) b.textContent = 'ⓘ About the data · Sézane version';
 }
 
